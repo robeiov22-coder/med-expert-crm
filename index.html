@@ -5994,6 +5994,27 @@
       document.getElementById('service-picker-search')?.focus();
     }
 
+    function renderServicePicker() {
+      const list = document.getElementById('service-picker-list');
+      if (!list) return;
+      const query = (document.getElementById('service-picker-search')?.value || '').trim().toLowerCase();
+      const importedCodes = new Set(IMPORTED_ANALYSIS_PRICES.map(item => String(item.code)));
+      const allRows = getPriceTree();
+      const matches = row => !query || `${row.price.code} ${row.price.name} ${row.category || ''} ${row.parentName || ''}`.toLowerCase().includes(query);
+      const button = ({ price, depth = 0, parentName = '' }) => `<button type="button" onclick='chooseServiceFromPicker(${JSON.stringify(price.name)})' class="w-full min-w-0 max-w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-start justify-between gap-3 overflow-hidden" style="padding-left:${12 + depth * 18}px"><span class="min-w-0 max-w-full break-words" style="overflow-wrap:anywhere"><span class="block text-xs break-words ${depth ? 'text-slate-600' : 'font-bold text-slate-800'}">${depth ? '↳ ' : ''}${price.name}</span><span class="block text-[10px] text-slate-400 break-words" style="overflow-wrap:anywhere">Код: ${price.code}${parentName ? ` · підпослуга: ${parentName}` : ''}</span></span><span class="shrink-0 text-xs font-extrabold text-sky-700 whitespace-nowrap">${Number(price.price || 0).toFixed(2)} ₴</span></button>`;
+      const groups = allRows.filter(matches).reduce((map, row) => {
+        const key = importedCodes.has(String(row.price.code)) ? (row.category || 'Інші аналізи') : (row.category || 'Інші послуги');
+        (map[key] ||= []).push(row);
+        return map;
+      }, {});
+      const groupEntries = Object.entries(groups);
+      list.innerHTML = groupEntries.length ? groupEntries.map(([category, entries], index) => {
+        const isAnalysis = entries.some(row => importedCodes.has(String(row.price.code)));
+        const groupId = `service-picker-group-${index}`;
+        return `<details class="group border-b border-slate-100" ${query ? 'open' : ''}><summary class="cursor-pointer list-none px-3 py-2 bg-slate-50 hover:bg-sky-50 text-xs font-bold text-sky-800 flex items-center justify-between"><span>▸ ${isAnalysis ? category : category} <span class="text-[10px] text-slate-500">(${entries.length})</span></span><span class="text-[10px] text-slate-500">Натисніть для перегляду</span></summary><div id="${groupId}" class="divide-y divide-slate-100">${entries.map(button).join('')}</div></details>`;
+      }).join('') : '<div class="p-4 text-center text-slate-400 text-xs">Послуг за вашим запитом не знайдено</div>';
+    }
+
     function chooseServiceFromPicker(serviceName) {
       const select = document.getElementById('cr-service');
       if (!select) return;
