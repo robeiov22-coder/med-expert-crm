@@ -5991,17 +5991,16 @@
       const list = document.getElementById('service-picker-list');
       if (!list) return;
       const query = (document.getElementById('service-picker-search')?.value || '').trim().toLowerCase();
-      const rows = getPriceTree().filter(({ price, category }) => !query || `${price.code} ${price.name} ${category || ''}`.toLowerCase().includes(query));
-      const groups = rows.reduce((map, row) => { const key = row.category || 'Інші послуги'; (map[key] ||= []).push(row); return map; }, {});
-      list.innerHTML = Object.entries(groups).map(([category, entries]) => `
-        <div class="border border-slate-200 rounded-2xl overflow-hidden">
-          <div class="px-3 py-2 bg-slate-50 text-xs font-extrabold text-slate-700">${category}</div>
-          <div class="divide-y divide-slate-100">${entries.map(({ price, depth, parentName }) => `
-            <button type="button" onclick="chooseServiceFromPicker('${String(price.name).replace(/'/g, '&#39;')}')" class="w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-center justify-between gap-3" style="padding-left:${12 + depth * 18}px">
-              <span><span class="text-xs ${depth ? 'text-slate-600' : 'font-bold text-slate-800'}">${depth ? '↳ ' : ''}${price.name}</span><span class="block text-[10px] text-slate-400">Код: ${price.code}${parentName ? ` · підпослуга: ${parentName}` : ''}</span></span>
-              <span class="text-xs font-extrabold text-sky-700 whitespace-nowrap">${Number(price.price || 0).toFixed(2)} ₴</span>
-            </button>`).join('')}</div>
-        </div>`).join('') || '<div class="p-4 text-center text-slate-400 text-xs">Послуг за вашим запитом не знайдено</div>';
+      const importedCodes = new Set(IMPORTED_ANALYSIS_PRICES.map(item => String(item.code)));
+      const matches = row => !query || `${row.price.code} ${row.price.name} ${row.category || ''}`.toLowerCase().includes(query);
+      const allRows = getPriceTree();
+      const button = ({ price, depth = 0, parentName = '' }) => `<button type="button" onclick='chooseServiceFromPicker(${JSON.stringify(price.name)})' class="w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-center justify-between gap-3" style="padding-left:${12 + depth * 18}px"><span><span class="text-xs ${depth ? 'text-slate-600' : 'font-bold text-slate-800'}">${depth ? '↳ ' : ''}${price.name}</span><span class="block text-[10px] text-slate-400">Код: ${price.code}${parentName ? ` · підпослуга: ${parentName}` : ''}</span></span><span class="text-xs font-extrabold text-sky-700 whitespace-nowrap">${Number(price.price || 0).toFixed(2)} ₴</span></button>`;
+      const general = allRows.filter(row => !importedCodes.has(String(row.price.code)) && row.price.name.trim().toLowerCase() !== 'аналізи' && matches(row));
+      let html = general.map(button).join('');
+      const analysisRows = allRows.filter(row => importedCodes.has(String(row.price.code)) && matches(row));
+      const categories = analysisRows.reduce((map, row) => { const key = row.category || 'Інші аналізи'; (map[key] ||= []).push(row); return map; }, {});
+      if (analysisRows.length) html += `<div class="border border-sky-200 rounded-2xl overflow-hidden mt-2"><div class="px-3 py-2 bg-sky-50 text-sm font-extrabold text-sky-900">Аналізи</div><div class="divide-y divide-slate-100">${Object.entries(categories).map(([category, entries]) => `<details class="group"><summary class="cursor-pointer list-none px-3 py-2 bg-slate-50 hover:bg-sky-50 text-xs font-bold text-sky-800">▸ ${category} <span class="text-[10px] text-slate-500">(${entries.length})</span></summary><div class="divide-y divide-slate-100">${entries.map(button).join('')}</div></details>`).join('')}</div></div>`;
+      list.innerHTML = html || '<div class="p-4 text-center text-slate-400 text-xs">Послуг за вашим запитом не знайдено</div>';
     }
 
     function chooseServiceFromPicker(serviceName) {
