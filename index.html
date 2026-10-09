@@ -1095,6 +1095,3728 @@
         { id: 204, date: "2026-09-03", patient: "Ткаченко Юрій", testName: "Біохімія крові", doctor: "Ковальчук Олена Василівна", status: "В роботі", result: "Зразок передано в лабораторію" }
       ]
     };
+    const IMPORTED_ANALYSIS_PRICES = [
+  {
+    "code": "191",
+    "name": "ПЛР. Визначення РНК Коронавірусу SARS-CoV-2 (COVID-19) методом зворотньої транскрипції, ПЛР ТЕСТ",
+    "price": 500,
+    "cost": 340,
+    "category": "КОРОНАВІРУС SARS-CoV-2 COVID-19",
+    "parentCode": ""
+  },
+  {
+    "code": "192",
+    "name": "Коронавірус SARS-CoV-2 (COVID-19), антитіла IgМ",
+    "price": 300,
+    "cost": 140,
+    "category": "КОРОНАВІРУС SARS-CoV-2 COVID-19",
+    "parentCode": ""
+  },
+  {
+    "code": "193",
+    "name": "Коронавірус SARS-CoV-2 (COVID-19), антитіла IgG",
+    "price": 300,
+    "cost": 140,
+    "category": "КОРОНАВІРУС SARS-CoV-2 COVID-19",
+    "parentCode": ""
+  },
+  {
+    "code": "1044",
+    "name": "Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1045",
+    "name": "Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1041",
+    "name": "Білірубін фракційно (Bilirubin fractions, Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB))",
+    "price": 280,
+    "cost": 150,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1042",
+    "name": "Білірубін загальний (Bilirubin total, TBIL)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1043",
+    "name": "Білірубін прямий (Bilirubin direct, DBIL)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1063",
+    "name": "Глюкоза (Glucose, GLU)",
+    "price": 170,
+    "cost": 95,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1049",
+    "name": "Холестерин (Total Blood Cholesterol, ХС, CHOL)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10041",
+    "name": "Холестерин ліпопротеїдів високої щільності (High-density lipoprotein cholesterol, Хс.ЛПВЩ, HDL)",
+    "price": 150,
+    "cost": 95,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "101",
+    "name": "Холестерин ліпопротеїдів низької щільності (Low-density lipoprotein cholesterol, Хс.ЛПНЩ, LDL)",
+    "price": 150,
+    "cost": 95,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1050",
+    "name": "Тригліцериди (Triglyceride, ТГ, TG)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1055",
+    "name": "Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1062",
+    "name": "Альбумін (Albumin, ALB)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1056",
+    "name": "Панкреатична альфа-амілаза (Pancreatic alpha-amylase, α-амілаза, AMY)",
+    "price": 150,
+    "cost": 85,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1048",
+    "name": "Протеїн загальний, загальний білок (Total Protein, TP)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1046",
+    "name": "Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1058",
+    "name": "Лактатдегідрогеназа (Lactate dehydrogenase, ЛДГ, LDH)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1051",
+    "name": "Креатинін (Creatinine, CRE)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1052",
+    "name": "Сечовина (Urea nitrogen, Urea)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1054",
+    "name": "Сечова кислота (Uric acid, UA)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1053",
+    "name": "Азот сечовини (Blood Urea Nitrogen, BUN)",
+    "price": 150,
+    "cost": 75,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1047",
+    "name": "Тимолова проба (Thymol test)",
+    "price": 150,
+    "cost": 95,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1074",
+    "name": "Аполіпопротеїн-А (Apolipoprotein A, Апо-А, Apo-A)",
+    "price": 240,
+    "cost": 160,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1075",
+    "name": "Аполіпопротеїн-В (Apolipoprotein B, Апо-В, Apo-B)",
+    "price": 240,
+    "cost": 160,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1061",
+    "name": "Білкові фракції (Protein fractions, Альбуміни, Глобуліни, Альфа-1-глобуліни, Альфа-2-глобуліни, Бета-глобуліни, Гама-глобуліни, Коефіцієнт а/г)",
+    "price": 320,
+    "cost": 220,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1241",
+    "name": "Креатинфосфокіназа загальна (Creatine kinase, КФК, КК, CPK)",
+    "price": 180,
+    "cost": 110,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1080",
+    "name": "Ліпаза (Lipase, LPS)",
+    "price": 220,
+    "cost": 150,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2001",
+    "name": "Серомукоїди (Seromucoid)",
+    "price": 180,
+    "cost": 110,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2002",
+    "name": "Сіалові кислоти (Sialic acid)",
+    "price": 180,
+    "cost": 110,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2004",
+    "name": "Вальпроєва кислота (Valproic acid, VA, VAL)",
+    "price": 390,
+    "cost": 200,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1059",
+    "name": "Холінестераза (Plasma cholinesterase, BCHE, CHS)",
+    "price": 180,
+    "cost": 120,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1060",
+    "name": "Церулоплазмін (Ceruloplasmin, мідна оксидаза, CP)",
+    "price": 340,
+    "cost": 210,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1236",
+    "name": "Остеокальцин (Оsteocalcin, Ос, BGP)",
+    "price": 560,
+    "cost": 290,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10600",
+    "name": "Цистатин С (Cystatin C, CysC )",
+    "price": 570,
+    "cost": 400,
+    "category": "БІОХІМІЧНІ ДОСЛІДЖЕННЯ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "12302",
+    "name": "Тіамін (Вітамін В1, (Thiamine, TPP, B1))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12303",
+    "name": "Нікотинова кислота (Вітамін РР, Вітамін В3, (Niacinamide, Niacin, РР, B3))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12304",
+    "name": "Аскорбінова кислота (Вітамін С, (Ascorbic acid, Vit C))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12305",
+    "name": "Піридоксаль (Вітамін В6, (Pyridoxal (PL), B6))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12306",
+    "name": "Пантотенова кислота (Вітамін В5, (Pantothenic acid, B5))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12307",
+    "name": "Рибофлавін (Вітамін В2, (Riboflavin, B2))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12308",
+    "name": "Біотин (Вітамін В7, (Biotin, B7, Vit H))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12309",
+    "name": "Рутин (Вітамін Р, (Rutin, P))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12310",
+    "name": "Ретинол ( Вітамін А, (Retinol, Vit A))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12312",
+    "name": "Альфа-Токоферол (Вітамін Е, (α-Tocopherol, Vit E))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12313",
+    "name": "Фітоменадіон (Вітамін К1, (Phytomenadione, Vit K1))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12314",
+    "name": "Менахінон (Вітамін К2, (Menaquinone, K2))",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12315",
+    "name": "Вітамін С (Аскорбінова кислота, ((Ascorbic acid, Vit C)), сеча",
+    "price": 1150,
+    "cost": 800,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12361",
+    "name": "Вітамін D загальний (Vitamin D, 25-гідроксикальциферол, 25-ОН)",
+    "price": 570,
+    "cost": 400,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1198",
+    "name": "Ціанокобаламін (Cobalamin, вітамін В12, Vit B12)",
+    "price": 340,
+    "cost": 200,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1197",
+    "name": "Фолієва кислота (Folic acid, ФК, вітамін В9)",
+    "price": 340,
+    "cost": 220,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10771",
+    "name": "Електроліти (Electrolyte panel, K+, iCa2+, Na+,Cl-, рH крові)",
+    "price": 600,
+    "cost": 360,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1064",
+    "name": "Калій (Potassium, K)",
+    "price": 170,
+    "cost": 110,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1067",
+    "name": "Натрій (Sodium, Na)",
+    "price": 170,
+    "cost": 110,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1065",
+    "name": "Кальцій загальний (Calcium, Ca)",
+    "price": 170,
+    "cost": 110,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1066",
+    "name": "Кальцій іонізований (Calcium ionized, іCa2+)",
+    "price": 240,
+    "cost": 160,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10772",
+    "name": "рН крові (рН of blood)",
+    "price": 230,
+    "cost": 160,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1068",
+    "name": "Залізо (Serum iron, сироваткове залізо, Fe)",
+    "price": 170,
+    "cost": 110,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1073",
+    "name": "Цинк (Zinc, Zn)",
+    "price": 490,
+    "cost": 250,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1071",
+    "name": "Магній (Magnesium, Mg)",
+    "price": 170,
+    "cost": 110,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1072",
+    "name": "Мідь (Copper, Сu)",
+    "price": 310,
+    "cost": 200,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1070",
+    "name": "Фосфор (Phosphate, P)",
+    "price": 170,
+    "cost": 90,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1069",
+    "name": "Хлор (Chloride, Cl)",
+    "price": 170,
+    "cost": 90,
+    "category": "ВІТАМІНИ, МІКРОЕЛЕМЕНТИ, ЕЛЕКТРОЛІТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1195",
+    "name": "Феритин (Ferritin)",
+    "price": 350,
+    "cost": 210,
+    "category": "ДІАГНОСТИКА АНЕМІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1199",
+    "name": "Залізозв'язуюча здатність сироватки загальна (Total iron binding capacity, ЗЗСЗ, TIBC)",
+    "price": 280,
+    "cost": 150,
+    "category": "ДІАГНОСТИКА АНЕМІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1201",
+    "name": "Насичення трансферину залізом (НТЗ)",
+    "price": 320,
+    "cost": 190,
+    "category": "ДІАГНОСТИКА АНЕМІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1196",
+    "name": "Трансферин (Transferrin, Tf)",
+    "price": 270,
+    "cost": 160,
+    "category": "ДІАГНОСТИКА АНЕМІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11951",
+    "name": "Еритропоетин (EPO)",
+    "price": 520,
+    "cost": 270,
+    "category": "ДІАГНОСТИКА АНЕМІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1082",
+    "name": "Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC)",
+    "price": 250,
+    "cost": 160,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1081",
+    "name": "Загальний аналіз крові (апаратна методика з лейкоцитарною формулою, 22 показники) (ЗАК, CBC)",
+    "price": 230,
+    "cost": 140,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10822",
+    "name": "Аналіз крові на ретикулоцити з підрахунком ретикулоцитарного індексу (Reticulocytes, reticulocyte index, RTC)",
+    "price": 230,
+    "cost": 130,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1108",
+    "name": "Група крові + резус-фактор (ABO & Rh group, ABO+Rh Gp)",
+    "price": 320,
+    "cost": 220,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1083",
+    "name": "Швидкість осідання еритроцитів (Erythrocyte sedimentation rate, ШОЕ, ESR)",
+    "price": 100,
+    "cost": 70,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1106",
+    "name": "Гемолізини (Імунні антитіла до еритроцитів за системою АВО)",
+    "price": 560,
+    "cost": 330,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10391",
+    "name": "Імунні антитіла до еритроцитів за системою Резус",
+    "price": 500,
+    "cost": 330,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10392",
+    "name": "Непряма проба Кумбса (Indirect Coombs test)",
+    "price": 500,
+    "cost": 330,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10393",
+    "name": "Пряма проба Кумбса (Direct Coombs test) (гелевий метод)",
+    "price": 650,
+    "cost": 370,
+    "category": "ЗАГАЛЬНОКЛІНІЧНІ АНАЛІЗИ КРОВІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1085",
+    "name": "Аналіз сечі загальний (фізико-хімічні властивості, мікроскопія осаду) (Complete urinalysis, ЗАС)",
+    "price": 200,
+    "cost": 120,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2006",
+    "name": "Аналіз сечі за Зимницьким (Zimnitsky urine test)",
+    "price": 210,
+    "cost": 110,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1089",
+    "name": "Аналіз сечі за Нечипоренко (Nechiporenko urine test)",
+    "price": 190,
+    "cost": 110,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10881",
+    "name": "Аналіз сечі на білок (разова порція) (Urine protein)",
+    "price": 160,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1088",
+    "name": "Аналіз сечі на білок (добова порція) (Urine total protein, 24H urine protein)",
+    "price": 160,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1087",
+    "name": "Аналіз сечі на кетони (Ketones, KET Ur)",
+    "price": 160,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1086",
+    "name": "Аналіз сечі на цукор (добова порція) (Urine glucose, GLU 24H Ur)",
+    "price": 160,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1057",
+    "name": "Діастаза сечі (альфа-амілаза) (Urine pancreatic amylase, pAmy)",
+    "price": 170,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10573",
+    "name": "Кальцій в сечі (добова порція) (Urine calcium, Ca 24H Ur)",
+    "price": 160,
+    "cost": 90,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10571",
+    "name": "Креатинін в сечі (добова порція) (Urine creatinine, CRE 24H Ur)",
+    "price": 160,
+    "cost": 100,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "105711",
+    "name": "Креатинін в сечі (разова порція) (Urine creatinine)",
+    "price": 160,
+    "cost": 100,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1090",
+    "name": "Мікроальбумін (разова порція) (Microalbumin Ur)",
+    "price": 260,
+    "cost": 130,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10901",
+    "name": "Мікроальбумін (добова порція) (Microalbumin 24H Ur)",
+    "price": 260,
+    "cost": 130,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10541",
+    "name": "Сечова кислота в сечі (добова порція) (Urine uric acid, Uric acid 24H Ur)",
+    "price": 160,
+    "cost": 100,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "10572",
+    "name": "Сечовина в сечі (добова порція) (Urea nitrogen, UUN 24H Ur)",
+    "price": 160,
+    "cost": 100,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "25",
+    "name": "Йод в сечі (Iodine) напівкількісний",
+    "price": 370,
+    "cost": 260,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2007",
+    "name": "Аналіз сечі на визначення наркотичних речовин, 10 показників якісно (амфетамін, бупренорфін, кокаїн, марихуана, метадон, метамфетамін, метиленедиоксиметанмефетамін (екстазі), морфін, трамадол, синтетична марихуана (К2))",
+    "price": 930,
+    "cost": 650,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "2011",
+    "name": "Співвідношення мікроальбумін/креатинін сечі (Microalbumin-to-Creatinine Ratio, MCR)",
+    "price": 280,
+    "cost": 160,
+    "category": "АНАЛІЗИ СЕЧІ",
+    "parentCode": ""
+  },
+  {
+    "code": "1091",
+    "name": "Копрограма (аналіз калу загальний) (Koprogramma, Stool test)",
+    "price": 280,
+    "cost": 160,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "10931",
+    "name": "Аналіз калу на лямблії (мікроскопія) (G lamblia Stl)",
+    "price": 220,
+    "cost": 100,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "10932",
+    "name": "Аналіз калу на антиген лямблії (якісне дослідження)",
+    "price": 450,
+    "cost": 260,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "1093",
+    "name": "Аналіз калу на яйця гельмінтів (Helminth eggs, кал на я/г)",
+    "price": 240,
+    "cost": 120,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "2771",
+    "name": "Аналіз калу на трансферин та гемоглобін (якісне дослідження)",
+    "price": 320,
+    "cost": 220,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "1092",
+    "name": "Кал на приховану кров (Fecal occult blood test, FOBT)",
+    "price": 270,
+    "cost": 140,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "277",
+    "name": "Лактоферин (кал) якісне дослідження",
+    "price": 920,
+    "cost": 540,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "276",
+    "name": "Кальпротектин (кал) (Calprotectin, CALPRO) кількісне дослідження",
+    "price": 1120,
+    "cost": 780,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "278",
+    "name": "Гострі кишкові інфекції (Shigella, Escherichia coli (EIEC), Salmonella spp., Campylobacter spp., Adenovirus F, Rotavirus A, Astrovirus, Norovirus G2), якісне визначення ДНК методом ПЛР (кал)",
+    "price": 1570,
+    "cost": 1100,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "279",
+    "name": "Хелікобактер (Helicobacter pylori), якісне визначення ДНК методом ПЦР (кал)",
+    "price": 690,
+    "cost": 450,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "280",
+    "name": "Клостридія (Clostridium difficile), типування токсину А та В, якісне визначення ДНК методом ПЛР (кал)",
+    "price": 930,
+    "cost": 650,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "1095",
+    "name": "Панкреатична еластаза калу (Elastase 1, КЕ-1) кількісне дослідження",
+    "price": 980,
+    "cost": 650,
+    "category": "АНАЛІЗИ КАЛУ",
+    "parentCode": ""
+  },
+  {
+    "code": "1096",
+    "name": "Коагулограма (Coagulogram, Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR), Протромбіновий час (Prothrombin time, ПТЧ, PTT), Протромбіновий індекс (Prothrombin index, ПТІ, PI), Тромбіновий час за Квіком (Quick prothrombin test), Фібриноген (Fibrinogen), Тромбіновий час (Prothrombin time, ТЧ, TT), Активований частковий тромбопластиновий час (Activated partial thromboplastin time, АЧТЧ, аPTT).",
+    "price": 440,
+    "cost": 290,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1097",
+    "name": "Коагулограма часткова (Coagulogram, Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR), Протромбіновий час (Prothrombin time, ПТЧ, PTT), Протромбіновий індекс (Prothrombin index, ПТІ, PI), Тромбіновий час за Квіком (Quick prothrombin test)).",
+    "price": 320,
+    "cost": 190,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1103",
+    "name": "Активований частковий тромбопластиновий час (Activated partial thromboplastin time, АЧТЧ, аPTT)",
+    "price": 170,
+    "cost": 80,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1098",
+    "name": "Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR)",
+    "price": 170,
+    "cost": 80,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1100",
+    "name": "Протромбіновий індекс (Prothrombin index, ПТІ, PI)",
+    "price": 170,
+    "cost": 80,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1099",
+    "name": "Протромбіновий час (Prothrombin time, ПТЧ, PTT)",
+    "price": 170,
+    "cost": 80,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1101",
+    "name": "Тромбіновий час (Thrombin time, ТЧ, TT)",
+    "price": 170,
+    "cost": 80,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1102",
+    "name": "Фібриноген (Fibrinogen)",
+    "price": 190,
+    "cost": 110,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1104",
+    "name": "D-димер (D-dimer)",
+    "price": 290,
+    "cost": 200,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1105",
+    "name": "Вовчаковий антикоагулянт (Lupus anticoagulant, ВА, PTT-LA)",
+    "price": 510,
+    "cost": 300,
+    "category": "ЗГОРТАННЯ КРОВІ (ГЕМОСТАЗ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1119",
+    "name": "Антитіла до циклічного цитрулінового пептиду (Cyclic citrullinated peptide, Анти-ЦЦП, А-ССР)",
+    "price": 600,
+    "cost": 400,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1120",
+    "name": "Антитіла до цитрулінового віментину (Anti-modified citrullinated vimentin Ab, Анти-МЦВ, A-MCV)",
+    "price": 800,
+    "cost": 530,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1113",
+    "name": "Антистрептолізин-О (Antistreptolysin-O, АСЛ-О, ASO) (кількісне дослідження)",
+    "price": 180,
+    "cost": 125,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1117",
+    "name": "Ревматоїдний фактор (Rheumatoid factor, РФ, RF) (кількісне дослідження)",
+    "price": 180,
+    "cost": 125,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1115",
+    "name": "С-реактивний білок (C-reactive protein, С-РБ, CRP) (кількісне дослідження)",
+    "price": 180,
+    "cost": 125,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1244",
+    "name": "Гомоцистеїн (Homocysteine)",
+    "price": 570,
+    "cost": 295,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1240",
+    "name": "Тропонін І (Troponin I) (кількісне дослідження)",
+    "price": 340,
+    "cost": 240,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1255",
+    "name": "Прокальцитонін (Procalcitonin, PCT)",
+    "price": 1070,
+    "cost": 750,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1242",
+    "name": "Креатинкіназа МВ фракція (Creatine kinase-MB, КФК-МВ, CK-MB)",
+    "price": 350,
+    "cost": 240,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1243",
+    "name": "Натрiйуретичний гормон В-типу N-кiнцевого прогормону (NT-proBNP)",
+    "price": 1400,
+    "cost": 900,
+    "category": "КАРДІО-РЕВМАТОЇДНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1207",
+    "name": "Тиреотропний гормон (Thyrotropin, ТТГ, TSH)",
+    "price": 260,
+    "cost": 150,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1206",
+    "name": "Тироксин вільний (Thyroxine free, Т4віл., fТ4)",
+    "price": 260,
+    "cost": 150,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1205",
+    "name": "Тироксин загальний (Thyroxine total, Т4заг., tT4)",
+    "price": 260,
+    "cost": 150,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1209",
+    "name": "Трийодтиронін вільний (Triiodothyronine free, Т3віл., fТ3)",
+    "price": 260,
+    "cost": 150,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1208",
+    "name": "Трийодтиронін загальний (Triiodothyronine total, Т3заг., tT3)",
+    "price": 260,
+    "cost": 150,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1211",
+    "name": "Антитіла до тиреопероксидази (TPOAb, АТПО, Anti-TPO)",
+    "price": 320,
+    "cost": 195,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1210",
+    "name": "Антитіла до тиреоглобуліну (TgAb, АТГ, Аnti-ТG)",
+    "price": 320,
+    "cost": 195,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1213",
+    "name": "Антитіла до рецепторів тиреотропного гормону (TSHRAbs, АТ до р-ТТГ, Anti-TSH)",
+    "price": 570,
+    "cost": 400,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1212",
+    "name": "Тиреоглобулін (Thyroglobulin, ТГ, TG)",
+    "price": 370,
+    "cost": 260,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1235",
+    "name": "Паратгормон (Parathyrin intact, ПТГ, intact PTH)",
+    "price": 310,
+    "cost": 220,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1237",
+    "name": "Кальцитонін (Calcitonin, Ct)",
+    "price": 490,
+    "cost": 290,
+    "category": "ГОРМОНИ ЩИТОПОДІБНОЇ ЗАЛОЗИ (ТИРЕОЇДНА ПАНЕЛЬ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1220",
+    "name": "Прогестерон (Progesterone, P4, PRG)",
+    "price": 280,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1219",
+    "name": "Естрадіол (Estradiol, Е2)",
+    "price": 280,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1221",
+    "name": "Тестостерон загальний (Testosterone, Tc)",
+    "price": 280,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1222",
+    "name": "Тестостерон вільний (Testosterone Free)",
+    "price": 360,
+    "cost": 180,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1249",
+    "name": "Дегідроепіандростерон-сульфат (Dehydroepiandrosterone, ДГЕА-С, DHEA-S)",
+    "price": 350,
+    "cost": 180,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "12221",
+    "name": "Дигідротестостерон (Dihydrotestosterone, ДГТ, DHT)",
+    "price": 460,
+    "cost": 310,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1223",
+    "name": "Індекс вільного тестостерону (Free androgen index, Тестостерон загальний (Testosterone, Tc), Глобулін, що зв'язує статеві гормони (Sex hormone binding globulin, ГЗСГ, SHBG), FAI)",
+    "price": 560,
+    "cost": 330,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1248",
+    "name": "17-α-оксипрогестерон (17-Hydroxyprogesterone, 17-α-ОПГ, 17-OHP)",
+    "price": 400,
+    "cost": 280,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "12241",
+    "name": "Андростендіон (Androstenedione)",
+    "price": 440,
+    "cost": 295,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1227",
+    "name": "Антимюллерів гормон (Anti-mullerian hormone, АМГ, AMH)",
+    "price": 990,
+    "cost": 690,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1224",
+    "name": "Глобулін, що зв'язує статеві гормони (Sex hormone binding globulin, ГЗСГ, SHBG)",
+    "price": 340,
+    "cost": 190,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1217",
+    "name": "Лютеїнізуючий гормон (Luteinizing hormone, ЛГ, LH)",
+    "price": 300,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1216",
+    "name": "Фолікулостимулюючий гормон (Follitropin, ФСГ, FSH)",
+    "price": 300,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1218",
+    "name": "Пролактин (Prolactin, PRL)",
+    "price": 300,
+    "cost": 160,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "743",
+    "name": "Макропролактин (Macroprolactin) (пролактин базальний, мономерний пост-PEG, macroPRL)",
+    "price": 690,
+    "cost": 360,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1226",
+    "name": "Антиспермальні антитіла (сироватка) (Antispermal antibodies, ASAB)",
+    "price": 430,
+    "cost": 300,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1225",
+    "name": "Антиспермальні антитіла (сперма) (Antispermal antibodies, ASAB)",
+    "price": 430,
+    "cost": 300,
+    "category": "РЕПРОДУКТИВНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1215",
+    "name": "Хоріонічний гонадотропін (Choriogonadotropin, ХГЛ, β-ХГЛ, HCG, β-HCG)",
+    "price": 330,
+    "cost": 180,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1263",
+    "name": "Пренатальний скринінг (PRISCA) І-триместру вагітності (PAPP-A, β-ХГЛ)",
+    "price": 650,
+    "cost": 350,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1264",
+    "name": "Пренатальний скринінг (PRISCA) ІІ-триместру вагітності (ХГЛ, E3, AФП)",
+    "price": 730,
+    "cost": 420,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1260",
+    "name": "Альфа-фетопротеїн для вагітних (Alpha-1-Fetoprotein, АФП, AFP)",
+    "price": 340,
+    "cost": 180,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1259",
+    "name": "Білок асоційований з вагітністю (РАРР-А)",
+    "price": 320,
+    "cost": 220,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "12151",
+    "name": "Вільний бета хоріонічний гонадотропін (β-ХГЛвіл., fβ-HCG)",
+    "price": 330,
+    "cost": 170,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1258",
+    "name": "Естріол некон'югований (Estriol unconjugated, ЕЗ)",
+    "price": 280,
+    "cost": 150,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1262",
+    "name": "Плацентарний лактоген (Human placental lactogen, ПЛ, HPL)",
+    "price": 520,
+    "cost": 310,
+    "category": "ПРЕНАТАЛЬНА ДІАГНОСТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1275",
+    "name": "Раково-ембріональний антиген (Carcinoembryonic antigen, PEA, CEA)",
+    "price": 340,
+    "cost": 180,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1283",
+    "name": "Ранній онкомаркер яєчників (Human epididymis protein 4, НЕ-4)",
+    "price": 790,
+    "cost": 550,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1282",
+    "name": "Онкомаркер яєчників (Cancer antigen 125, СА-125)",
+    "price": 330,
+    "cost": 180,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1284",
+    "name": "Індекс ROMA (Risk of ovarian malignancy algorithm, СА-125, НЕ-4)",
+    "price": 970,
+    "cost": 680,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1276",
+    "name": "Простат-специфічний антиген загальний (PSA total, ПСА заг., tPSA)",
+    "price": 330,
+    "cost": 180,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1277",
+    "name": "Простат-специфічний антиген вільний (PSA free, ПСА віл., fPSA)",
+    "price": 330,
+    "cost": 180,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1278",
+    "name": "Індекс вільного ПСА (ПСА загальний, ПСА вільний, індекс)",
+    "price": 580,
+    "cost": 350,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1279",
+    "name": "Онкомаркер молочної залози (Cancer antigen 15-3, СА 15-3)",
+    "price": 350,
+    "cost": 200,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1280",
+    "name": "Онкомаркер підшлункової залози (Cancer antigen 19-9, СА-19-9)",
+    "price": 350,
+    "cost": 210,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1289",
+    "name": "Онкомаркер хоріонічний гонадотропін людини (Choriogonadotropin, ХГЛ, HCG)",
+    "price": 330,
+    "cost": 190,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1285",
+    "name": "Онкомаркер легень CYFRA (C-terminus of cytokeratin 19, CA 21-1)",
+    "price": 570,
+    "cost": 400,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12801",
+    "name": "Онкомаркер ШКТ (Cancer antigen 242, СA 242)",
+    "price": 570,
+    "cost": 400,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1281",
+    "name": "Онкомаркер шлунка (Cancer antigen 72-4, СА 72-4)",
+    "price": 570,
+    "cost": 400,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1274",
+    "name": "Альфа-фетопротеїн (Alpha-1-Fetoprotein, AФП, AFP)",
+    "price": 340,
+    "cost": 200,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1286",
+    "name": "Антиген плоскоклітинної карциноми (TA-4, SCCA)",
+    "price": 650,
+    "cost": 450,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1287",
+    "name": "Простатична кисла фосфатаза (Prostatic acid phosphatase, ПКФ, РАР)",
+    "price": 400,
+    "cost": 280,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "379",
+    "name": "Нейрон-специфічна енолаза (γ-enolase, НСЕ, NSE)",
+    "price": 650,
+    "cost": 450,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1290",
+    "name": "Бета-2-мікроглобулін (сировотка)",
+    "price": 340,
+    "cost": 200,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1291",
+    "name": "Бета-2-мікроглобулін (сеча)",
+    "price": 340,
+    "cost": 200,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1292",
+    "name": "Онкомаркер білок S-100",
+    "price": 1050,
+    "cost": 650,
+    "category": "ОНКОМАРКЕРИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1229",
+    "name": "Глікозильований гемоглобін HbA1c (Hemoglobin A1c)",
+    "price": 290,
+    "cost": 180,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1230",
+    "name": "Інсулін (Insulin)",
+    "price": 300,
+    "cost": 180,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1232",
+    "name": "Індекс НОМА-IR (Insulin resistanc, Глюкоза (Glucose, GLU), Інсулін (Insulin))",
+    "price": 430,
+    "cost": 250,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1231",
+    "name": "С-пептид (C peptide)",
+    "price": 320,
+    "cost": 200,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "12311",
+    "name": "Лактат (Lactate, молочна кислота)",
+    "price": 310,
+    "cost": 180,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "12301",
+    "name": "Лептин (Leptin)",
+    "price": 690,
+    "cost": 450,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1233",
+    "name": "Фруктозамін (Glycated Albumin, глікозильований альбумін)",
+    "price": 280,
+    "cost": 170,
+    "category": "ДІАБЕТИЧНА ПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1247",
+    "name": "Адренокортикотропний гормон (Corticotropin, АКТГ, ACTH)",
+    "price": 470,
+    "cost": 250,
+    "category": "ГІПОТАЛАМО-ГІПОФІЗАРНІ ПОКАЗНИКИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1253",
+    "name": "Соматомедин - С (інсуліноподібний фактор росту - I, ІФР, IGF-1)",
+    "price": 490,
+    "cost": 340,
+    "category": "ГІПОТАЛАМО-ГІПОФІЗАРНІ ПОКАЗНИКИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1252",
+    "name": "Соматотропний гормон (Somatotropin, СТГ, HGH)",
+    "price": 320,
+    "cost": 220,
+    "category": "ГІПОТАЛАМО-ГІПОФІЗАРНІ ПОКАЗНИКИ",
+    "parentCode": ""
+  },
+  {
+    "code": "12521",
+    "name": "Соматотропний гормон (Somatotropin, СТГ, HGH) (діти до 18 років)",
+    "price": 320,
+    "cost": 220,
+    "category": "ГІПОТАЛАМО-ГІПОФІЗАРНІ ПОКАЗНИКИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1246",
+    "name": "Кортизол (Cortisol) (сироватка)",
+    "price": 400,
+    "cost": 240,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "12461",
+    "name": "Кортизол (Cortisol) (добова сеча)",
+    "price": 430,
+    "cost": 300,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "12462",
+    "name": "Кортизол (Cortisol) (слина)",
+    "price": 520,
+    "cost": 360,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "2005",
+    "name": "Ренін активний (Renin)",
+    "price": 1290,
+    "cost": 900,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "2008",
+    "name": "Альдостерон (Aldosterone)",
+    "price": 570,
+    "cost": 400,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "2009",
+    "name": "Альдостерон-ренінове співвідношення (АРС)",
+    "price": 1860,
+    "cost": 1300,
+    "category": "ГОРМОНИ НАДНИРНИКІВ",
+    "parentCode": ""
+  },
+  {
+    "code": "1135",
+    "name": "Гепатит В (HBsAg), кількісне дослідження",
+    "price": 580,
+    "cost": 340,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1137",
+    "name": "Гепатит В (HBsAg) поверхневий антиген (австралійський антиген)",
+    "price": 420,
+    "cost": 250,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1138",
+    "name": "Гепатит В (anti-HBsAg), антитіла IgG",
+    "price": 440,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1139",
+    "name": "Гепатит В (HBeAg)",
+    "price": 460,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1140",
+    "name": "Гепатит В (anti-HBeAg), антитіла IgG",
+    "price": 440,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1141",
+    "name": "Гепатит В (Anti-HBcor), антитіла IgМ",
+    "price": 440,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1142",
+    "name": "Гепатит В (Anti-HBcor), антитіла IgG",
+    "price": 440,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "11421",
+    "name": "Гепатит В (Anti-HBcor), сумарні антитіла IgM, IgG",
+    "price": 460,
+    "cost": 240,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1318",
+    "name": "Гепатит В (HBV), якісне визначення вірусної ДНК методом ПЛР (плазма)",
+    "price": 860,
+    "cost": 600,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13181",
+    "name": "Гепатит В (HBV), кількісне визначення вірусної ДНК методом ПЛР (плазма)",
+    "price": 1230,
+    "cost": 860,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1145",
+    "name": "Гепатит С (HCV), сумарні антитіла IgM, IgG",
+    "price": 450,
+    "cost": 220,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1144",
+    "name": "Гепатит С (HCV), антитіла IgG",
+    "price": 370,
+    "cost": 210,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1143",
+    "name": "Гепатит С (HCV), антитіла IgМ",
+    "price": 370,
+    "cost": 210,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "11451",
+    "name": "Гепатит С (anti-HCV IgG coreAg, NS3, NS4, NS5), антитіла IgG",
+    "price": 750,
+    "cost": 450,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1319",
+    "name": "Гепатит С (HCV), якісне визначення вірусної РНК методом ПЛР (плазма)",
+    "price": 860,
+    "cost": 600,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13191",
+    "name": "Гепатит С (HCV), кількісне визначення вірусної РНК методом ПЛР (плазма)",
+    "price": 1400,
+    "cost": 930,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1320",
+    "name": "Гепатит С (HCV), генотипування РНК вірусу гепатиту С (1, 1b, 2, 3, 3a, 3b, 4, 5, 6) методом ПЛР (плазма)",
+    "price": 1500,
+    "cost": 1050,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1136",
+    "name": "Гепатит А (HAV), антитіла IgМ",
+    "price": 380,
+    "cost": 220,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "11361",
+    "name": "Гепатит А (HAV), антитіла IgG",
+    "price": 380,
+    "cost": 250,
+    "category": "ГЕПАТИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1181",
+    "name": "ВІЛ 1/2 (anti-HIV 1/2 Ab), сумарні антитіла IgA, IgM, IgG",
+    "price": 450,
+    "cost": 300,
+    "category": "ВІЛ",
+    "parentCode": ""
+  },
+  {
+    "code": "1160",
+    "name": "Сифіліс (Treponema pallidum), сумарні антитіла IgM, IgG",
+    "price": 440,
+    "cost": 220,
+    "category": "СИФІЛІС",
+    "parentCode": ""
+  },
+  {
+    "code": "1161",
+    "name": "Сифіліс (реагінові антитіла - RPR, мікрореакція преципітації)",
+    "price": 220,
+    "cost": 140,
+    "category": "СИФІЛІС",
+    "parentCode": ""
+  },
+  {
+    "code": "11611",
+    "name": "Кардіоліпінові антитіла VDRL (якісне визначення)",
+    "price": 200,
+    "cost": 130,
+    "category": "СИФІЛІС",
+    "parentCode": ""
+  },
+  {
+    "code": "1326",
+    "name": "Сифіліс (Treponema pallidum), якісне визначення бактеріальної ДНК методом ПЛР",
+    "price": 600,
+    "cost": 265,
+    "category": "СИФІЛІС",
+    "parentCode": ""
+  },
+  {
+    "code": "1159",
+    "name": "Сифіліс, Treponema pallidum, антитіла IgG (імуноблот)",
+    "price": 660,
+    "cost": 460,
+    "category": "СИФІЛІС",
+    "parentCode": ""
+  },
+  {
+    "code": "1149",
+    "name": "Хламідія трахоматіс (Chlamydia trachomatis), антитіла IgA",
+    "price": 360,
+    "cost": 200,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1150",
+    "name": "Хламідія трахоматіс (Chlamydia trachomatis), антитіла IgG",
+    "price": 360,
+    "cost": 200,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1148",
+    "name": "Хламідія трахоматіс (Chlamydia trachomatis), антитіла IgM",
+    "price": 360,
+    "cost": 200,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13271",
+    "name": "Хламідія трахоматіс (Chlamydia trachomatis), кількісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 480,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1327",
+    "name": "Хламідія трахоматіс (Chlamydia trachomatis), якісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 480,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1163",
+    "name": "Мікоплазма хомініс (Mycoplasma hominis), антитіла IgG",
+    "price": 340,
+    "cost": 200,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1164",
+    "name": "Мікоплазма хомініс (Mycoplasma hominis), антитіла IgA",
+    "price": 360,
+    "cost": 220,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13291",
+    "name": "Мікоплазма хомініс (Mycoplasma hominis), кількісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 260,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1329",
+    "name": "Мікоплазма хомініс (Mycoplasma hominis), якісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 260,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1332",
+    "name": "Мікоплазма геніталіум (Mycoplasma genitalium), якісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 260,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13321",
+    "name": "Мікоплазма геніталіум (Mycoplasma genitalium), кількісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 260,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1165",
+    "name": "Уреаплазма уреалітікум (Ureaplasma urealуticum), антитіла IgG",
+    "price": 340,
+    "cost": 190,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1147",
+    "name": "Уреаплазма уреалітікум (Ureaplasma urealуticum), антитіла IgА",
+    "price": 340,
+    "cost": 180,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1338",
+    "name": "Уреаплазма парвум і уреалітікум (Ureaplasma parvum і Ureaplasma urealyticum), кількісне визначення бактеріальної ДНК методом ПЛР. Диференціювання.",
+    "price": 440,
+    "cost": 270,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13381",
+    "name": "Уреаплазма парвум і уреалітікум (Ureaplasma parvum і Ureaplasma urealyticum), якісне визначення бактеріальної ДНК методом ПЛР. Диференціювання.",
+    "price": 440,
+    "cost": 270,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1166",
+    "name": "Трихомонада вагіналіс (Trichomonas vaginalis), антитіла IgG",
+    "price": 340,
+    "cost": 190,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13551",
+    "name": "Трихомонада вагіналіс (Trichomonas vaginalis), кількісне визначення ДНК збудника методом ПЛР (зішкріб, сеча)",
+    "price": 500,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1355",
+    "name": "Трихомонада вагіналіс (Trichomonas vaginalis), якісне визначення ДНК збудника методом ПЛР (зішкріб, сеча)",
+    "price": 500,
+    "cost": 250,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13581",
+    "name": "Кандіда альбіканс (Candida albicans), кількісне визначення грибкової ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1358",
+    "name": "Кандіда альбіканс (Candida albicans), якісне визначення грибкової ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13531",
+    "name": "Нейсерія гонорея (Neisseria gonorrhoeae), кількісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1353",
+    "name": "Нейсерія гонорея (Neisseria gonorrhoeae), якісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13571",
+    "name": "Гарднерела вагіналіс (Gardnerella vaginallis), кількісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1357",
+    "name": "Гарднерела вагіналіс (Gardnerella vaginallis), якісне визначення бактеріальної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 460,
+    "cost": 240,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1343",
+    "name": "Вірус папіломи людини (Human papilloma virus, ВПЛ, HPV) 16, 18 тип, кількісне визначення вірусної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 520,
+    "cost": 290,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13431",
+    "name": "Вірус папіломи людини (Human papilloma virus, ВПЛ, HPV) 16, 18 тип, якісне визначення вірусної ДНК методом ПЛР (зішкріб, сеча)",
+    "price": 520,
+    "cost": 290,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1341",
+    "name": "Вірус папіломи людини (Human papilloma virus, ВПЛ, HPV) 6, 11 тип, якісне визначення вірусної ДНК методом ПЛР. Скринінг (зішкріб, сеча)",
+    "price": 520,
+    "cost": 290,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13523",
+    "name": "Вірус папіломи людини (Human papilloma virus, ВПЛ, HPV) 28 типів (66, 45, 58, 51, 59, 16, 33, 39, 52, 35, 18, 56, 68, 31, 26, 69, 73, 42, 82, 53, 43, 54, 70, 61, 6, 44, 40, 11), якісне визначення вірусної ДНК методом ПЛР (зішкріб)",
+    "price": 1430,
+    "cost": 1000,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1351",
+    "name": "Вірус папіломи людини (Human papilloma virus, ВПЛ, HPV) 16, 18, 31, 33, 35, 39, 45, 51, 52, 56, 58, 59, 66, 68 типів, якісне визначення вірусної ДНК методом ПЛР. Генотипування за групами (зішкріб, сеча)",
+    "price": 1220,
+    "cost": 850,
+    "category": "СТАТЕВІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1155",
+    "name": "Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла IgG",
+    "price": 340,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1156",
+    "name": "Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла ІgМ",
+    "price": 340,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11551",
+    "name": "Вірус простого герпесу 1 тип (Herpes simplex virus, HSV), антитіла IgG",
+    "price": 360,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11552",
+    "name": "Вірус простого герпесу 1 тип (Herpes simplex virus, HSV), антитіла ІgМ",
+    "price": 360,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1167",
+    "name": "Вірус простого герпесу 2 тип (Herpes simplex virus, HSV), антитіла IgG",
+    "price": 360,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1168",
+    "name": "Вірус простого герпесу 2 тип (Herpes simplex virus, HSV), антитіла ІgМ",
+    "price": 360,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11555",
+    "name": "Вірус простого герпесу 2 тип (Herpes simplex virus, HSV), авідність антитіл IgG",
+    "price": 490,
+    "cost": 250,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1377",
+    "name": "Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), кількісне визначення вірусної ДНК методом ПЛР (кров, сеча, зішкріб, слина, ліквор)",
+    "price": 480,
+    "cost": 250,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1359",
+    "name": "Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), якісне визначення вірусної ДНК методом ПЛР (кров, зішкріб, сеча, слина, ліквор)",
+    "price": 480,
+    "cost": 250,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1187",
+    "name": "Вірус герпесу 3 тип (Varicella zoster virus, VZV), антитіла IgG",
+    "price": 340,
+    "cost": 210,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1188",
+    "name": "Вірус герпесу 3 тип (Varicella zoster virus, VZV), антитіла ІgM",
+    "price": 340,
+    "cost": 210,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11881",
+    "name": "Вірус герпесу 3 тип (Varicella zoster virus, VZV), якісне визначення вірусної ДНК методом ПЛР(кров, букальний зішкріб)",
+    "price": 800,
+    "cost": 500,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11561",
+    "name": "Вірус герпесу людини 6 тип (Herpes human virus, HHV), антитіла IgG",
+    "price": 340,
+    "cost": 210,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1364",
+    "name": "Вірус герпесу людини 6 тип (Herpes human virus, HHV), якісне визначення вірусної ДНК методом ПЛР (кров, ліквор, зішкріб)",
+    "price": 500,
+    "cost": 300,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "13641",
+    "name": "Вірус герпесу людини 6 тип (Herpes human virus, HHV), кількісне визначення вірусної ДНК методом ПЛР (кров, ліквор, зішкріб)",
+    "price": 500,
+    "cost": 300,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1153",
+    "name": "Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgG",
+    "price": 340,
+    "cost": 200,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1154",
+    "name": "Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgM",
+    "price": 340,
+    "cost": 200,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11541",
+    "name": "Цитомегаловірус (Cytomegalovirus, CMV), авідність антитіл IgG",
+    "price": 700,
+    "cost": 400,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1374",
+    "name": "Цитомегаловірус (Cytomegalovirus, CMV), кількісне визначення вірусної ДНК методом ПЛР (букальний зішкріб, сеча, слина, кров, зішкріб, ліквор)",
+    "price": 600,
+    "cost": 300,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1369",
+    "name": "Цитомегаловірус (Cytomegalovirus, CMV), якісне визначення вірусної ДНК методом ПЛР (букальний зішкріб, сеча, слина, кров, зішкріб, ліквор)",
+    "price": 600,
+    "cost": 270,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1151",
+    "name": "Токсоплазма (Toxoplasma gondii), антитіла IgG",
+    "price": 340,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1152",
+    "name": "Токсоплазма (Toxoplasma gondii), антитіла IgМ",
+    "price": 340,
+    "cost": 190,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1379",
+    "name": "Токсоплазма (Toxoplasma gondii), якісне визначення ДНК збудника методом ПЛР (кров)",
+    "price": 480,
+    "cost": 270,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11521",
+    "name": "Токсоплазма (Toxoplasma gondii), авідність антитіл IgG",
+    "price": 650,
+    "cost": 350,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1157",
+    "name": "Краснуха (Rubella virus, RUBV), антитіла IgG",
+    "price": 340,
+    "cost": 200,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1158",
+    "name": "Краснуха (Rubella virus, RUBV), антитіла IgМ",
+    "price": 340,
+    "cost": 200,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "11581",
+    "name": "Краснуха (Rubella virus, RUBV), авідність антитіл IgG",
+    "price": 560,
+    "cost": 330,
+    "category": "TORCH - інфекції",
+    "parentCode": ""
+  },
+  {
+    "code": "1094",
+    "name": "Ентеробіоз, зішкріб на яйця гостриків (Enterobiosis)",
+    "price": 230,
+    "cost": 140,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1179",
+    "name": "Аскарида (Ascaris lumbricoides), антитіла IgG",
+    "price": 570,
+    "cost": 270,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1178",
+    "name": "Ехінокок (Echinococcus granulosus), антитіла IgG",
+    "price": 460,
+    "cost": 210,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1173",
+    "name": "Лямблії (Giardia lamblia), сумарні антитіла IgА, IgM, IgG",
+    "price": 460,
+    "cost": 210,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1175",
+    "name": "Опісторхії (Opisthorchis felineus), антитіла IgG",
+    "price": 460,
+    "cost": 210,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1177",
+    "name": "Токсокара (Toxocara canis), антитіла IgG",
+    "price": 480,
+    "cost": 210,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1176",
+    "name": "Трихінели (Trichinella spiralis), антитіла IgG",
+    "price": 460,
+    "cost": 210,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1171",
+    "name": "Хелікобактер пілорі (Helicobacter pylori, HP), антиген в калі",
+    "price": 550,
+    "cost": 340,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "11702",
+    "name": "Хелікобактер пілорі (Helicobacter pylori, HP), антитіла lgG",
+    "price": 340,
+    "cost": 180,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "11701",
+    "name": "Хелікобактер пілорі (Helicobacter pylori, HP), антитіла lgM",
+    "price": 340,
+    "cost": 180,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1170",
+    "name": "Хелікобактер пілорі (Helicobacter pylori, HP), сумарні антитіла IgA, IgM, IgG",
+    "price": 340,
+    "cost": 180,
+    "category": "ГЕЛЬМІНТИ ТА ПАРАЗИТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1381",
+    "name": "Туберкульоз (Mycobacterium tuberculosis, MBT), якісне визначення бактеріальної ДНК методом ПЛР (мокротиння, сеча)",
+    "price": 800,
+    "cost": 450,
+    "category": "ТУБЕРКУЛЬОЗ",
+    "parentCode": ""
+  },
+  {
+    "code": "1191",
+    "name": "Борелія (Borrelia burgdorferi), антитіла IgM",
+    "price": 420,
+    "cost": 210,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1192",
+    "name": "Борелія (Borrelia burgdorferi), антитіла IgG",
+    "price": 420,
+    "cost": 210,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11911",
+    "name": "Бореліоз, Borrelia, антитіла IgМ - підтверджуючий тест (імуноблот)",
+    "price": 1200,
+    "cost": 840,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11922",
+    "name": "Бореліоз, Borrelia, антитіла IgG - підтверджуючий тест (імуноблот)",
+    "price": 1200,
+    "cost": 840,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1185",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), антитіла IgG до капсидного антигену VCA",
+    "price": 340,
+    "cost": 220,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1184",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), антитіла IgM до капсидного антигену VCA",
+    "price": 380,
+    "cost": 200,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1186",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), антитіла IgG до нуклерного (ядерного) антигену EBNA",
+    "price": 340,
+    "cost": 220,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11861",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), антитіла IgG до раннього антигену",
+    "price": 340,
+    "cost": 220,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11862",
+    "name": "Гетерофільні антитіла до Епштейна-Барр вірусу (Epstein Barr virus, EBV)",
+    "price": 460,
+    "cost": 290,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "11111",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), авідність антитіл IgG",
+    "price": 590,
+    "cost": 410,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1375",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), якісне визначення вірусної ДНК методом ПЛР (кров, ліквор, сеча, слина)",
+    "price": 490,
+    "cost": 260,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "13751",
+    "name": "Епштейна-Барр вірус (Epstein Barr virus, EBV), кількісне визначення вірусної ДНК методом ПЛР (кров, ліквор, сеча, слина)",
+    "price": 600,
+    "cost": 300,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "822",
+    "name": "Кір (Measles virus, MeV), антитіла IgG",
+    "price": 480,
+    "cost": 250,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "823",
+    "name": "Кір (Measles virus, MeV), антитіла IgМ",
+    "price": 510,
+    "cost": 310,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "524",
+    "name": "Кашлюк (Bordetella pertussis), антитіла IgG",
+    "price": 550,
+    "cost": 290,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "725",
+    "name": "Кашлюк (Bordetella pertussis), антитіла IgM",
+    "price": 550,
+    "cost": 290,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "835",
+    "name": "Кашлюк (Bordetella species, Bordetella pertussis, Bordetella bronchiseptica, Bordetella holmesii), якісне визначення вірусної ДНК методом ПЛР",
+    "price": 770,
+    "cost": 350,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "853",
+    "name": "Мікоплазма пневмонія (Мycoplasma pneumoniae), антитіла IgG",
+    "price": 380,
+    "cost": 250,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "840",
+    "name": "Мікоплазма пневмонія (Мycoplasma pneumoniae), антитіла IgM",
+    "price": 460,
+    "cost": 320,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "841",
+    "name": "Хламідія пневмонія (Chlamydia pneumoniae), антитіла IgG",
+    "price": 380,
+    "cost": 250,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "842",
+    "name": "Хламідія пневмонія (Chlamydia pneumoniae), антитіла IgM",
+    "price": 460,
+    "cost": 320,
+    "category": "ІНШІ ІНФЕКЦІЇ",
+    "parentCode": ""
+  },
+  {
+    "code": "1435",
+    "name": "ПЛР. Генетика. HLA-B27",
+    "price": 900,
+    "cost": 490,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1434",
+    "name": "ПЛР. Генетика. Непереносимість лактози",
+    "price": 930,
+    "cost": 650,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1433",
+    "name": "ПЛР. Генетика. Непереносимість глютену (HLA DQ2.2/DQ2.5/DQ8/DR4)",
+    "price": 1360,
+    "cost": 950,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1438",
+    "name": "Каріотипування",
+    "price": 4290,
+    "cost": 3000,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1432",
+    "name": "ПЛР. Генетичні поліморфізми, асоційовані з порушенням фолатного циклу",
+    "price": 1650,
+    "cost": 990,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1440",
+    "name": "Вітамін Д 3 , ген рецептора VDR",
+    "price": 2190,
+    "cost": 1530,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "14391",
+    "name": "FISH- аналіз лімфоцитів крові 1 хромосома",
+    "price": 9190,
+    "cost": 6426,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1441",
+    "name": "Ген Col1A1 (остеопороз)",
+    "price": 2300,
+    "cost": 1606.5,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1442",
+    "name": "Синдром Жильбера",
+    "price": 2700,
+    "cost": 1890,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1443",
+    "name": "Визначення мутацій BRCA1 BRCA2",
+    "price": 3720,
+    "cost": 2601,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1444",
+    "name": "Аналіз поліморфізму генів, асоційованих з ризиком розвитку тромбофілії",
+    "price": 3370,
+    "cost": 2356.2,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1934",
+    "name": "Каріотипування абортивного матеріалу FISH",
+    "price": 7880,
+    "cost": 5508,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1938",
+    "name": "Діагностика муковісцидозу. Визначення мутацій в гені CFTR (7 мутацій)",
+    "price": 4810,
+    "cost": 3366,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1939",
+    "name": "Визначення CGG-повторів в гені FMR1 (Синдром ламкої Х-хромосоми)",
+    "price": 9850,
+    "cost": 6885,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1940",
+    "name": "ДНК-діагностика спинальної м'язової атрофії (аналіз делецій гену SMN1) -СМА",
+    "price": 3390,
+    "cost": 2371.5,
+    "category": "ГЕНЕТИКА",
+    "parentCode": ""
+  },
+  {
+    "code": "1034",
+    "name": "Комплекс імунологічне обстеження (Імунограма): Імуноглобулін А\nІмуноглобулін М, Імуноглобулін G, Імуноглобулін Е. Базові субпопуляції лімфоцитів (Загальні Т-лімфоцити CD45+CD3+, Т-хелпери CD45+CD3+CD4+CD8-, Т-цитотоксичні лімфоцити CD45+CD3+CD4-CD8+, Співвідношення Тх/Тц, Дабл позитивні CD3+CD4+CD8+, Дабл негативні CD3+CD4-CD8-, NK-клітини CD3-CD16/CD56+, Активовані Т-клітини CD45+CD3+HLA-DR+, % активованих Т-хелперів (пізня активація) CD3+CD4+HLA-DR+, TNK-клітини (цитолітичні) CD45+CD3+CD16+CD56+, Загальні В-клітини CD45+CD3-CD19+)",
+    "price": 2930,
+    "cost": 2050,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1040",
+    "name": "Секреторний імуноглобулін А (слина)",
+    "price": 700,
+    "cost": 420,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1037",
+    "name": "Імуноглобулін А (IgA)",
+    "price": 270,
+    "cost": 180,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1038",
+    "name": "Імуноглобулін М (IgM)",
+    "price": 270,
+    "cost": 190,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1039",
+    "name": "Імуноглобулін G (IgG)",
+    "price": 270,
+    "cost": 190,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1437",
+    "name": "Інтерлейкін-6 (IL-6)",
+    "price": 1100,
+    "cost": 700,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1172",
+    "name": "Гліадин (Gliadin Ab), антитіла IgG",
+    "price": 570,
+    "cost": 360,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1339",
+    "name": "Аналіз крові на LE-клітини",
+    "price": 230,
+    "cost": 160,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1267",
+    "name": "Антимікросомальні антитіла (Antithyroid microsomal Ab, AMC)",
+    "price": 330,
+    "cost": 230,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1268",
+    "name": "Антимітохондріальні антитіла (Mitochondrial Ab, АMА-M2)",
+    "price": 670,
+    "cost": 420,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1269",
+    "name": "Антинуклеарні антитіла (Antinuclear Ab, АNА)",
+    "price": 600,
+    "cost": 370,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1417",
+    "name": "Антитіла IgМ до бета-2-глікопротеїну І",
+    "price": 500,
+    "cost": 320,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1416",
+    "name": "Антитіла IgG до бета-2-глікопротеїну І",
+    "price": 500,
+    "cost": 320,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1410",
+    "name": "Антитіла IgG до кардіоліпіну (АКЛ)",
+    "price": 500,
+    "cost": 320,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1411",
+    "name": "Антитіла IgМ до кардіоліпіну (АКЛ)",
+    "price": 500,
+    "cost": 320,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1415",
+    "name": "Антитіла до 2-спіральної ДНК (ADNA 2, Anti-dsDNA IgG)",
+    "price": 550,
+    "cost": 380,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1271",
+    "name": "Антитіла IgG до фосфоліпідів (APHL IgG)",
+    "price": 530,
+    "cost": 280,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1270",
+    "name": "Антитіла IgM до фосфоліпідів (APHL IgM)",
+    "price": 530,
+    "cost": 280,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1419",
+    "name": "Антитіла класу IgА до тканинної трансглютамінази (anti-tissue transglutaminase IgА, tTG)",
+    "price": 750,
+    "cost": 430,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1420",
+    "name": "Антитіла класу IgG до тканинної трансглютамінази (anti-tissue transglutaminase IgG, tTG)",
+    "price": 750,
+    "cost": 430,
+    "category": "ІМУННИЙ СТАТУС",
+    "parentCode": ""
+  },
+  {
+    "code": "1295",
+    "name": "Мікоплазма і уреаплазма DUO. Бакпосів урогенітального мазка з антибіотикограмою за 48 годин (Mycoplasma hominis, Ureaplasma urealyticum)",
+    "price": 790,
+    "cost": 550,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1296",
+    "name": "Генітальний скринінг AF Genital. Бакпосів урогенітального мазка за 48 годин (Mycoplasma hominis, Ureaplasma urealуticum+ антибіотикограма; визначення Escherichia coli, Proteus spp., Providencia spp., Pseudomonas spp., Gardnerella vaginalis, Staphylococcus aureus, Enterococcus faecalis, Neisseria gonorrhoeae, Streptococcus agalactiae, Candida spp., Trichomonas vaginalis без антибіотикограми.)",
+    "price": 860,
+    "cost": 600,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1307",
+    "name": "Бактеріологічне дослідження матеріалу з вуха + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1305",
+    "name": "Бактеріологічне дослідження матеріалу з зіву + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1306",
+    "name": "Бактеріологічне дослідження матеріалу з носа + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1304",
+    "name": "Бактеріологічне дослідження матеріалу з ока + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1302",
+    "name": "Бактеріологічне дослідження сечі + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1301",
+    "name": "Бактеріологічне дослідження урогенітальних виділень + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1300",
+    "name": "Бактеріологічне дослідження секрету передміхурової залози + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1311",
+    "name": "Бактеріологічне дослідження калу на дисбактеріоз + антибіотикограма",
+    "price": 600,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1316",
+    "name": "Розширене мікробіологічне дослідження калу на дизгрупу, патогенна мікрофлора кишкової групи інфекцій + антибіотикограма",
+    "price": 570,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1313",
+    "name": "Бактеріологічне дослідження на грибкову флору + чутливість до противогрибкових препаратів",
+    "price": 760,
+    "cost": 530,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1315",
+    "name": "Бактеріологічне дослідження на носійство стафілококу + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1310",
+    "name": "Бактеріологічне дослідження крові на стерильність + антибіотикограма",
+    "price": 1270,
+    "cost": 890,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1308",
+    "name": "Бактеріологічне дослідження харкотиння + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13011",
+    "name": "Бактеріологічне дослідження бронхоальвеолярного змиву + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1309",
+    "name": "Бактеріологічне дослідження жовчі (1 порція) + антибіотикограма",
+    "price": 580,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1303",
+    "name": "Бактеріологічне дослідження із рани + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13013",
+    "name": "Бактеріологічне дослідження еякуляту + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13014",
+    "name": "Бактеріологічне дослідження грудного молока + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13015",
+    "name": "Бактеріологічне дослідження із закритих порожнин (за виключенням анаеробів) + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13016",
+    "name": "Бактеріологічне дослідження на Streptococcus agalactiae (стрептокок групи В) + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13017",
+    "name": "Бактеріологічне дослідження на Streptococcus pyogenes (стрептокок групи А) + антибіотикограма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "13018",
+    "name": "Бактеріологічне дослідження нігтів та шкіри на умовно-патогенну мікрофлору + антибіотикограмма",
+    "price": 560,
+    "cost": 390,
+    "category": "БАКТЕРІОЛОГІЧНІ ДОСІЛДЖЕННЯ (БАК.ПОСІВИ)",
+    "parentCode": ""
+  },
+  {
+    "code": "1133",
+    "name": "Аналіз біоматеріалу на демодекс (Demodex) (вії, зішкріб шкіри, волосся, брови)",
+    "price": 280,
+    "cost": 130,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1124",
+    "name": "Мікроскопія біоматеріалу (волосся, нігті, зішкріб шкіри) на патогенні гриби (на склі)",
+    "price": 280,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1129",
+    "name": "Риноцитограма (назоцитограма)",
+    "price": 260,
+    "cost": 120,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1123",
+    "name": "Мікроскопія урогенітального мазка (жінки) - Uretra, vagina, cervix",
+    "price": 240,
+    "cost": 120,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "11231",
+    "name": "Бактеріоскопічне дослідження виділень статевих органів",
+    "price": 240,
+    "cost": 120,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "11232",
+    "name": "Мікроскопія вагінальних виділень за критеріями Хей-Айсон",
+    "price": 280,
+    "cost": 195,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "11261",
+    "name": "Цитоморфологічне дослідження виділень з молочної залози",
+    "price": 280,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1128",
+    "name": "ПАП-тест (PAP-тест) (цитоморфологічне дослідження епітелію ектоцервікса та ендоцервікса)",
+    "price": 280,
+    "cost": 195,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "850",
+    "name": "Рідинна цитологія (ПАП-тест, PAP-тест)",
+    "price": 590,
+    "cost": 410,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "851",
+    "name": "Анальний ПАП-тест методом рідинної цитології",
+    "price": 720,
+    "cost": 500,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1122",
+    "name": "Мікроскопія урогенітального мазка (чоловіки)",
+    "price": 220,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "800",
+    "name": "Мікроскопічне дослідження еякуляту (сперми)",
+    "price": 220,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "801",
+    "name": "Бактеріоскопічне дослідження еякуляту (сперми)",
+    "price": 220,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1125",
+    "name": "Мікроскопічне дослідження секрету передміхурової залози",
+    "price": 220,
+    "cost": 140,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1127",
+    "name": "Цитоморфологічне дослідження біологічного матеріалу",
+    "price": 350,
+    "cost": 240,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "11277",
+    "name": "Загальний аналіз мокротиння (фізико-хімічні властивості, мікроскопія нативного препарату)",
+    "price": 310,
+    "cost": 220,
+    "category": "ЦИТОЛОГІЧНІ ДОСЛІДЖЕННЯ",
+    "parentCode": ""
+  },
+  {
+    "code": "1036",
+    "name": "Імуноглобулін Е (IgE) маркер алергії",
+    "price": 320,
+    "cost": 200,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "103611",
+    "name": "Еозинофільний катіонний білок (ЕКБ, ECP)",
+    "price": 490,
+    "cost": 340,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "7005",
+    "name": "ПАНЕЛЬ №1. РІЗНІ АЛЕРГЕНИ (кліщ Der. pteronyssinus, Der. farinаe, пилок вільхи, пилок берези, пилок ліщини, суміш пилку бур'янів, пилок жита, пилок полину, пилок подорожника, пилок тимофіївки, шерсть кішки, шерсть коня, шерсть собаки, Alternaria alternatа, білок яйця, молоко, арахіс, лісовий горіх, морква, пшеничне борошно, соя).",
+    "price": 1790,
+    "cost": 1250,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "7006",
+    "name": "ПАНЕЛЬ №2. ІНГАЛЯЦІЙНА ПАНЕЛЬ (кліщ Der. pteronyssinus, Der. farinаe, пилок вільхи, пилок берези, пилок ліщини, пилок дуба, суміш пилку бур'янів, пилок жита, пилок полину, пилок подорожника, епітелій та шерсть кішки, епітелій та шерсть коня, епітелій та шерсть собаки, морська свинка, хом'як, пір'я хвилястого папуги, Pen. notatum, Cladosp. herbarum, Asp. fumigatus, Alternaria alternata)",
+    "price": 1790,
+    "cost": 1250,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "7007",
+    "name": "ПАНЕЛЬ №3. ХАРЧОВІ АЛЕРГЕНИ (лісовий горіх, арахіс, волоський горіх, мигдаль, молоко, білок курячого яйця, жовток курячого яйця, казеїн, картопля, глютен, морква, помідори, тріска, краб, апельсин, яблуко, пшеничне борошно, житнє борошно, мед, соя)",
+    "price": 1790,
+    "cost": 1250,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "7008",
+    "name": "ПАНЕЛЬ №4. ПЕДІАТРИЧНА (кліщ Der. pteronyssinus, Der. farinаe, пилок берези, суміш та пилок лугових трав, епітелій та шерсть кішки, епітелій та шерсть собаки, Alternaria alternate, молоко коров'яче, a-Lactoalbumin, β-Lactoglobulin, казеїн, білок яйця, жовток яйця, отрута оси, соя, морква, картопля, пшеничне борошно, лісовий горіх, арахіс)",
+    "price": 1790,
+    "cost": 1250,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8037",
+    "name": "Антитіла IgE до суміші пліснявих грибів (Penicillium notatum , Cladosporium herbarum , Aspergillus fumigatus , Mucor racemosus , Candida albicans , Alternaria alternate)",
+    "price": 450,
+    "cost": 260,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8038",
+    "name": "Алергологічна діагностика чутливості до анестетиків (артикаїн ( ультракаїн, убістезін, астракаїн)),\nлідокаїн, бупивакаїн, мепівакаїн, (прокаїн (новокаїн)), IgE",
+    "price": 2570,
+    "cost": 1800,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "80381",
+    "name": "Специфічні IgE до анестетика Артикаїн ( ультракаїн, убістезін, астракаїн)",
+    "price": 570,
+    "cost": 400,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "80382",
+    "name": "Специфічні IgE до анестетика Лідокаїн",
+    "price": 570,
+    "cost": 400,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "80383",
+    "name": "Специфічні IgE до анестетика Бупивакаїн",
+    "price": 570,
+    "cost": 400,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "80384",
+    "name": "Специфічні IgE до анестетика Мепівакаїн",
+    "price": 570,
+    "cost": 400,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "80385",
+    "name": "Специфічні IgE до анестетика Прокаїн (новокаїн)",
+    "price": 570,
+    "cost": 400,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8036",
+    "name": "Антитіла IgE до алергенів Penicillium notatum",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8040",
+    "name": "Антитіла IgE до алергенів амброзії",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8041",
+    "name": "Антитіла IgE до алергенів кульбаби",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8039",
+    "name": "Антитіла IgE до алергенів тополі",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8035",
+    "name": "Антитіла IgE до кліщів Dermatophagoides farinae",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8034",
+    "name": "Антитіла IgE до кліщів Dermatophagoides pteronyssinus",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "604",
+    "name": "Антитіла IgE до алергенів домашнього пилу",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8045",
+    "name": "Антитіла IgE до глютену",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8046",
+    "name": "Антитіла IgE до казеїну",
+    "price": 340,
+    "cost": 240,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "8033",
+    "name": "Специфічні IgE до латексу (k82)",
+    "price": 390,
+    "cost": 270,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "7009",
+    "name": "Алергопанель \"Пилок бур'янів\" 6 алергенів (специфічні IgE амброзія, специфічні IgE полин, специфічні IgE кульбаба, специфічні IgE золотарник, специфічні IgE подорожник ланцетолистний, специфічні IgE лобода)",
+    "price": 800,
+    "cost": 500,
+    "category": "АЛЕРГОПАНЕЛЬ",
+    "parentCode": ""
+  },
+  {
+    "code": "1005",
+    "name": "Пакет аналізів: \"Біохімія базова\" (Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Глюкоза (Glucose, GLU), Протеїн загальний, загальний білок (Total Protein, TP), (Холестерин (Total Blood Cholesterol, ХС, CHOL))",
+    "price": 1000,
+    "cost": 620,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1001",
+    "name": "Пакет аналізів: \"Біохімічний скринінг\" (Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT), Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP), Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Протеїн загальний, загальний білок (Total Protein, TP), Панкреатична альфа-амілаза (Pancreatic alpha-amylase, AMY), Лактатдегідрогеназа (Lactate dehydrogenase, ЛДГ, LDH), Сечова кислота (Uric acid, UA), Альбумін (Albumin, ALB), Глюкоза (Glucose, GLU))",
+    "price": 1500,
+    "cost": 1050,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1002",
+    "name": "Пакет аналізів: \"Печінкові проби\" (Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT), Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP), Протеїн загальний, загальний білок (Total Protein, TP), Лактатдегідрогеназа (Lactate dehydrogenase, ЛДГ, LDH))",
+    "price": 850,
+    "cost": 570,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1003",
+    "name": "Пакет аналізів: \"Ниркові проби\" (Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Сечова кислота (Uric acid, UA), Протеїн загальний, загальний білок (Total Protein, TP), Альбумін (Albumin, ALB))",
+    "price": 550,
+    "cost": 360,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1004",
+    "name": "Пакет аналізів: \"Ліпідограма\" (Холестерин (Total Blood Cholesterol, ХС, CHOL), Тригліцериди (Triglyceride, ТГ, TG), Холестерин ліпопротеїдів високої щільності (High-density lipoprotein cholesterol, Хс.ЛПВЩ, HDL), Холестерин ліпопротеїдів низької щільності (Low-density lipoprotein cholesterol, Хс.ЛПНЩ, LDL), Холестерин ліпопротеїдів дуже низької щільності (Very Low Density Lipoprotein, Хс.ЛПДНЩ, VLDL), Холестерин не-ліпопротеїдів високої щільності (Non-high-density lipoprotein cholesterol, Хс.не-ЛПВЩ, Non–HDL-C), Індекс атерогенності (ІА, АІР))",
+    "price": 550,
+    "cost": 350,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1006",
+    "name": "Пакет аналізів: \"4 обов'язкових аналізи\" (ВІЛ 1/2 (anti-HIV 1/2 Ab), сумарні антитіла IgA, IgM, IgG, Гепатит С (HCV), сумарні антитіла IgM, IgG, Гепатит В (HbsAg) поверхневий антиген (австралійський антиген), Сифіліс (Treponema pallidum), сумарні антитіла IgM, IgG)",
+    "price": 1050,
+    "cost": 620,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10051",
+    "name": "Пакет аналізів: \"Гормони щитоподібної залози №1\" (Тироксин вільний (Thyroxine free, Т4віл., fT4), Трийодтиронін вільний (Triiodothyronine free, Т3віл., fT3), Антитіла до тиреопероксидази (TPOAb, АТПО, Аnti-ТPО), Тиреотропний гормон (Thyrotropin, ТТГ, TSH))",
+    "price": 890,
+    "cost": 570,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10052",
+    "name": "Пакет аналізів: \"Гормони щитоподібної залози №2\" (Тироксин вільний (Thyroxine free, Т4віл., fT4), Трийодтиронін вільний (Triiodothyronine free, Т3віл., fT3), Тиреотропний гормон (Thyrotropin, ТТГ, TSH))",
+    "price": 670,
+    "cost": 400,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10053",
+    "name": "Пакет аналізів: \"Гормони щитоподібної залози №3\" (Тироксин вільний (Thyroxine free, Т4віл., fT4), Антитіла до тиреопероксидази (TPOAb, АТПО, Аnti-ТPО), Тиреотропний гормон (Thyrotropin, ТТГ, TSH))",
+    "price": 720,
+    "cost": 430,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10054",
+    "name": "Пакет аналізів: \"Гормони щитоподібної залози №4\" (Тироксин вільний (Thyroxine free, Т4віл., fT4), Тиреотропний гормон (Thyrotropin, ТТГ, TSH))",
+    "price": 480,
+    "cost": 270,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10055",
+    "name": "Пакет аналізів: \"Гормони щитоподібної залози №5\" (Тироксин вільний (Thyroxine free, Т4віл., fT4), Трийодтиронін вільний (Triiodothyronine free, Т3віл., fT3), Антитіла до тиреопероксидази (TPOAb, АТПО, Аnti-ТPО), Тиреотропний гормон (Thyrotropin, ТТГ, TSH), Антитіла до тиреоглобуліну (TgAb, АТГ, Anti-TG))",
+    "price": 1250,
+    "cost": 740,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10056",
+    "name": "Пакет аналізів: \"Діагностика новоутворень щитоподібної залози\" (Антитіла до тиреопероксидази (TPOAb, АТПО, Аnti-TPO), Антитіла до тиреоглобуліну (TgAb, АТГ, Аnti-TG), Тиреоглобулін (Thyroglobulin, ТГ, TG), Тиреотропний гормон (Thyrotropin, ТТГ, TSH), Раково-ембріональний антиген (Carcinoembryonic Ag, РЕА, CEA))",
+    "price": 1250,
+    "cost": 800,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "101223",
+    "name": "Пакет аналізів: \"Репродуктивна панель\" (Тестостерон загальний (Testosterone, Tc), Фолікулостимулюючий гормон (Follitropin, ФСГ, FSH), Лютеїнізуючий гормон (Luteinizing hormone, ЛГ, LH), Пролактин (Prolactin, PRL))",
+    "price": 850,
+    "cost": 520,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10123",
+    "name": "Пакет аналізів: \"Жіноче гормональне здоров'я (1 фаза МЦ)\" (Фолікулостимулюючий гормон (Follitropin, ФСГ, FSH), Лютеїнізуючий гормон (Luteinizing hormone, ЛГ), Пролактин (Prolactin, PRL), Естрадіол (Estradiol, Е2), Тестостерон загальний (Testosterone, Tc))",
+    "price": 1200,
+    "cost": 840,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10124",
+    "name": "Пакет аналізів: \"Жіноче гормональне здоров'я (2 фаза МЦ)\" (Фолікулостимулюючий гормон (Follitropin, ФСГ, FSH), Лютеїнізуючий гормон (Luteinizing hormone, ЛГ), Пролактин (Prolactin, PRL), Прогестерон (Progesterone, P4, PRG))",
+    "price": 1050,
+    "cost": 660,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10126",
+    "name": "Пакет аналізів: \"Діагностика анемій базова\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Феритин (Ferritin), Залізо (Serum iron, сироваткове залізо, Fe), Ціанокобаламін (Cobalamin, вітамін В12, Vit B12))",
+    "price": 1020,
+    "cost": 710,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10127",
+    "name": "Пакет аналізів: \"Діагностика анемій розширена\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Феритин (Ferritin), Залізо (Serum iron, сироваткове залізо, Fe), Насичення трансферину залізом (НТЗ), Залізозв'язуюча здатність сироватки загальна (Total iron binding capacity, ЗЗСЗ, TIBC), Ціанокобаламін (Cobalamin, вітамін В12, Vit B12), Фолієва кислота (Folic acid, ФК, вітамін В9))",
+    "price": 1650,
+    "cost": 1000,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1013",
+    "name": "Пакет аналізів: \"Передопераційний\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Аналіз сечі загальний (фізико-хімічні властивості, мікроскопія осаду сечі) (Complete urinalysis, ЗАС), Білірубін загальний (Bilirubin total, TBIL), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Протеїн загальний, загальний білок (Total Protein, TP), Глюкоза (Glucose, GLU), Коагулограма (Coagulogram, Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR), Протромбіновий час (Prothrombin time, ПТЧ, PTT), Протромбіновий індекс (Prothrombin index, ПТІ, PI), Тромбіновий час за Квіком (Quick prothrombin test), Фібриноген (Fibrinogen), Тромбіновий час (Thrombin time, ТЧ, TT), Активований частковий тромбопластиновий час (Activated partial thromboplastin time, АЧТЧ, аPTT)), Група крові + резус фактор (ABO & Rh group, ABO+Rh Gp), ВІЛ 1/2 (anti-HIV 1/2 Ab), сумарні антитіла IgA, IgM, IgG, Гепатит С (HCV), сумарні антитіла IgM, IgG, Гепатит В (HBsAg) поверхневий антиген (австралійський антиген), Сифіліс (Treponema pallidum), сумарні антитіла IgM, IgG)",
+    "price": 2850,
+    "cost": 1700,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1008",
+    "name": "Пакет аналізів: \"TORCH IgG, IgM (8 показників)\" (Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgM, Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла ІgМ, Токсоплазма (Toxoplasma gondii), антитіла IgМ, Краснуха (Rubella virus, RUBV), антитіла IgМ, Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgG, Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла IgG, Токсоплазма (Toxoplasma gondii), антитіла IgG, Краснуха (Rubella virus, RUBV), антитіла IgG)",
+    "price": 2280,
+    "cost": 1590,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1009",
+    "name": "Пакет аналізів: \"TORCH IgG (4 показники)\" (Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgG, Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла IgG, Токсоплазма (Toxoplasma gondii), антитіла IgG, Краснуха (Rubella virus, RUBV), антитіла IgG)",
+    "price": 1200,
+    "cost": 780,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1010",
+    "name": "Пакет аналізів: \"TORCH IgM (4 показники)\" (Цитомегаловірус (Cytomegalovirus, CMV), антитіла IgM, Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла ІgМ, Токсоплазма (Toxoplasma gondii), антитіла IgМ, Краснуха (Rubella virus, RUBV), антитіла IgМ)",
+    "price": 1200,
+    "cost": 780,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1015",
+    "name": "Пакет аналізів: \"Діагностика гельмінтозів №1\" (Лямблії (Giardia lamblia), сумарні антитіла IgА, IgM, IgG, Опісторхії (Opisthorchis felineus), антитіла IgG, Трихінели (Trichinella spiralis), антитіла IgG, Токсокара (Toxocara canis), антитіла IgG, Ехінокок (Echinococcus granulosus), антитіла IgG, Аскарида (Ascaris lumbricoides), антитіла IgG)",
+    "price": 2300,
+    "cost": 1300,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1016",
+    "name": "Пакет аналізів: \"Діагностика гельмінтозів №2\" (Лямблії (Giardia lamblia), сумарні антитіла IgА, IgM, IgG, Аскарида (Ascaris lumbricoides), антитіла IgG)",
+    "price": 800,
+    "cost": 480,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1022",
+    "name": "Пакет аналізів: \"Здоров'я дитини\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Аналіз сечі загальний (фізико-хімічні властивості, мікроскопія осаду) (Complete urinalysis, ЗАС), Глюкоза (Glucose, GLU), Лямблії (Giardia lamblia), сумарні антитіла IgА, IgM, IgG, Аскарида (Ascaris lumbricoides), антитіла IgG, Ентеробіоз, зішкріб на яйця гостриків (Enterobiosis), Імуноглобулін Е (IgE) маркер алергії)",
+    "price": 1500,
+    "cost": 900,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1025",
+    "name": "Пакет аналізів: \"Здоров'я нирок\" (Пакет \"Ниркові проби\" (Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Сечова кислота (Uric acid, UA), Протеїн загальний, загальний білок (Total Protein, TP), Альбумін (Albumin, ALB)), Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Аналіз сечі загальний (фізико-хімічні властивості, мікроскопія осаду) (Complete urinalysis, ЗАС))",
+    "price": 850,
+    "cost": 555,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1026",
+    "name": "Пакет аналізів: \"Здоров'я печінки, обстеження на гепатити\" (Пакет аналізів: \"Печінкові проби\" (Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Протеїн загальний, загальний білок (Total Protein, TP), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT), Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP), Лактатдегідрогеназа (Lactate dehydrogenase, ЛДГ, LDH), Гепатит С (HCV), сумарні антитіла IgM, IgG, Гепатит В (HBsAg) поверхневий антиген (австралійський антиген))",
+    "price": 1500,
+    "cost": 780,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "707",
+    "name": "Пакет аналізів: \"Діабетичний №1\" (Глікозильований гемоглобін HbA1c (Hemoglobin A1c), С-пептид (C peptide), Інсулін (Insulin), Глюкоза (Glucose, GLU), Індекс НОМА-IR (Insulin resistanc))",
+    "price": 900,
+    "cost": 630,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "20021",
+    "name": "Пакет аналізів: \"Діабетичний №2\" (Глюкоза (Glucose, GLU), Глікозильований гемоглобін HbA1c (Hemoglobin A1c))",
+    "price": 400,
+    "cost": 275,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10071",
+    "name": "Пакет аналізів: \"Ревмопроби (кількісне дослідження)\" (С-реактивний білок (C-reactive protein, С-РБ, CRP) (кількісне дослідження), Антистрептолізин-О (Antistreptolysin-O, АСЛ-О, ASO) (кількісне дослідження), Ревматоїдний фактор (Rheumatoid factor, РФ, RF) (кількісне дослідження))",
+    "price": 500,
+    "cost": 350,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10072",
+    "name": "Пакет аналізів: \"Ревмопроби розширені\" (Протеїн загальний, загальний білок (Total Protein, TP), Білкові фракції (Protein fractions, Альбуміни, Глобуліни, Альфа-1-глобуліни, Альфа-2-глобуліни, Бета-глобуліни, Гама-глобуліни, Коефіцієнт а/г), С-реактивний білок (C-reactive protein, С-РБ, CRP) (кількісне дослідження), Антистрептолізин-О (Antistreptolysin-O, АСЛ-О, ASO) (кількісне дослідження), Ревматоїдний фактор (Rheumatoid factor, РФ, RF) (кількісне дослідження))",
+    "price": 780,
+    "cost": 445,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "9002",
+    "name": "Пакет аналізів: \"Жіноча онкологічна панель\" (Індекс ROMA (Risk of ovarian malignancy algorithm, СА-125, НЕ-4), Онкомаркер молочної залози (Cancer Ag 15-3, СА 15-3), Раково-ембріональний антиген (Carcinoembryonic Ag, РЕА, CEA))",
+    "price": 1500,
+    "cost": 1050,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "9003",
+    "name": "Пакет аналізів: \"Чоловіча онкологічна панель\" (Онкомаркер підшлункової залози (Cancer Ag 19-9, СА 19-9), Раково-ембріональний антиген (Carcinoembryonic Ag, РЕА, CEA), Простат-специфічний антиген загальний (PSA total, ПСА заг., tPSA), Простат-специфічний антиген вільний (PSA free, ПСАвіл., fPSA), Індекс вільного ПСА (p2ПСА, PHI))",
+    "price": 1290,
+    "cost": 900,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "10128",
+    "name": "Пакет аналізів: \"Баланс вітамінів та мінералів\" (Вітамін D загальний (Vitamin D, 25-гідроксикальциферол, 25-ОН), Ціанокобаламін (Cobalamin, вітамін В12, Vit B12), Фолієва кислота (Folic acid, ФК, вітамін В9), Електроліти (Electrolyte panel, K+, iCa2+, Na+, Cl-, рH крові), Залізо (Serum iron, сироваткове залізо, Fe), Мідь (Copper, Сu), Феритин (Ferritin), Цинк (Zinc, Zn), Магній (Magnesium, Mg), Фосфор (Phosphate, P))",
+    "price": 2500,
+    "cost": 1500,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "101208",
+    "name": "Пакет аналізів: \"Здорове волосся\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Залізо (Serum iron, сироваткове залізо, Fe), Протеїн загальний, загальний білок (Total Protein, TP), Феритин (Ferritin), Сечовина (Urea nitrogen, Urea), Креатинін (Creatinine, CRE) , Тиреотропний гормон (Thyrotropin, ТТГ, TSH), Трийодтиронін вільний (Triiodothyronine free, Т3віл., fТ3), Тироксин вільний (Thyroxine free, Т4віл., fТ4), Фолікулостимулюючий гормон (Follitropin, ФСГ, FSH), Лютеїнізуючий гормон (Luteinizing hormone, ЛГ), Тестостерон вільний (Testosterone Free), Тестостерон загальний (Testosterone, Tc), Дигідротестостерон (Dihydrotestosterone, ДГТ, DHT), Цинк (Zinc, Zn), Мідь (Copper, Сu))",
+    "price": 2700,
+    "cost": 1800,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1027",
+    "name": "Пакет аналізів: \"Здоров'я суглобів\" (Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC), Сечова кислота (Uric acid, UA), Альбумін (Albumin, ALB), Протеїн загальний, загальний білок (Total Protein, TP), С-реактивний білок (C-reactive protein, С-РБ, CRP) (кількісне дослідження), Антистрептолізин-О (Antistreptolysin-O, АСЛ-О, ASO) (кількісне дослідження), Ревматоїдний фактор (Rheumatoid factor, РФ, RF) (кількісне дослідження))",
+    "price": 850,
+    "cost": 550,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1028",
+    "name": "Пакет аналізів: \"Здорова шкіра (Дерматологічний)\" (Імуноглобулін Е (IgE) маркер алергії, Лямблії (Giardia lamblia) сумарні антитіла IgА, IgM, IgG, Аскарида (Ascaris lumbricoides), антитіла IgG, Хелікобактер пілорі (Helicobacter pylori, HP), сумарні антитіла IgA, IgM, IgG, Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT), Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP), Холестерин (Total Blood Cholesterol, ХС, CHOL), Глюкоза (Glucose, GLU))",
+    "price": 1720,
+    "cost": 1200,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1024",
+    "name": "Пакет аналізів: \"Діагностика ризику атеросклерозу і захворювань серця\" (Ліпідограма (Холестерин (Total Blood Cholesterol, ХС, CHOL), Тригліцериди (Triglyceride, ТГ, TG), Холестерин ліпопротеїдів високої щільності (High-density lipoprotein cholesterol, Хс.ЛПВЩ, HDL), Холестерин ліпопротеїдів низької щільності (Low-density lipoprotein cholesterol, Хс.ЛПНЩ, LDL), Холестерин ліпопротеїдів дуже низької щільності (Very Low Density Lipoprotein, Хс.ЛПДНЩ, VLDL), Індекс атерогенності (ІА, АІР)), Глюкоза (Glucose, GLU), Коагулограма часткова (Coagulogram, Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR), Протромбіновий час (Prothrombin time, ПТЧ, PTT), Протромбіновий індекс (Prothrombin index, ПТІ, PI), Тромбіновий час за Квіком (Quick prothrombin test))",
+    "price": 1070,
+    "cost": 750,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1018",
+    "name": "Пакет аналізів: \"Скринінг урогенітальних інфекцій по крові\" (Хламідія трахоматіс (Сhlamydia trachomatis), антитіла IgG, Мікоплазма хомініс (Mycoplasma hominis), антитіла IgG, Уреаплазма уреалітікум (Ureaplasma urealyticum), антитіла IgG, Трихоманада вагіналіс (Trichomonas vaginalis), антитіла IgG, Вірус простого герпесу 1,2 тип (Herpes simplex virus, HSV), антитіла IgG)",
+    "price": 1260,
+    "cost": 880,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13252",
+    "name": "12 Інфекцій, що передаються статевим шляхом (12 ІПСШ). Mycoplasma hominis, Mycoplasma genitalium, Ureaplasma spp. (Ureaplasma parvum, Ureaplasma urealyticum), Candida albicans, Gardnerella vaginalis, Chlamydia trachomatis, Trichomonas vaginalis, Neisseria gonorroeae, Cytomegalovirus CMV, Herpes simplex virus HSV 1,2, ВПЛ HPV 16 тип, ВПЛ HPV 18 тип.",
+    "price": 3430,
+    "cost": 2400,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13250",
+    "name": "7 Інфекцій, що передаються статевим шляхом (7 ІПСШ). Mycoplasma hominis, Mycoplasma genitalium, Ureaplasma parvum, Ureaplasma urealyticum, Chlamydia trachomatis, Trichomonas vaginalis, Neisseria gonorroeae",
+    "price": 2150,
+    "cost": 1500,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13254",
+    "name": "Пакет: \"Розширене обстеження інтимного здоров'я жінки\" (Мікроскопія урогенітального мазка (жінки) - Uretra, vagina, cervix, Бактеріологічне дослідження урогенітальних виділень + антибіотикограма,\n12 інфекцій що передаються статевим шляхом (ІПСШ). Mycoplasma hominis, Mycoplasma genitalium, Ureaplasma spp. (Ureaplasma parvum, Ureaplasma urealyticum), Candida albicans, Gardnerella vaginalis, Chlamydia trachomatis, Trichomonas vaginalis, Neisseria gonorroeae, Cytomegalovirus CMV, Herpes simplex virus HSV 1,2, ВПЛ HPV 16 тип, ВПЛ HPV 18 тип), ПАП-тест (PAP-тест) (цитоморфологічне дослідження епітелію ектоцервікса та ендоцервікса).",
+    "price": 4290,
+    "cost": 3000,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "13255",
+    "name": "Пакет: \"Розширене обстеження інтимного здоров'я чоловіка\" (Мікроскопія урогенітального мазка (чоловіки), Бактеріологічне дослідження урогенітальних виділень + антибіотикограма, 12 інфекцій що передаються статевим шляхом (ІПСШ). Mycoplasma hominis, Mycoplasma genitalium, Ureaplasma spp. (Ureaplasma parvum, Ureaplasma urealyticum), Candida albicans, Gardnerella vaginalis, Chlamydia trachomatis, Trichomonas vaginalis, Neisseria gonorroeae, Cytomegalovirus CMV, Herpes simplex virus HSV 1,2, ВПЛ HPV 16 тип, ВПЛ HPV 18 тип)",
+    "price": 4000,
+    "cost": 2800,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1021",
+    "name": "Пакет аналізів: \"Водно-сольовий баланс\" \n(Калій (Potassium, K+), Натрій (Sodium, Na+), рH крові, Хлор (Chloride, Cl-), Кальцій іонізований (Calcium ionized, іCa2+), Магній (Magnesium, Mg), Фосфор (Phosphate, P), Гематокрит (HCT))",
+    "price": 860,
+    "cost": 600,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1902",
+    "name": "Пакет \"Остеопороз\"\nКальцій іонізований (Calcium ionized, іCa2+); Фосфор (Phosphate, P); Паратгормон (Parathyrin intact, ПТГ, intact PTH); Вітамін D загальний (Vitamin D, 25-гідроксикальциферол, 25-ОН)",
+    "price": 1050,
+    "cost": 700,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1901",
+    "name": "Пакет \"Діагностика ревматоїдного артриту\"\nС-реактивний білок (C-reactive protein, С-РБ, CRP) (кількісне дослідження); Ревматоїдний фактор (Rheumatoid factor, РФ, RF) (кількісне дослідження)\nАнтитіла до циклічного цитрулінового пептиду (Cyclic citrullinated peptide, Анти-ЦЦП, А-ССР)",
+    "price": 800,
+    "cost": 530,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1000",
+    "name": "Пакет \"Повна біохімія\" \n(Білірубін загальний (Bilirubin total, TBIL), Білірубін прямий (Bilirubin direct, DBIL), Білірубін непрямий (Bilirubin indirect, IB), Аланінамінотрансфераза (Alanine aminotransferase, АЛТ, ALT), Аспартатамінотрансфераза (Aspartate aminotransferase, АСТ, AST), Гама-глутамілтрансфераза (Gamma glutamyl transferase, ГГТ, GGT), Лужна фосфатаза (Alkaline phosphatase, ЛФ, ALP), Креатинін (Creatinine, CRE), Сечовина (Urea nitrogen, Urea), Протеїн загальний, загальний білок (Total Protein, TP), Панкреатична альфа-амілаза (Pancreatic alpha-amylase, AMY), Лактатдегідрогеназа (Lactate dehydrogenase, ЛДГ, LDH), Сечова кислота (Uric acid, UA), Альбумін (Albumin, ALB), Глюкоза (Glucose, GLU)); \"Ліпідограма\" (Холестерин (Total Blood Cholesterol, ХС, CHOL), Тригліцериди (Triglyceride, ТГ, TG), Холестерин ліпопротеїдів високої щільності (High-density lipoprotein cholesterol, Хс.ЛПВЩ, HDL), Холестерин ліпопротеїдів низької щільності (Low-density lipoprotein cholesterol, Хс.ЛПНЩ, LDL), Холестерин ліпопротеїдів дуже низької щільності (Very Low Density Lipoprotein, Хс.ЛПДНЩ, VLDL), Індекс атерогенності (ІА, АІР));Коагулограма (Coagulogram, Міжнародне нормалізоване відношення (International normalized ratio, МНВ, INR), Протромбіновий час (Prothrombin time, ПТЧ, PTT), Протромбіновий індекс (Prothrombin index, ПТІ, PI), Тромбіновий час за Квіком (Quick prothrombin test), Фібриноген (Fibrinogen), Тромбіновий час (Prothrombin time, ТЧ, TT), Активований частковий тромбопластиновий час (Activated partial thromboplastin time, АЧТЧ, аPTT).;Розгорнутий аналіз крові (апаратна методика, ручний підрахунок лейкоцитарної формули, ШОЕ) (ЗАК, CBC)",
+    "price": 2300,
+    "cost": 1600,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "1",
+    "name": "ЗАК НСЗУ (1081)",
+    "price": 150,
+    "cost": 110,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "2",
+    "name": "ЗАС НСЗУ (1085)",
+    "price": 120,
+    "cost": 90,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "3",
+    "name": "Холестерин НСЗУ (1049)",
+    "price": 100,
+    "cost": 73,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  },
+  {
+    "code": "4",
+    "name": "ЗАК НСЗУ+ШОЕ (1082)",
+    "price": 200,
+    "cost": 150,
+    "category": "ПАКЕТИ",
+    "parentCode": ""
+  }
+];
+
+    function mergeImportedAnalysisPrices() {
+      const existingCodes = new Set((appState.prices || []).map(price => String(price.code)));
+      const imported = IMPORTED_ANALYSIS_PRICES.filter(price => !existingCodes.has(String(price.code)));
+      appState.prices = [...(appState.prices || []), ...imported];
+    }
+
+
 
     /* Тимчасові заміщення за датами без зміни постійної ролі працівника. */
     const ROLE_PERMISSIONS = {
@@ -1110,6 +4832,7 @@
     function auditFields() { const user = effectiveUser(); return { createdByUserId: user.id, actingRole: user.activeAssignments?.[0]?.temporaryRole || user.role, assignmentId: user.activeAssignments?.[0]?.id || null, createdAt: new Date().toISOString() }; }
     const doctorFacilityIds = doctor => Array.isArray(doctor.facilityIds) && doctor.facilityIds.length ? doctor.facilityIds.map(Number) : appState.facilities.map(f => Number(f.id));
     const resolveDoctorName = (id, legacyName = '') => appState.doctors.find(d => Number(d.id) === Number(id))?.name || legacyName || 'Не призначено';
+    mergeImportedAnalysisPrices();
     appState.doctors.forEach(doctor => { if (!Array.isArray(doctor.facilityIds)) doctor.facilityIds = appState.facilities.map(f => Number(f.id)); });
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
     let db = null;
