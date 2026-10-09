@@ -1001,13 +1001,7 @@
         { code: "K-06", name: "Перев'язка рани (мала)", price: 120 },
         { code: "PMH-0", name: "Прийом декларанта (за програмою ПМГ)", price: 0 }
       ],
-      doctors: [
-        { id: 1, name: "Ковальчук Олена Василівна", spec: "Терапевт / Завідувач", room: "204" },
-        { id: 2, name: "Мельник Андрій Сергійович", spec: "Кардіолог", room: "312" },
-        { id: 3, name: "Шевченко Віктор Олегович", spec: "Офтальмолог", room: "108" },
-        { id: 4, name: "Бондаренко Ірина Петрівна", spec: "Невролог", room: "215" },
-        { id: 5, name: "Савченко Надія Юріївна", spec: "Педіатр", room: "101" }
-      ],
+      doctors: [],
       journal: [
         {
           id: 101,
@@ -4939,6 +4933,19 @@
       return changed;
     }
 
+    function removeDemoDoctors() {
+      const demoDoctorNames = new Set([
+        'Ковальчук Олена Василівна',
+        'Мельник Андрій Сергійович',
+        'Шевченко Віктор Олегович',
+        'Бондаренко Ірина Петрівна',
+        'Савченко Надія Юріївна'
+      ]);
+      const before = appState.doctors.length;
+      appState.doctors = appState.doctors.filter(doctor => !demoDoctorNames.has(String(doctor.name || '').trim()));
+      return appState.doctors.length !== before;
+    }
+
     function ensureDirectoryPrices() {
       const newServices = ['Аналізи', 'Кардіограма', 'Прийом лікаря педіатра', 'Прийом спеціаліста', 'УЗД', 'Послуги маніпуляційного кабінету', 'Вакцинація'];
       let changed = false;
@@ -4967,16 +4974,17 @@
           if (parsed.prices) appState.prices = parsed.prices;
           mergeImportedAnalysisPrices();
           if (parsed.doctors) appState.doctors = parsed.doctors;
+          if (removeDemoDoctors()) saveToCloud(true);
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
-          if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+          if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
         }
       } catch (e) {
         console.warn("Local storage read exception:", e);
       }
 
-      if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+      if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
 
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
@@ -5018,9 +5026,10 @@
             if (data.prices) appState.prices = data.prices;
             mergeImportedAnalysisPrices();
             if (data.doctors) appState.doctors = data.doctors;
+            if (removeDemoDoctors()) saveToCloud(true);
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
-            if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+            if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
             if (data.currentBranch) {
               appState.currentBranch = data.currentBranch;
               const el = document.getElementById('sidebar-branch-name');
