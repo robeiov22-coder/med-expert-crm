@@ -1134,6 +1134,18 @@
       return changed;
     }
 
+    function ensureDirectoryPrices() {
+      const newServices = ['Аналізи', 'Кардіограма', 'Прийом лікаря педіатра', 'Прийом спеціаліста', 'УЗД'];
+      let changed = false;
+      newServices.forEach((name, index) => {
+        if (!appState.prices.some(price => price.name.trim().toLowerCase() === name.toLowerCase())) {
+          appState.prices.push({ code: `K-${String(appState.prices.length + 1).padStart(2, '0')}`, name, price: 0 });
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
     async function initCloudStorage() {
       /* First check local persistence */
       try {
@@ -1150,11 +1162,13 @@
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
-          if (ensureDirectoryStaff()) saveToCloud(true);
+          if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
         }
       } catch (e) {
         console.warn("Local storage read exception:", e);
       }
+
+      if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
 
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
@@ -1195,7 +1209,7 @@
             if (data.doctors) appState.doctors = data.doctors;
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
-            if (ensureDirectoryStaff()) saveToCloud(true);
+            if (ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
             if (data.currentBranch) {
               appState.currentBranch = data.currentBranch;
               const el = document.getElementById('sidebar-branch-name');
