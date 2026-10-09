@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МедЕксперт CRM — ПМР Любецька</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus+Jakarta Sans', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased flex h-screen overflow-hidden text-sm">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 select-none">
+    <!-- Clinic Logo & Branch Selector -->
+    <div class="p-4 border-b border-slate-100 space-y-2">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-sky-200 shrink-0">
+          <i data-lucide="activity" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="font-extrabold text-slate-900 tracking-tight block leading-tight text-base truncate">МедЕксперт CRM</span>
+          <span id="sidebar-branch-name" class="text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md inline-block mt-0.5 truncate max-w-[170px]">ПМР Любецька</span>
+        </div>
+      </div>
+      <!-- Cloud Storage Sync Indicator Badge -->
+      <div id="cloud-sync-status" class="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-lg text-[10px] font-bold text-emerald-800 transition">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="cloud-sync-text">Хмара: Збережено</span>
+      </div>
+    </div>
+
+    <!-- Navigation Links based on Excel Sheets -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar text-xs font-semibold">
+      <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Облік та журнали</div>
+
+      <button onclick="navigate('journal')" id="nav-btn-journal" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition bg-sky-50 text-sky-700 font-bold border border-sky-100">
+        <i data-lucide="calendar-check-2" class="w-4 h-4 text-sky-600"></i>
+        <span>Вересень (Каса й візити)</span>
+      </button>
+
+      <button onclick="navigate('vaccines')" id="nav-btn-vaccines" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+        <span>Вакцини (Баланс)</span>
+      </button>
+
+      <button onclick="navigate('tests')" id="nav-btn-tests" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="flask-conical" class="w-4 h-4 text-purple-600"></i>
+        <span>Аналізи та ЕКГ</span>
+      </button>
+
+      <div class="pt-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Аналітика та управління</div>
+
+      <button onclick="navigate('stats')" id="nav-btn-stats" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-600"></i>
+        <span>Статистика та Звіти</span>
+      </button>
+
+      <button onclick="navigate('facilities')" id="nav-btn-facilities" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="building-2" class="w-4 h-4 text-amber-600"></i>
+        <span>Заклади та Філії</span>
+      </button>
+
+      <button onclick="navigate('access')" id="nav-btn-access" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="users-round" class="w-4 h-4 text-rose-600"></i>
+        <span>Користувачі та Доступи</span>
+      </button>
+
+      <button onclick="navigate('settings')" id="nav-btn-settings" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="sliders" class="w-4 h-4 text-slate-600"></i>
+        <span>Налаштування та Прайс</span>
+      </button>
+    </nav>
+
+    <!-- Current User Info & Role Switcher -->
+    <div class="p-3 border-t border-slate-100 bg-slate-50/70">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            АД
+          </div>
+          <div class="min-w-0">
+            <p id="current-user-name" class="font-bold text-slate-800 text-xs truncate">Адміністратор</p>
+            <p id="current-user-role" class="text-[10px] text-slate-600 truncate">Повний доступ</p>
+          </div>
+        </div>
+        <button onclick="switchUserRolePrompt()" title="Змінити тестову роль" class="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
+    <!-- Top Header -->
+    <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-4">
+        <h2 id="view-title" class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+          <span>Журнал місяця «Вересень»</span>
+          <span class="text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full">2026</span>
+        </h2>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Global Search -->
+        <div class="relative w-64 hidden sm:block">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+          <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Пошук пацієнта чи картки..." class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs outline-none focus:bg-white focus:border-sky-500 transition">
+        </div>
+
+        <!-- AI Assistant Button -->
+        <button onclick="openAiAssistantModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-sky-200 transition">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>ШІ-Асистент</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT VIEWS -->
+    <div id="main-content-scroll" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+
+      <!-- 1. VIEW: JOURNAL (ВЕРЕСЕНЬ) -->
+      <section id="view-journal" class="space-y-4">
+        <!-- Top Stats Bar for Cash -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-semibold text-slate-600 uppercase">Всього прийомів</p>
+              <h3 id="stat-total-visits" class="text-2xl font-black text-slate-900">0</h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-semibold text-slate-600 uppercase">Готівка (Каса)</p>
+              <h3 id="stat-total-cash" class="text-2xl font-black text-emerald-600">0 ₴</h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <i data-lucide="banknote" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-semibold text-slate-600 uppercase">Термінал (Картка)</p>
+              <h3 id="stat-total-card" class="text-2xl font-black text-cyan-600">0 ₴</h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold">
+              <i data-lucide="credit-card" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-semibold text-slate-600 uppercase">Безоплатно (ПМГ)</p>
+              <h3 id="stat-total-free" class="text-2xl font-black text-indigo-600">0</h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-700">Фільтр:</span>
+            <select id="filter-doctor" onchange="renderJournalTable()" class="text-xs font-semibold bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 outline-none">
+              <option value="all">Усі лікарі</option>
+            </select>
+            <select id="filter-decl" onchange="renderJournalTable()" class="text-xs font-semibold bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 outline-none">
+              <option value="all">Всі пацієнти</option>
+              <option value="Так">Тільки декларанти</option>
+              <option value="Ні">Без декларації</option>
+            </select>
+            <select id="filter-pay" onchange="renderJournalTable()" class="text-xs font-semibold bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 outline-none">
+              <option value="all">Усі типи оплат</option>
+              <option value="Готівка">Готівка</option>
+              <option value="Термінал">Термінал</option>
+              <option value="Безоплатно">Безоплатно</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="exportCurrentSheetToCsv('Вересень')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Експорт в Excel</span>
+            </button>
+            <button onclick="openCashModal()" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-sky-200 transition">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>+ Новий запис / Оплата</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">№</th>
+                  <th class="p-3">Дата</th>
+                  <th class="p-3">Пацієнт</th>
+                  <th class="p-3">Рік нар.</th>
+                  <th class="p-3">Телефон</th>
+                  <th class="p-3">Декларація</th>
+                  <th class="p-3">Лікар</th>
+                  <th class="p-3">Послуга</th>
+                  <th class="p-3">Оплата</th>
+                  <th class="p-3 text-right">Сума (грн)</th>
+                  <th class="p-3 text-center">Дії</th>
+                </tr>
+              </thead>
+              <tbody id="journal-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. VIEW: VACCINES -->
+      <section id="view-vaccines" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Журнал руху імунобіологічних препаратів</h3>
+            <p class="text-xs text-slate-600">Облік партій, термінів придатності, надходження, списання та залишків вакцин</p>
+          </div>
+          <button onclick="openAddVaccineBatchModal()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-200 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Оприбуткувати партію</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Препарат / Вакцина</th>
+                  <th class="p-3">Виробник</th>
+                  <th class="p-3">Серія / Партія</th>
+                  <th class="p-3">Термін придатності</th>
+                  <th class="p-3 text-center">Вхідний залишок</th>
+                  <th class="p-3 text-center">Отримано</th>
+                  <th class="p-3 text-center">Використано</th>
+                  <th class="p-3 text-center">Списано</th>
+                  <th class="p-3 text-center font-extrabold text-slate-900">Залишок (доз)</th>
+                  <th class="p-3 text-center">Швидкі дії</th>
+                </tr>
+              </thead>
+              <tbody id="vaccines-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. VIEW: TESTS -->
+      <section id="view-tests" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Лабораторні дослідження та діагностика</h3>
+            <p class="text-xs text-slate-600">Забір біоматеріалу, реєстрація ЕКГ, клінічні тести та результати</p>
+          </div>
+          <button onclick="openAddTestModal()" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-purple-200 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Зареєструвати аналіз / ЕКГ</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Дата</th>
+                  <th class="p-3">Пацієнт</th>
+                  <th class="p-3">Дослідження</th>
+                  <th class="p-3">Лікар</th>
+                  <th class="p-3">Статус</th>
+                  <th class="p-3">Результат / Висновок</th>
+                  <th class="p-3 text-center">ШІ-Аналіз</th>
+                  <th class="p-3 text-center">Дія</th>
+                </tr>
+              </thead>
+              <tbody id="tests-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. VIEW: STATS -->
+      <section id="view-stats" class="space-y-5 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Зведена аналітика та фінансовий баланс</h3>
+            <p class="text-xs text-slate-600">Автоматичний підрахунок показників із журналів Вересень, Вакцини та Аналізи</p>
+          </div>
+          <button onclick="generateExecutiveReportWithGemini()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Згенерувати ШІ-звіт для керівництва</span>
+          </button>
+        </div>
+
+        <div id="ai-report-container" class="hidden bg-white border-2 border-indigo-200 rounded-2xl p-5 space-y-3 shadow-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+              <i data-lucide="bot" class="w-4 h-4 text-indigo-600"></i> Аналітичний висновок штучного інтелекту
+            </span>
+            <button onclick="document.getElementById('ai-report-container').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-xs font-bold">Закрити</button>
+          </div>
+          <div id="ai-report-text" class="text-xs text-slate-700 leading-relaxed space-y-2"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Doctor Workload -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i data-lucide="stethoscope" class="w-4 h-4 text-sky-600"></i> Навантаження на лікарів (К-сть візитів)
+            </h4>
+            <div id="stats-doctor-bars" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Services Breakdown -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i> Структура прийомів та оплат
+            </h4>
+            <div id="stats-payment-breakdown" class="space-y-3 text-xs">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. VIEW: FACILITIES -->
+      <section id="view-facilities" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Медичні заклади та філії поліклініки</h3>
+            <p class="text-xs text-slate-600">Управління підрозділами, контактними телефонами, адресами та штатом</p>
+          </div>
+          <button onclick="openFacilityModal()" class="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-amber-200 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Додати підрозділ</span>
+          </button>
+        </div>
+
+        <div id="facilities-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- 6. VIEW: ACCESS ROLES -->
+      <section id="view-access" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Користувачі та Права доступу</h3>
+            <p class="text-xs text-slate-600">Налаштування ролей персоналу: адміністратори, лікарі, медсестри, касири</p>
+          </div>
+          <button onclick="openUserModal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-rose-200 transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>+ Додати співробітника</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Співробітник</th>
+                  <th class="p-3">Логін</th>
+                  <th class="p-3">Роль</th>
+                  <th class="p-3">Заклад</th>
+                  <th class="p-3">Дозволені модулі</th>
+                  <th class="p-3 text-center">Статус</th>
+                  <th class="p-3 text-center">Дії</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. VIEW: SETTINGS -->
+      <section id="view-settings" class="space-y-5 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <h3 class="font-bold text-slate-900 text-base">Довідники та Налаштування (Аркуш «Налаштування»)</h3>
+          <p class="text-xs text-slate-600">Базові прейскуранти, перелік лікарів закладу та службові списки</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Prices -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-slate-900 text-sm">Прейскурант послуг каси</h4>
+              <button onclick="openAddPriceModal()" class="text-xs font-bold text-sky-600 hover:text-sky-700">+ Додати послугу</button>
+            </div>
+            <div class="border border-slate-100 rounded-xl overflow-hidden">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
+                  <tr>
+                    <th class="p-2">Код</th>
+                    <th class="p-2">Найменування</th>
+                    <th class="p-2 text-right">Ціна (грн)</th>
+                  </tr>
+                </thead>
+                <tbody id="prices-table-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Doctors -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-slate-900 text-sm">Штатний розпис лікарів</h4>
+              <button onclick="openAddDoctorModal()" class="text-xs font-bold text-sky-600 hover:text-sky-700">+ Додати лікаря</button>
+            </div>
+            <div class="border border-slate-100 rounded-xl overflow-hidden">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
+                  <tr>
+                    <th class="p-2">ПІБ Лікаря</th>
+                    <th class="p-2">Спеціальність</th>
+                    <th class="p-2 text-center">Кабінет</th>
+                  </tr>
+                </thead>
+                <tbody id="doctors-table-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL: ADD CASH / VISIT RECORD -->
+  <div id="modal-cash-record" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-extrabold text-slate-900 text-base">Додати запис у Вересень / Касу</h3>
+        <button onclick="closeModal('modal-cash-record')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- AI Shorthand Intake Box -->
+      <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-600"></i> ШІ-Розпізнавання диктанту
+          </span>
+          <button type="button" onclick="parseVisitWithGemini()" class="text-[11px] font-bold px-2 py-0.5 bg-sky-600 hover:bg-sky-700 text-white rounded-md transition">Розпізнати</button>
+        </div>
+        <textarea id="ai-intake-text" rows="2" placeholder="Наприклад: Бондаренко Ірина 1991 р.н., тел 0501234567, без декларації, ЕКГ, лікар Мельник, оплата готівка" class="w-full text-xs p-2 bg-white border border-sky-200 rounded-xl outline-none focus:border-sky-500"></textarea>
+      </div>
+
+      <form id="form-cash-record" onsubmit="handleSaveCashRecord(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Дата звернення</label>
+            <input type="date" id="cr-date" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Рік / дата народження</label>
+            <input type="text" id="cr-birth" placeholder="Наприклад: 1986" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">ПІБ Пацієнта</label>
+          <input type="text" id="cr-name" placeholder="Шевченко Тарас Григорович" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Номер телефону</label>
+            <input type="tel" id="cr-phone" placeholder="+380 50 123 45 67" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Декларація з закладом?</label>
+            <select id="cr-has-decl" onchange="handleDeclChange(this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+              <option value="Так">Так (Декларант ПМГ)</option>
+              <option value="Ні">Ні (Без декларації)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Лікар, що приймає</label>
+          <select id="cr-doctor" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold"></select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Послуга / Процедура</label>
+          <select id="cr-service" onchange="handleServiceSelect(this.value)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Форма оплати</label>
+            <select id="cr-payment-type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+              <option value="Готівка">Готівка</option>
+              <option value="Термінал">Термінал (Картка)</option>
+              <option value="Безоплатно">Безоплатно (ПМГ)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Сума (грн)</label>
+            <input type="number" id="cr-amount" value="0" min="0" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-cash-record')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
+          <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-md shadow-sky-200">Зберегти запис</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT FACILITY (WITH DYNAMIC PHONES) -->
+  <div id="modal-facility" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="modal-fac-title" class="font-extrabold text-slate-900 text-base">Редагування реквізитів закладу</h3>
+        <button onclick="closeModal('modal-facility')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-facility" onsubmit="handleSaveFacility(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="fac-id">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Повна назва підрозділу</label>
+          <input type="text" id="fac-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Фактична адреса</label>
+          <input type="text" id="fac-address" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Завідувач / Керівник філії</label>
+          <input type="text" id="fac-head" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <!-- DYNAMIC PHONES CONTAINER -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between">
+            <label class="block font-bold text-slate-700">Номери телефонів реєстратури</label>
+            <button type="button" onclick="addFacilityPhoneInput()" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Додати номер
+            </button>
+          </div>
+          <div id="fac-phones-inputs-list" class="space-y-2">
+            <!-- Dynamically populated inputs -->
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Кількість кабінетів</label>
+            <input type="number" id="fac-rooms" min="1" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-facility')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
+          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-md shadow-amber-200">Зберегти реквізити</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT USER & PERMISSIONS -->
+  <div id="modal-user" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="modal-usr-title" class="font-extrabold text-slate-900 text-base">Співробітник та Права доступу</h3>
+        <button onclick="closeModal('modal-user')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-user" onsubmit="handleSaveUser(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="usr-id">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">ПІБ Співробітника</label>
+          <input type="text" id="usr-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Логін / Email</label>
+            <input type="text" id="usr-login" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Посада / Роль</label>
+            <select id="usr-role" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+              <option value="Адміністратор">Адміністратор</option>
+              <option value="Лікар">Лікар (Загальна практика / Вузький)</option>
+              <option value="Медсестра / Маніпуляційна">Медсестра / Маніпуляційна</option>
+              <option value="Реєстратор / Касир">Реєстратор / Касир</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Прикріплений заклад</label>
+          <select id="usr-facility" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+            <option value="ПМР Любецька">ПМР Любецька</option>
+            <option value="Амбулаторія №2">Амбулаторія №2</option>
+          </select>
+        </div>
+
+        <!-- Permissions Checkboxes -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <label class="block font-bold text-slate-800">Дозволені розділи та операції:</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-journal" class="rounded text-sky-600">
+              <span>Каса та прийоми</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-vaccines" class="rounded text-emerald-600">
+              <span>Вакцини (Баланс)</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-tests" class="rounded text-purple-600">
+              <span>Аналізи та ЕКГ</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-stats" class="rounded text-indigo-600">
+              <span>Звіти та Статистика</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-facilities" class="rounded text-amber-600">
+              <span>Реквізити закладів</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-users" class="rounded text-rose-600">
+              <span>Управління доступами</span>
+            </label>
+            <label class="flex items-center gap-2 col-span-2">
+              <input type="checkbox" id="perm-edit-prices" class="rounded text-slate-600">
+              <span>Зміна цін та тарифів</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-user')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
+          <button type="submit" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-md shadow-rose-200">Зберегти доступ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD VACCINE BATCH -->
+  <div id="modal-vaccine-batch" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-extrabold text-slate-900 text-base">Оприбуткувати партію вакцин</h3>
+        <button onclick="closeModal('modal-vaccine-batch')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-vaccine-batch" onsubmit="handleSaveVaccineBatch(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Назва вакцини</label>
+          <input type="text" id="vac-name" placeholder="напр: КПК (Пріорикс)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Виробник</label>
+          <input type="text" id="vac-maker" placeholder="GSK / Sanofi" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Серія / Партія</label>
+            <input type="text" id="vac-lot" placeholder="LOT-8823" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Термін придатності</label>
+            <input type="date" id="vac-expiry" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Отримана кількість (доз)</label>
+          <input type="number" id="vac-doses" min="1" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-vaccine-batch')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md shadow-emerald-200">Оприбуткувати</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD TEST / ECG -->
+  <div id="modal-test" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-extrabold text-slate-900 text-base">Реєстрація аналізу або ЕКГ</h3>
+        <button onclick="closeModal('modal-test')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-test" onsubmit="handleSaveTest(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Пацієнт (ПІБ)</label>
+          <input type="text" id="test-patient" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Вид дослідження</label>
+          <select id="test-type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+            <option value="ЕКГ (Електрокардіограма)">ЕКГ (Електрокардіограма)</option>
+            <option value="Загальний аналіз крові (ЗАК)">Загальний аналіз крові (ЗАК)</option>
+            <option value="Глюкоза крові (експрес)">Глюкоза крові (експрес)</option>
+            <option value="Біохімія крові">Біохімія крові</option>
+            <option value="Загальний аналіз сечі (ЗАС)">Загальний аналіз сечі (ЗАС)</option>
+            <option value="Швидкий тест на ВІЛ / Гепатити">Швидкий тест на ВІЛ / Гепатити</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Направлений лікарем</label>
+          <select id="test-doctor" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Результат (якщо вже відомий)</label>
+          <textarea id="test-result" rows="2" placeholder="Залишіть порожнім, якщо ще в роботі..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl"></textarea>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-test')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
+          <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-md shadow-purple-200">Додати в чергу</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AI ASSISTANT -->
+  <div id="modal-ai-assistant" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Клінічний ШІ-Асистент лікаря</h3>
+            <p class="text-[10px] text-slate-600">Коди МКХ-10, календарі щеплень, протоколи МОЗ</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-ai-assistant')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-3 custom-scrollbar p-1 text-xs">
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-slate-600 space-y-1">
+          <p class="font-bold text-slate-800">Приклади запитань:</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button onclick="setAiQuery('Який код МКХ-10 для гіпертонічної хвороби II стадії?')" class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-indigo-400 transition">Код МКХ-10 для гіпертонії</button>
+            <button onclick="setAiQuery('Які обов\'язкові щеплення для дитини у 6 років?')" class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-indigo-400 transition">Календар щеплень у 6 років</button>
+            <button onclick="setAiQuery('Які норми глюкози крові натще для дорослих?')" class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-indigo-400 transition">Норми глюкози крові</button>
+          </div>
+        </div>
+
+        <div id="ai-chat-output" class="bg-indigo-50/50 border border-indigo-100 p-3 rounded-2xl min-h-[140px] text-slate-700 whitespace-pre-wrap leading-relaxed">
+          Очікую на ваше запитання...
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+        <input type="text" id="ai-chat-input" placeholder="Введіть запитання лікарю чи медсестрі..." class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-500">
+        <button onclick="askGeminiClinicalAssistant()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Запитати
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /* APPLICATION STATE - BASED ON "Каса ПМР Любецька 2026.xlsx" */
+    const appState = {
+      currentView: 'journal',
+      currentBranch: 'ПМР Любецька',
+      currentUser: {
+        id: 1,
+        name: "Адміністратор Системи",
+        login: "admin@med.ua",
+        role: "Адміністратор",
+        facility: "ПМР Любецька",
+        permissions: { journal: true, vaccines: true, tests: true, stats: true, facilities: true, users: true, editPrices: true }
+      },
+      facilities: [
+        {
+          id: 1,
+          name: "ПМР Любецька (Поліклінічне відділення №1)",
+          address: "м. Чернігів, вул. Любецька, 24",
+          head: "Др. Ковальчук Олена Василівна",
+          phones: ["+380 462 67-00-11", "+380 93 456-78-90"],
+          rooms: 14,
+          patientsCount: 1420
+        },
+        {
+          id: 2,
+          name: "Амбулаторія загальної практики №2",
+          address: "м. Чернігів, проспект Миру, 118",
+          head: "Др. Мельник Андрій Сергійович",
+          phones: ["+380 462 69-45-20", "+380 50 123-45-67"],
+          rooms: 8,
+          patientsCount: 890
+        }
+      ],
+      users: [
+        {
+          id: 1,
+          name: "Адміністратор Системи",
+          login: "admin@med.ua",
+          role: "Адміністратор",
+          facility: "ПМР Любецька",
+          status: "Активний",
+          permissions: { journal: true, vaccines: true, tests: true, stats: true, facilities: true, users: true, editPrices: true }
+        },
+        {
+          id: 2,
+          name: "Ковальчук Олена Василівна",
+          login: "o.kovalchuk@med.ua",
+          role: "Лікар",
+          facility: "ПМР Любецька",
+          status: "Активний",
+          permissions: { journal: true, vaccines: true, tests: true, stats: true, facilities: false, users: false, editPrices: false }
+        },
+        {
+          id: 3,
+          name: "Мельник Андрій Сергійович",
+          login: "a.melnyk@med.ua",
+          role: "Лікар",
+          facility: "ПМР Любецька",
+          status: "Активний",
+          permissions: { journal: true, vaccines: false, tests: true, stats: true, facilities: false, users: false, editPrices: false }
+        },
+        {
+          id: 4,
+          name: "Сидоренко Ірина (Кабінет щеплень)",
+          login: "nurse.vaccines@med.ua",
+          role: "Медсестра / Маніпуляційна",
+          facility: "ПМР Любецька",
+          status: "Активний",
+          permissions: { journal: false, vaccines: true, tests: true, stats: false, facilities: false, users: false, editPrices: false }
+        },
+        {
+          id: 5,
+          name: "Петрова Світлана (Реєстратор)",
+          login: "cashier.pmr@med.ua",
+          role: "Реєстратор / Касир",
+          facility: "ПМР Любецька",
+          status: "Активний",
+          permissions: { journal: true, vaccines: false, tests: false, stats: true, facilities: false, users: false, editPrices: false }
+        }
+      ],
+      prices: [
+        { code: "K-01", name: "Консультація лікаря (без декларації)", price: 250 },
+        { code: "K-02", name: "Електрокардіограма (ЕКГ) з розшифровкою", price: 150 },
+        { code: "K-03", name: "Внутрішньовенна ін'єкція", price: 80 },
+        { code: "K-04", name: "Внутрішньом'язова ін'єкція", price: 50 },
+        { code: "K-05", name: "Експрес-глюкоза крові", price: 70 },
+        { code: "K-06", name: "Перев'язка рани (мала)", price: 120 },
+        { code: "PMH-0", name: "Прийом декларанта (за програмою ПМГ)", price: 0 }
+      ],
+      doctors: [
+        { id: 1, name: "Ковальчук Олена Василівна", spec: "Терапевт / Завідувач", room: "204" },
+        { id: 2, name: "Мельник Андрій Сергійович", spec: "Кардіолог", room: "312" },
+        { id: 3, name: "Шевченко Віктор Олегович", spec: "Офтальмолог", room: "108" },
+        { id: 4, name: "Бондаренко Ірина Петрівна", spec: "Невролог", room: "215" },
+        { id: 5, name: "Савченко Надія Юріївна", spec: "Педіатр", room: "101" }
+      ],
+      journal: [
+        {
+          id: 101,
+          date: "2026-09-01",
+          patient: "Іванченко Петро Михайлович",
+          birth: "1985",
+          phone: "+380 67 441 22 19",
+          hasDecl: "Так",
+          doctor: "Ковальчук Олена Василівна",
+          service: "Прийом декларанта (за програмою ПМГ)",
+          paymentType: "Безоплатно",
+          amount: 0
+        },
+        {
+          id: 102,
+          date: "2026-09-01",
+          patient: "Григоренко Світлана Анатоліївна",
+          birth: "1992",
+          phone: "+380 50 332 99 81",
+          hasDecl: "Ні",
+          doctor: "Мельник Андрій Сергійович",
+          service: "Електрокардіограма (ЕКГ) з розшифровкою",
+          paymentType: "Термінал",
+          amount: 150
+        },
+        {
+          id: 103,
+          date: "2026-09-02",
+          patient: "Коваленко Дмитро Ігорович",
+          birth: "1978",
+          phone: "+380 93 118 76 54",
+          hasDecl: "Ні",
+          doctor: "Ковальчук Олена Василівна",
+          service: "Консультація лікаря (без декларації)",
+          paymentType: "Готівка",
+          amount: 250
+        },
+        {
+          id: 104,
+          date: "2026-09-02",
+          patient: "Лисенко Оксана Михайлівна",
+          birth: "1995",
+          phone: "+380 97 884 10 23",
+          hasDecl: "Так",
+          doctor: "Шевченко Віктор Олегович",
+          service: "Прийом декларанта (за програмою ПМГ)",
+          paymentType: "Безоплатно",
+          amount: 0
+        },
+        {
+          id: 105,
+          date: "2026-09-03",
+          patient: "Ткаченко Юрій Степанович",
+          birth: "1964",
+          phone: "+380 50 120 44 88",
+          hasDecl: "Ні",
+          doctor: "Ковальчук Олена Василівна",
+          service: "Внутрішньовенна ін'єкція",
+          paymentType: "Готівка",
+          amount: 80
+        }
+      ],
+      vaccines: [
+        {
+          id: 1,
+          name: "КПК (Пріорикс)",
+          maker: "GlaxoSmithKline",
+          lot: "LOT-99824",
+          expiry: "2027-04-30",
+          startDoses: 40,
+          received: 20,
+          used: 18,
+          wasted: 1
+        },
+        {
+          id: 2,
+          name: "АКДП (Інфанрікс)",
+          maker: "GSK Biologicals",
+          lot: "LOT-44102",
+          expiry: "2026-12-15",
+          startDoses: 25,
+          received: 10,
+          used: 12,
+          wasted: 0
+        },
+        {
+          id: 3,
+          name: "Гепатит В (Енджерикс-B)",
+          maker: "Sanofi Pasteur",
+          lot: "LOT-88123",
+          expiry: "2027-08-20",
+          startDoses: 50,
+          received: 30,
+          used: 24,
+          wasted: 2
+        },
+        {
+          id: 4,
+          name: "АДП-м (Дифтерія/Правець)",
+          maker: "Біолік",
+          lot: "LOT-10291",
+          expiry: "2026-11-01",
+          startDoses: 15,
+          received: 0,
+          used: 11,
+          wasted: 0
+        }
+      ],
+      tests: [
+        { id: 201, date: "2026-09-01", patient: "Григоренко Світлана", testName: "ЕКГ (Електрокардіограма)", doctor: "Мельник Андрій Сергійович", status: "Готово", result: "Синусовий ритм, ЧСС 72 уд/хв. Без ішемічних змін." },
+        { id: 202, date: "2026-09-02", patient: "Іванченко Петро", testName: "Загальний аналіз крові (ЗАК)", doctor: "Ковальчук Олена Василівна", status: "Готово", result: "Hb: 142 г/л, Лейкоцити: 6.8, ШОЕ: 7 мм/год." },
+        { id: 203, date: "2026-09-03", patient: "Коваленко Дмитро", testName: "Глюкоза крові (експрес)", doctor: "Ковальчук Олена Василівна", status: "Готово", result: "5.4 ммоль/л (Норма)" },
+        { id: 204, date: "2026-09-03", patient: "Ткаченко Юрій", testName: "Біохімія крові", doctor: "Ковальчук Олена Василівна", status: "В роботі", result: "Зразок передано в лабораторію" }
+      ]
+    };
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
+    let db = null;
+    let auth = null;
+    let isCloudReady = false;
+    let saveTimeout = null;
+
+    async function initCloudStorage() {
+      /* First check local persistence */
+      try {
+        const localData = localStorage.getItem('med_expert_crm_backup');
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          if (parsed.journal) appState.journal = parsed.journal;
+          if (parsed.vaccines) appState.vaccines = parsed.vaccines;
+          if (parsed.tests) appState.tests = parsed.tests;
+          if (parsed.facilities) appState.facilities = parsed.facilities;
+          if (parsed.users) appState.users = parsed.users;
+          if (parsed.prices) appState.prices = parsed.prices;
+          if (parsed.doctors) appState.doctors = parsed.doctors;
+          if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
+        }
+      } catch (e) {
+        console.warn("Local storage read exception:", e);
+      }
+
+      try {
+        if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+          updateCloudIndicator('Хмара: Локальний режим', 'amber');
+          return;
+        }
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        const user = auth.currentUser;
+        if (!user) {
+          updateCloudIndicator('Хмара: Без доступу', 'amber');
+          return;
+        }
+
+        isCloudReady = true;
+        updateCloudIndicator('Хмара: Збережено', 'emerald');
+
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'clinic_storage', 'main_state');
+        onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.journal) appState.journal = data.journal;
+            if (data.vaccines) appState.vaccines = data.vaccines;
+            if (data.tests) appState.tests = data.tests;
+            if (data.facilities) appState.facilities = data.facilities;
+            if (data.users) appState.users = data.users;
+            if (data.prices) appState.prices = data.prices;
+            if (data.doctors) appState.doctors = data.doctors;
+            if (data.currentBranch) {
+              appState.currentBranch = data.currentBranch;
+              const el = document.getElementById('sidebar-branch-name');
+              if (el) el.innerText = appState.currentBranch;
+            }
+
+            populateDropdowns();
+            renderActiveView();
+            updateCloudIndicator('Хмара: Синхронізовано', 'emerald');
+          } else {
+            saveToCloud(true);
+          }
+        }, (error) => {
+          console.warn("Cloud subscription note:", error);
+          updateCloudIndicator('Хмара: Автономно', 'slate');
+        });
+
+      } catch (err) {
+        console.warn("Cloud storage init note:", err);
+        updateCloudIndicator('Хмара: Автономно', 'slate');
+      }
+    }
+
+    function updateCloudIndicator(text, color) {
+      const el = document.getElementById('cloud-sync-status');
+      const textEl = document.getElementById('cloud-sync-text');
+      if (!el || !textEl) return;
+      textEl.innerText = text;
+
+      const styles = {
+        emerald: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        amber: 'bg-amber-50 border-amber-200 text-amber-800',
+        rose: 'bg-rose-50 border-rose-200 text-rose-800',
+        slate: 'bg-slate-100 border-slate-200 text-slate-700'
+      };
+      el.className = `flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${styles[color] || styles.emerald}`;
+    }
+
+    async function saveToCloud(immediate = false) {
+      /* Always mirror into localStorage first for 100% offline safety */
+      try {
+        localStorage.setItem('med_expert_crm_backup', JSON.stringify({
+          journal: appState.journal,
+          vaccines: appState.vaccines,
+          tests: appState.tests,
+          facilities: appState.facilities,
+          users: appState.users,
+          prices: appState.prices,
+          doctors: appState.doctors,
+          currentBranch: appState.currentBranch
+        }));
+      } catch (e) {
+        console.warn("LocalStorage save error:", e);
+      }
+
+      if (!isCloudReady || !db || !auth || !auth.currentUser) return;
+
+      updateCloudIndicator('Хмара: Збереження...', 'amber');
+      if (saveTimeout) clearTimeout(saveTimeout);
+
+      const commitSave = async () => {
+        try {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'clinic_storage', 'main_state');
+          await setDoc(docRef, {
+            journal: appState.journal,
+            vaccines: appState.vaccines,
+            tests: appState.tests,
+            facilities: appState.facilities,
+            users: appState.users,
+            prices: appState.prices,
+            doctors: appState.doctors,
+            currentBranch: appState.currentBranch,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+
+          updateCloudIndicator('Хмара: Збережено', 'emerald');
+        } catch (error) {
+          console.warn("Cloud save note:", error);
+          updateCloudIndicator('Хмара: Збережено локально', 'amber');
+        }
+      };
+
+      if (immediate) {
+        await commitSave();
+      } else {
+        saveTimeout = setTimeout(commitSave, 400);
+      }
+    }
+
+    function renderActiveView() {
+      if (appState.currentView === 'journal') renderJournalTable();
+      if (appState.currentView === 'vaccines') renderVaccinesTable();
+      if (appState.currentView === 'tests') renderTestsTable();
+      if (appState.currentView === 'stats') renderStatsView();
+      if (appState.currentView === 'facilities') renderFacilitiesView();
+      if (appState.currentView === 'access') renderUsersTable();
+      if (appState.currentView === 'settings') renderSettingsView();
+    }
+
+    function navigate(viewName) {
+      const allowed = appState.currentUser.permissions;
+      if (viewName === 'journal' && !allowed.journal) return showToast("Немає доступу до Каси", "error");
+      if (viewName === 'vaccines' && !allowed.vaccines) return showToast("Немає доступу до Вакцин", "error");
+      if (viewName === 'tests' && !allowed.tests) return showToast("Немає доступу до Аналізів", "error");
+      if (viewName === 'stats' && !allowed.stats) return showToast("Немає доступу до Статистики", "error");
+      if (viewName === 'facilities' && !allowed.facilities) return showToast("Немає доступу до Реквізитів", "error");
+      if (viewName === 'access' && !allowed.users) return showToast("Немає доступу до Користувачів", "error");
+
+      appState.currentView = viewName;
+      const views = ['journal', 'vaccines', 'tests', 'stats', 'facilities', 'access', 'settings'];
+
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const btn = document.getElementById(`nav-btn-${v}`);
+        if (el) el.classList.toggle('hidden', v !== viewName);
+        if (btn) {
+          if (v === viewName) {
+            btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition bg-sky-50 text-sky-700 font-bold border border-sky-100";
+          } else {
+            btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100";
+          }
+        }
+      });
+
+      const titleMap = {
+        journal: 'Журнал місяця «Вересень»',
+        vaccines: 'Журнал вакцин (Баланс)',
+        tests: 'Лабораторія та ЕКГ',
+        stats: 'Зведена статистика та звіти',
+        facilities: 'Заклади та Філії поліклініки',
+        access: 'Користувачі та Права доступу',
+        settings: 'Налаштування та Прейскурант'
+      };
+      const titleEl = document.getElementById('view-title');
+      if (titleEl) {
+        titleEl.innerHTML = `<span>${titleMap[viewName] || 'МедЕксперт CRM'}</span> <span class="text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full">2026</span>`;
+      }
+
+      renderActiveView();
+      lucide.createIcons();
+    }
+
+    function switchUserRolePrompt() {
+      const userNames = appState.users.map((u, i) => `${i + 1}. ${u.name} (${u.role})`).join('\n');
+      const choice = prompt(`Виберіть користувача для перегляду системи:\n\n${userNames}`, "1");
+      const idx = parseInt(choice) - 1;
+      if (appState.users[idx]) {
+        appState.currentUser = appState.users[idx];
+        document.getElementById('current-user-name').innerText = appState.currentUser.name;
+        document.getElementById('current-user-role').innerText = appState.currentUser.role;
+        showToast(`Перемкнуто на: ${appState.currentUser.name}`, 'info');
+        navigate(appState.currentUser.permissions.journal ? 'journal' : 'vaccines');
+      }
+    }
+
+    function populateDropdowns() {
+      const docSelects = [document.getElementById('cr-doctor'), document.getElementById('test-doctor')];
+      docSelects.forEach(select => {
+        if (!select) return;
+        select.innerHTML = appState.doctors.map(d => `<option value="${d.name}">${d.name} (${d.spec}, каб. ${d.room})</option>`).join('');
+      });
+
+      const filterDoc = document.getElementById('filter-doctor');
+      if (filterDoc) {
+        filterDoc.innerHTML = `<option value="all">Усі лікарі</option>` + appState.doctors.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+      }
+
+      const srvSelect = document.getElementById('cr-service');
+      if (srvSelect) {
+        srvSelect.innerHTML = appState.prices.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} — ${p.price} ₴</option>`).join('');
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const crDateInput = document.getElementById('cr-date');
+      if (crDateInput && !crDateInput.value) crDateInput.value = today;
+    }
+
+    function renderJournalTable() {
+      const tbody = document.getElementById('journal-table-body');
+      if (!tbody) return;
+
+      const docFilter = document.getElementById('filter-doctor')?.value || 'all';
+      const declFilter = document.getElementById('filter-decl')?.value || 'all';
+      const payFilter = document.getElementById('filter-pay')?.value || 'all';
+      const search = document.getElementById('global-search')?.value.toLowerCase() || '';
+
+      const filtered = appState.journal.filter(item => {
+        if (docFilter !== 'all' && item.doctor !== docFilter) return false;
+        if (declFilter !== 'all' && item.hasDecl !== declFilter) return false;
+        if (payFilter !== 'all' && item.paymentType !== payFilter) return false;
+        if (search && !item.patient.toLowerCase().includes(search) && !item.phone.includes(search)) return false;
+        return true;
+      });
+
+      let totalCash = 0;
+      let totalCard = 0;
+      let totalFree = 0;
+
+      filtered.forEach(item => {
+        if (item.paymentType === 'Готівка') totalCash += (item.amount || 0);
+        else if (item.paymentType === 'Термінал') totalCard += (item.amount || 0);
+        else totalFree += 1;
+      });
+
+      const elTotalVisits = document.getElementById('stat-total-visits');
+      const elTotalCash = document.getElementById('stat-total-cash');
+      const elTotalCard = document.getElementById('stat-total-card');
+      const elTotalFree = document.getElementById('stat-total-free');
+
+      if (elTotalVisits) elTotalVisits.innerText = filtered.length;
+      if (elTotalCash) elTotalCash.innerText = `${totalCash.toLocaleString()} ₴`;
+      if (elTotalCard) elTotalCard.innerText = `${totalCard.toLocaleString()} ₴`;
+      if (elTotalFree) elTotalFree.innerText = totalFree;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400">Записів за вказаними фільтрами не знайдено</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((item, idx) => {
+        const payBadgeClass = item.paymentType === 'Готівка' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                             item.paymentType === 'Термінал' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' :
+                             'bg-slate-100 text-slate-600 border border-slate-200';
+
+        const declBadge = item.hasDecl === 'Так' 
+          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">Так</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200">Ні</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50/70 transition">
+            <td class="p-3 text-slate-400 font-mono">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-700 whitespace-nowrap">${item.date}</td>
+            <td class="p-3 font-bold text-slate-900">${item.patient}</td>
+            <td class="p-3 text-slate-600">${item.birth || '-'}</td>
+            <td class="p-3 text-slate-600 font-mono text-[11px] whitespace-nowrap">${item.phone || '-'}</td>
+            <td class="p-3">${declBadge}</td>
+            <td class="p-3 text-slate-800 font-medium">${item.doctor}</td>
+            <td class="p-3 text-slate-700 max-w-[200px] truncate" title="${item.service}">${item.service}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${payBadgeClass}">${item.paymentType}</span></td>
+            <td class="p-3 text-right font-black ${item.amount > 0 ? 'text-slate-900' : 'text-slate-400'}">${item.amount} ₴</td>
+            <td class="p-3 text-center">
+              <button onclick="deleteCashRecord(${item.id})" class="p-1 hover:bg-rose-50 text-rose-500 rounded-lg transition" title="Видалити">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderVaccinesTable() {
+      const tbody = document.getElementById('vaccines-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.vaccines.map(v => {
+        const balance = (v.startDoses || 0) + (v.received || 0) - (v.used || 0) - (v.wasted || 0);
+        const isCritical = balance <= 5;
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold text-slate-900 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full ${isCritical ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}"></div>
+              ${v.name}
+            </td>
+            <td class="p-3 text-slate-600">${v.maker}</td>
+            <td class="p-3 font-mono text-[11px] text-slate-700">${v.lot}</td>
+            <td class="p-3 text-slate-600">${v.expiry}</td>
+            <td class="p-3 text-center text-slate-700 font-semibold">${v.startDoses}</td>
+            <td class="p-3 text-center text-emerald-600 font-bold">+${v.received}</td>
+            <td class="p-3 text-center text-sky-600 font-bold">${v.used}</td>
+            <td class="p-3 text-center text-rose-600 font-bold">${v.wasted}</td>
+            <td class="p-3 text-center">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-black ${isCritical ? 'bg-rose-100 text-rose-800 border border-rose-200' : 'bg-slate-100 text-slate-900'}">
+                ${balance} доз
+              </span>
+            </td>
+            <td class="p-3 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="useVaccineDose(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Ввести (-1)</button>
+                <button onclick="wasteVaccineDose(${v.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[11px] font-bold transition" title="Списати за актом">Списати</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function useVaccineDose(id) {
+      const v = appState.vaccines.find(item => item.id === id);
+      if (v) {
+        v.used += 1;
+        showToast(`Введено 1 дозу «${v.name}». Залишок списано автоматично!`, 'success');
+        renderVaccinesTable();
+        saveToCloud();
+      }
+    }
+
+    function wasteVaccineDose(id) {
+      const v = appState.vaccines.find(item => item.id === id);
+      if (v) {
+        v.wasted += 1;
+        showToast(`Списано 1 дозу «${v.name}» за актом непридатності`, 'info');
+        renderVaccinesTable();
+        saveToCloud();
+      }
+    }
+
+    function renderTestsTable() {
+      const tbody = document.getElementById('tests-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.tests.map(t => {
+        const isDone = t.status === 'Готово';
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-600 whitespace-nowrap">${t.date}</td>
+            <td class="p-3 font-bold text-slate-900">${t.patient}</td>
+            <td class="p-3 font-semibold text-slate-800">${t.testName}</td>
+            <td class="p-3 text-slate-600">${t.doctor}</td>
+            <td class="p-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+                ${t.status}
+              </span>
+            </td>
+            <td class="p-3 text-slate-700 font-mono text-[11px] max-w-[240px] truncate" title="${t.result}">${t.result}</td>
+            <td class="p-3 text-center">
+              <button onclick="interpretTestWithGemini(${t.id})" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-[11px] font-bold flex items-center gap-1 mx-auto transition">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> ШІ-Аналіз
+              </button>
+            </td>
+            <td class="p-3 text-center">
+              <button onclick="toggleTestStatus(${t.id})" class="text-xs font-bold text-sky-600 hover:text-sky-800">
+                ${isDone ? 'Відкрити' : 'Завершити'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function toggleTestStatus(id) {
+      const t = appState.tests.find(item => item.id === id);
+      if (t) {
+        t.status = t.status === 'Готово' ? 'В роботі' : 'Готово';
+        if (t.status === 'Готово' && (!t.result || t.result === 'Очікується')) {
+          t.result = 'Показники в межах вікової норми';
+        }
+        showToast(`Статус дослідження для ${t.patient} оновлено`, 'info');
+        renderTestsTable();
+        saveToCloud();
+      }
+    }
+
+    function renderFacilitiesView() {
+      const grid = document.getElementById('facilities-grid');
+      if (!grid) return;
+
+      grid.innerHTML = appState.facilities.map(f => {
+        const isCurrent = f.name.includes(appState.currentBranch);
+        const phonesList = f.phones && f.phones.length > 0 ? f.phones : (f.phone ? [f.phone] : ['+380 462 67-00-11']);
+
+        const phonesHtml = phonesList.map(p => `
+          <a href="tel:${p.replace(/\s+/g, '')}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-50 text-slate-800 hover:text-sky-700 font-mono text-xs font-bold transition">
+            <i data-lucide="phone-call" class="w-3 h-3 text-sky-600"></i> ${p}
+          </a>
+        `).join('');
+
+        return `
+          <div class="bg-white border ${isCurrent ? 'border-2 border-sky-500 shadow-md shadow-sky-50' : 'border-slate-200'} rounded-3xl p-6 space-y-4 relative">
+            ${isCurrent ? '<span class="absolute top-4 right-4 px-2.5 py-0.5 bg-sky-600 text-white rounded-full text-[10px] font-extrabold tracking-wide">ПОТОЧНА ФІЛІЯ</span>' : ''}
+            <div>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+                  <i data-lucide="building" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-slate-900 text-base leading-tight">${f.name}</h4>
+                  <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                    <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${f.address}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
+              <div class="flex justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 font-medium">Завідувач:</span>
+                <span class="font-bold text-slate-800">${f.head}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 font-medium">Кількість кабінетів:</span>
+                <span class="font-bold text-slate-800">${f.rooms}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 font-medium">Декларантів у базі:</span>
+                <span class="font-bold text-slate-800">${f.patientsCount || 1200}</span>
+              </div>
+              
+              <!-- Multi-phone list -->
+              <div class="py-1 space-y-1.5">
+                <span class="text-slate-500 font-medium block">Телефони реєстратури:</span>
+                <div class="flex flex-wrap gap-1.5">
+                  ${phonesHtml}
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
+              <button onclick="editFacility(${f.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Редагувати реквізити
+              </button>
+
+              ${!isCurrent ? `
+                <button onclick="switchBranch('${f.name}')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition">
+                  Обрати активною
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function switchBranch(branchName) {
+      appState.currentBranch = branchName.includes('Любецька') ? 'ПМР Любецька' : branchName;
+      const el = document.getElementById('sidebar-branch-name');
+      if (el) el.innerText = appState.currentBranch;
+      showToast(`Переключено на: ${appState.currentBranch}`, 'success');
+      renderFacilitiesView();
+      saveToCloud();
+    }
+
+    function addFacilityPhoneInput(phoneValue = '') {
+      const container = document.getElementById('fac-phones-inputs-list');
+      if (!container) return;
+
+      const div = document.createElement('div');
+      div.className = "flex items-center gap-2 fac-phone-row";
+      div.innerHTML = `
+        <input type="tel" value="${phoneValue}" placeholder="+380 462 67-00-11" required class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl fac-phone-input font-mono text-xs">
+        <button type="button" onclick="removeFacilityPhoneInput(this)" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition" title="Видалити номер">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      `;
+      container.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function removeFacilityPhoneInput(button) {
+      const container = document.getElementById('fac-phones-inputs-list');
+      const row = button.closest('.fac-phone-row');
+      if (container && row) {
+        if (container.children.length > 1) {
+          row.remove();
+        } else {
+          showToast('Потрібно залишити щонайменше один номер реєстратури', 'info');
+        }
+      }
+    }
+
+    function editFacility(id) {
+      const f = appState.facilities.find(item => item.id === id);
+      if (!f) return;
+
+      document.getElementById('fac-id').value = f.id;
+      document.getElementById('fac-name').value = f.name;
+      document.getElementById('fac-address').value = f.address;
+      document.getElementById('fac-head').value = f.head;
+      document.getElementById('fac-rooms').value = f.rooms;
+
+      const container = document.getElementById('fac-phones-inputs-list');
+      if (container) {
+        container.innerHTML = '';
+        const phones = f.phones && f.phones.length > 0 ? f.phones : (f.phone ? [f.phone] : ['+380 462 67-00-11']);
+        phones.forEach(phone => addFacilityPhoneInput(phone));
+      }
+
+      document.getElementById('modal-fac-title').innerText = `Редагувати: ${f.name}`;
+      openModal('modal-facility');
+    }
+
+    function openFacilityModal() {
+      document.getElementById('fac-id').value = '';
+      document.getElementById('form-facility').reset();
+      const container = document.getElementById('fac-phones-inputs-list');
+      if (container) {
+        container.innerHTML = '';
+        addFacilityPhoneInput('+380 462 00-00-00');
+      }
+      document.getElementById('modal-fac-title').innerText = 'Додати новий підрозділ';
+      openModal('modal-facility');
+    }
+
+    function handleSaveFacility(e) {
+      e.preventDefault();
+      const id = document.getElementById('fac-id').value;
+      const name = document.getElementById('fac-name').value;
+      const address = document.getElementById('fac-address').value;
+      const head = document.getElementById('fac-head').value;
+      const rooms = parseInt(document.getElementById('fac-rooms').value) || 1;
+
+      const phoneInputs = document.querySelectorAll('.fac-phone-input');
+      const phones = Array.from(phoneInputs)
+        .map(input => input.value.trim())
+        .filter(val => val.length > 0);
+
+      const finalPhones = phones.length > 0 ? phones : ['+380 462 00-00-00'];
+
+      if (id) {
+        const f = appState.facilities.find(item => item.id == id);
+        if (f) {
+          f.name = name;
+          f.address = address;
+          f.head = head;
+          f.rooms = rooms;
+          f.phones = finalPhones;
+          f.phone = finalPhones[0];
+        }
+      } else {
+        appState.facilities.push({
+          id: Date.now(),
+          name,
+          address,
+          head,
+          rooms,
+          phones: finalPhones,
+          phone: finalPhones[0],
+          patientsCount: 0
+        });
+      }
+
+      closeModal('modal-facility');
+      showToast("Інформацію про заклад оновлено!", 'success');
+      renderFacilitiesView();
+      saveToCloud();
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('users-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.users.map(u => {
+        const p = u.permissions || {};
+        const badges = [];
+        if (p.journal) badges.push(`<span class="px-2 py-0.5 rounded bg-sky-50 text-sky-700 font-bold text-[10px]">Каса</span>`);
+        if (p.vaccines) badges.push(`<span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px]">Вакцини</span>`);
+        if (p.tests) badges.push(`<span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-bold text-[10px]">Аналізи</span>`);
+        if (p.stats) badges.push(`<span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px]">Звіти</span>`);
+        if (p.facilities) badges.push(`<span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold text-[10px]">Заклади</span>`);
+        if (p.users) badges.push(`<span class="px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-bold text-[10px]">Доступи</span>`);
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold text-slate-900">${u.name}</td>
+            <td class="p-3 font-mono text-[11px] text-slate-600">${u.login}</td>
+            <td class="p-3 font-semibold text-slate-800">${u.role}</td>
+            <td class="p-3 text-slate-600">${u.facility}</td>
+            <td class="p-3"><div class="flex flex-wrap gap-1">${badges.join('')}</div></td>
+            <td class="p-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${u.status || 'Активний'}</span>
+            </td>
+            <td class="p-3 text-center">
+              <button onclick="editUser(${u.id})" class="p-1 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Редагувати">
+                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function editUser(id) {
+      const u = appState.users.find(item => item.id === id);
+      if (!u) return;
+
+      document.getElementById('usr-id').value = u.id;
+      document.getElementById('usr-name').value = u.name;
+      document.getElementById('usr-login').value = u.login;
+      document.getElementById('usr-role').value = u.role;
+      document.getElementById('usr-facility').value = u.facility;
+
+      const p = u.permissions || {};
+      document.getElementById('perm-journal').checked = !!p.journal;
+      document.getElementById('perm-vaccines').checked = !!p.vaccines;
+      document.getElementById('perm-tests').checked = !!p.tests;
+      document.getElementById('perm-stats').checked = !!p.stats;
+      document.getElementById('perm-facilities').checked = !!p.facilities;
+      document.getElementById('perm-users').checked = !!p.users;
+      document.getElementById('perm-edit-prices').checked = !!p.editPrices;
+
+      document.getElementById('modal-usr-title').innerText = `Редагувати: ${u.name}`;
+      openModal('modal-user');
+    }
+
+    function openUserModal() {
+      document.getElementById('usr-id').value = '';
+      document.getElementById('form-user').reset();
+      document.getElementById('perm-journal').checked = true;
+      document.getElementById('perm-vaccines').checked = true;
+      document.getElementById('perm-tests').checked = true;
+      document.getElementById('modal-usr-title').innerText = 'Новий співробітник';
+      openModal('modal-user');
+    }
+
+    function handleSaveUser(e) {
+      e.preventDefault();
+      const id = document.getElementById('usr-id').value;
+      const name = document.getElementById('usr-name').value;
+      const login = document.getElementById('usr-login').value;
+      const role = document.getElementById('usr-role').value;
+      const facility = document.getElementById('usr-facility').value;
+
+      const perms = {
+        journal: document.getElementById('perm-journal').checked,
+        vaccines: document.getElementById('perm-vaccines').checked,
+        tests: document.getElementById('perm-tests').checked,
+        stats: document.getElementById('perm-stats').checked,
+        facilities: document.getElementById('perm-facilities').checked,
+        users: document.getElementById('perm-users').checked,
+        editPrices: document.getElementById('perm-edit-prices').checked,
+      };
+
+      if (id) {
+        const target = appState.users.find(u => u.id == id);
+        if (target) {
+          target.name = name;
+          target.login = login;
+          target.role = role;
+          target.facility = facility;
+          target.permissions = perms;
+        }
+      } else {
+        appState.users.push({
+          id: Date.now(),
+          name,
+          login,
+          role,
+          facility,
+          status: "Активний",
+          permissions: perms
+        });
+      }
+
+      closeModal('modal-user');
+      showToast("Користувача та доступи збережено!", 'success');
+      renderUsersTable();
+      saveToCloud();
+    }
+
+    function renderStatsView() {
+      const docBars = document.getElementById('stats-doctor-bars');
+      if (docBars) {
+        const docCounts = {};
+        appState.journal.forEach(j => {
+          docCounts[j.doctor] = (docCounts[j.doctor] || 0) + 1;
+        });
+
+        const total = appState.journal.length || 1;
+        docBars.innerHTML = appState.doctors.map(d => {
+          const count = docCounts[d.name] || 0;
+          const percent = Math.round((count / total) * 100);
+
+          return `
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="text-slate-800">${d.name} (${d.spec})</span>
+                <span class="font-bold text-sky-700">${count} візитів (${percent}%)</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-sky-600 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const payBreakdown = document.getElementById('stats-payment-breakdown');
+      if (payBreakdown) {
+        let cash = 0, card = 0, free = 0;
+        appState.journal.forEach(j => {
+          if (j.paymentType === 'Готівка') cash += j.amount;
+          else if (j.paymentType === 'Термінал') card += j.amount;
+          else free += 1;
+        });
+
+        payBreakdown.innerHTML = `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-100">
+            <span class="font-bold">Готівковий обіг (Вересень):</span>
+            <span class="font-black text-sm">${cash.toLocaleString()} ₴</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-50 text-cyan-900 border border-cyan-100">
+            <span class="font-bold">Безготівка через POS-термінал:</span>
+            <span class="font-black text-sm">${card.toLocaleString()} ₴</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-xl bg-indigo-50 text-indigo-900 border border-indigo-100">
+            <span class="font-bold">Безоплатні прийоми (за Програмою Медгарантій):</span>
+            <span class="font-black text-sm">${free} пацієнтів</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderSettingsView() {
+      const pricesTbody = document.getElementById('prices-table-body');
+      if (pricesTbody) {
+        pricesTbody.innerHTML = appState.prices.map(p => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2 font-mono text-[10px] text-slate-500">${p.code}</td>
+            <td class="p-2 font-medium text-slate-800">${p.name}</td>
+            <td class="p-2 text-right font-bold text-slate-900">${p.price} ₴</td>
+          </tr>
+        `).join('');
+      }
+
+      const docsTbody = document.getElementById('doctors-table-body');
+      if (docsTbody) {
+        docsTbody.innerHTML = appState.doctors.map(d => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2 font-bold text-slate-900">${d.name}</td>
+            <td class="p-2 text-slate-600">${d.spec}</td>
+            <td class="p-2 text-center font-mono font-bold text-sky-700">${d.room}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function handleSaveCashRecord(e) {
+      e.preventDefault();
+      const date = document.getElementById('cr-date').value;
+      const birth = document.getElementById('cr-birth').value;
+      const name = document.getElementById('cr-name').value;
+      const phone = document.getElementById('cr-phone').value;
+      const hasDecl = document.getElementById('cr-has-decl').value;
+      const doctor = document.getElementById('cr-doctor').value;
+      const service = document.getElementById('cr-service').value;
+      const paymentType = document.getElementById('cr-payment-type').value;
+      const amount = parseFloat(document.getElementById('cr-amount').value) || 0;
+
+      const newRecord = {
+        id: Date.now(),
+        date,
+        birth,
+        patient: name,
+        phone,
+        hasDecl,
+        doctor,
+        service,
+        paymentType,
+        amount
+      };
+
+      appState.journal.unshift(newRecord);
+      closeModal('modal-cash-record');
+      document.getElementById('form-cash-record').reset();
+      showToast(`Запис для ${name} успішно додано у Вересень!`, 'success');
+      renderJournalTable();
+      saveToCloud();
+    }
+
+    function deleteCashRecord(id) {
+      appState.journal = appState.journal.filter(j => j.id !== id);
+      showToast("Запис видалено з каси", "info");
+      renderJournalTable();
+      saveToCloud();
+    }
+
+    function handleDeclChange(val) {
+      const paySelect = document.getElementById('cr-payment-type');
+      const amtInput = document.getElementById('cr-amount');
+      if (val === 'Так') {
+        paySelect.value = 'Безоплатно';
+        amtInput.value = 0;
+      } else {
+        if (paySelect.value === 'Безоплатно') paySelect.value = 'Готівка';
+        handleServiceSelect(document.getElementById('cr-service').value);
+      }
+    }
+
+    function handleServiceSelect(serviceName) {
+      const item = appState.prices.find(p => p.name === serviceName);
+      const isDecl = document.getElementById('cr-has-decl').value === 'Так';
+      if (item) {
+        document.getElementById('cr-amount').value = isDecl ? 0 : item.price;
+      }
+    }
+
+    function handleSaveVaccineBatch(e) {
+      e.preventDefault();
+      const name = document.getElementById('vac-name').value;
+      const maker = document.getElementById('vac-maker').value;
+      const lot = document.getElementById('vac-lot').value;
+      const expiry = document.getElementById('vac-expiry').value;
+      const doses = parseInt(document.getElementById('vac-doses').value) || 0;
+
+      appState.vaccines.push({
+        id: Date.now(),
+        name,
+        maker,
+        lot,
+        expiry,
+        startDoses: 0,
+        received: doses,
+        used: 0,
+        wasted: 0
+      });
+
+      closeModal('modal-vaccine-batch');
+      document.getElementById('form-vaccine-batch').reset();
+      showToast(`Партію ${name} оприбутковано на баланс!`, 'success');
+      renderVaccinesTable();
+      saveToCloud();
+    }
+
+    function handleSaveTest(e) {
+      e.preventDefault();
+      const patient = document.getElementById('test-patient').value;
+      const testName = document.getElementById('test-type').value;
+      const doctor = document.getElementById('test-doctor').value;
+      const result = document.getElementById('test-result').value || 'В роботі';
+
+      appState.tests.unshift({
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        patient,
+        testName,
+        doctor,
+        status: result === 'В роботі' ? 'В роботі' : 'Готово',
+        result
+      });
+
+      closeModal('modal-test');
+      document.getElementById('form-test').reset();
+      showToast(`Аналіз для ${patient} зареєстровано!`, 'success');
+      renderTestsTable();
+      saveToCloud();
+    }
+
+    function openCashModal() {
+      populateDropdowns();
+      openModal('modal-cash-record');
+    }
+
+    function openAddVaccineBatchModal() {
+      openModal('modal-vaccine-batch');
+    }
+
+    function openAddTestModal() {
+      populateDropdowns();
+      openModal('modal-test');
+    }
+
+    function openAiAssistantModal() {
+      openModal('modal-ai-assistant');
+    }
+
+    function openAddPriceModal() {
+      const name = prompt("Введіть назву послуги:");
+      if (!name) return;
+      const price = parseFloat(prompt("Введіть тариф (грн):", "150")) || 0;
+      const code = `K-0${appState.prices.length + 1}`;
+      appState.prices.push({ code, name, price });
+      renderSettingsView();
+      populateDropdowns();
+      showToast("Послугу додано в прейскурант", "success");
+      saveToCloud();
+    }
+
+    function openAddDoctorModal() {
+      const name = prompt("ПІБ Лікаря:");
+      if (!name) return;
+      const spec = prompt("Спеціальність (наприклад: Кардіолог):", "Терапевт");
+      const room = prompt("Номер кабінету:", "205");
+      appState.doctors.push({ id: Date.now(), name, spec, room });
+      renderSettingsView();
+      populateDropdowns();
+      showToast("Лікаря додано до штату", "success");
+      saveToCloud();
+    }
+
+    function handleGlobalSearch() {
+      if (appState.currentView === 'journal') renderJournalTable();
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    }
+
+    async function callGeminiApi(prompt) {
+      try {
+        const apiKey = typeof __gemini_api_key !== 'undefined' ? __gemini_api_key : '';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Не вдалося отримати відповідь від ШІ.";
+      } catch (err) {
+        console.warn("Gemini API call note:", err);
+        return "Сервіс ШІ тимчасово працює в демонстраційному режимі.";
+      }
+    }
+
+    async function parseVisitWithGemini() {
+      const rawText = document.getElementById('ai-intake-text').value;
+      if (!rawText.trim()) return showToast("Введіть текст для диктанту", "info");
+
+      showToast("ШІ аналізує текст диктанту...", "info");
+      const prompt = `Ти помічник реєстратора медичного закладу. Виділи з тексту дані та поверни виключно JSON формату:
+{"patient":"","birth":"","phone":"","hasDecl":"Так"|"Ні","doctor":"","service":"","paymentType":"Готівка"|"Термінал"|"Безоплатно","amount":0}
+Текст: "${rawText}"`;
+
+      try {
+        const result = await callGeminiApi(prompt);
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.patient) document.getElementById('cr-name').value = parsed.patient;
+          if (parsed.birth) document.getElementById('cr-birth').value = parsed.birth;
+          if (parsed.phone) document.getElementById('cr-phone').value = parsed.phone;
+          if (parsed.hasDecl) document.getElementById('cr-has-decl').value = parsed.hasDecl;
+          if (parsed.paymentType) document.getElementById('cr-payment-type').value = parsed.paymentType;
+          if (parsed.amount !== undefined) document.getElementById('cr-amount').value = parsed.amount;
+          showToast("Поля форми успішно заповнено ШІ!", "success");
+        }
+      } catch (e) {
+        console.error("AI parse exception:", e);
+      }
+    }
+
+    async function interpretTestWithGemini(testId) {
+      const test = appState.tests.find(t => t.id === testId);
+      if (!test) return;
+
+      showToast(`ШІ аналізує дослідження для ${test.patient}...`, 'info');
+      const prompt = `Ти досвідчений лікар-консультант. Оціни результат дослідження:
+Дослідження: ${test.testName}
+Результат: ${test.result}
+Надай лаконічний клінічний висновок українською мовою: чи є відхилення від норми та рекомендації для лікаря.`;
+
+      const response = await callGeminiApi(prompt);
+      alert(`[ШІ-Інтерпретація для ${test.patient}]\n\n${response}`);
+    }
+
+    async function generateExecutiveReportWithGemini() {
+      showToast("ШІ формує зведений звіт...", "info");
+      const container = document.getElementById('ai-report-container');
+      const textEl = document.getElementById('ai-report-text');
+      if (container) container.classList.remove('hidden');
+      if (textEl) textEl.innerText = "Генерація аналітичного звіту для завідувача закладу...";
+
+      const prompt = `Склади короткий управлінський звіт керівнику поліклінічного відділення ПМР Любецька на основі показників:
+Прийомів за вересень: ${appState.journal.length}.
+Вакцини на балансі: ${appState.vaccines.length} партій.
+Направлень на аналізи: ${appState.tests.length}.
+Сформулюй 3 головні висновки: фінансова дисципліна каси, стан імунізації та рекомендація для покращення прийому. Відповідь українською мовою.`;
+
+      const report = await callGeminiApi(prompt);
+      if (textEl) textEl.innerText = report;
+    }
+
+    function setAiQuery(q) {
+      const input = document.getElementById('ai-chat-input');
+      if (input) input.value = q;
+    }
+
+    async function askGeminiClinicalAssistant() {
+      const input = document.getElementById('ai-chat-input');
+      const output = document.getElementById('ai-chat-output');
+      const query = input.value.trim();
+      if (!query) return;
+
+      output.innerText = "Асистент шукає відповідь у медичних реєстрах...";
+      const answer = await callGeminiApi(`Відповідай як медичний довідник МОЗ України на запитання: ${query}`);
+      output.innerText = answer;
+    }
+
+    function exportCurrentSheetToCsv(sheetName) {
+      let csv = "data:text/csv;charset=utf-8,";
+      if (sheetName === 'Вересень') {
+        csv += "№,Дата,Пацієнт,Рік,Телефон,Декларація,Лікар,Послуга,Оплата,Сума\n";
+        appState.journal.forEach((j, i) => {
+          csv += `${i + 1},"${j.date}","${j.patient}","${j.birth}","${j.phone}","${j.hasDecl}","${j.doctor}","${j.service}","${j.paymentType}",${j.amount}\n`;
+        });
+      }
+
+      const encodedUri = encodeURI(csv);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Звіт_${sheetName}_2026.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Звіт «${sheetName}» успішно експортовано!`, "success");
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600' :
+                 type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+
+      toast.className = `${bg} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0`;
+      toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'info'}" class="w-4 h-4 shrink-0"></i> <span>${message}</span>`;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    Object.assign(window, {
+      navigate,
+      switchUserRolePrompt,
+      handleGlobalSearch,
+      openAiAssistantModal,
+      openCashModal,
+      exportCurrentSheetToCsv,
+      renderJournalTable,
+      deleteCashRecord,
+      openAddVaccineBatchModal,
+      useVaccineDose,
+      wasteVaccineDose,
+      openAddTestModal,
+      interpretTestWithGemini,
+      toggleTestStatus,
+      generateExecutiveReportWithGemini,
+      openFacilityModal,
+      editFacility,
+      switchBranch,
+      addFacilityPhoneInput,
+      removeFacilityPhoneInput,
+      openUserModal,
+      editUser,
+      openAddPriceModal,
+      openAddDoctorModal,
+      closeModal,
+      handleSaveCashRecord,
+      parseVisitWithGemini,
+      handleDeclChange,
+      handleServiceSelect,
+      handleSaveUser,
+      handleSaveFacility,
+      handleSaveVaccineBatch,
+      handleSaveTest,
+      setAiQuery,
+      askGeminiClinicalAssistant,
+      saveToCloud
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateDropdowns();
+      renderJournalTable();
+      initCloudStorage();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
