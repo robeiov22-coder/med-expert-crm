@@ -2058,8 +2058,11 @@
       const schedule = prompt("Графік роботи:", doctor?.schedule || '08:00–16:00');
       const workingDays = prompt("Дні прийому:", doctor?.workingDays || 'Пн, Вт, Ср, Чт, Пт');
       const status = prompt("Статус (Активний / У відпустці):", doctor?.status || 'Активний');
-      const profile = { id: doctor?.id || Date.now(), name, spec, specialization: spec, qualification, phones, roomIds: rooms, room: rooms[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => f.id), serviceCodes, schedule, workingDays, status };
+      const doctorId = doctor?.id || Date.now();
+      const replacementFor = prompt('ID лікаря, якого тимчасово замінює (необов’язково):', '');
+      const profile = { id: doctorId, name, spec, specialization: spec, qualification, phones, roomIds: rooms, room: rooms[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => f.id), serviceCodes, schedule, workingDays, status };
       if (doctor) Object.assign(doctor, profile); else appState.doctors.push(profile);
+      if (replacementFor) appState.doctorSubstitutions.push({ id: Date.now(), substituteDoctorId: doctorId, replacedDoctorId: Number(replacementFor), startDate: isoToday(), endDate: '', status: 'Активне', createdByUserId: appState.currentUser.id });
       renderSettingsView();
       populateDropdowns();
       showToast(doctor ? "Профіль лікаря оновлено" : "Лікаря додано до штату", "success");
