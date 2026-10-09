@@ -7,7 +7,6 @@ const crypto = require('crypto');
 
 admin.initializeApp();
 const db = admin.firestore();
-const bucket = admin.storage().bucket();
 
 const gmailClientId = defineSecret('GMAIL_CLIENT_ID');
 const gmailClientSecret = defineSecret('GMAIL_CLIENT_SECRET');
@@ -122,6 +121,7 @@ exports.gmailSync = onRequest({ secrets: [gmailClientId, gmailClientSecret, gmai
   const client = oauthClient();
   client.setCredentials(connectionSnap.data().tokens);
   const gmail = google.gmail({ version: 'v1', auth: client });
+  const bucket = admin.storage().bucket();
   const listed = await gmail.users.messages.list({
     userId: 'me',
     q: `from:${ALLOWED_SENDER} has:attachment newer_than:30d`,
