@@ -1129,7 +1129,7 @@
         ['Фещенко','Марія','Олександрівна','10.12.2002','380661374136','mary.feshcenko@gmail.com','Сестра медична','3759904389'],
         ['Шестак','Ірина','Павлівна','08.03.1981','380939575347','7irinashestak@gmail.com','Лікар-педіатр','2965215627']
       ];
-      const permissions = role => ({ ...(appState.rolePermissions[role] || appState.rolePermissions['Реєстратор / Касир']) });
+      const permissions = role => ({ ...(ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS['Реєстратор / Касир']) });
       let changed = false;
       staff.forEach((row, index) => {
         const [surname, firstName, patronymic, birthDate, phone, email, position, taxId] = row;
