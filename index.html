@@ -5207,7 +5207,10 @@
       const payFilter = document.getElementById('filter-pay')?.value || 'all';
       const search = document.getElementById('global-search')?.value.toLowerCase() || '';
 
+      const activeFacility = appState.facilities.find(f => f.name === appState.currentBranch);
+      const canSeeAllFacilities = appState.currentUser?.isMainAdministrator === true || appState.currentUser?.permissions?.allFacilities === true;
       const filtered = appState.journal.filter(item => {
+        if (!canSeeAllFacilities && activeFacility && item.facilityId && Number(item.facilityId) !== Number(activeFacility.id)) return false;
         if (docFilter !== 'all' && String(item.doctorId || item.doctor) !== String(docFilter)) return false;
         if (declFilter !== 'all' && item.hasDecl !== declFilter) return false;
         if (payFilter !== 'all' && item.paymentType !== payFilter) return false;
@@ -5932,6 +5935,7 @@
       const paymentType = document.getElementById('cr-payment-type').value;
       const amount = parseFloat(document.getElementById('cr-amount').value) || 0;
 
+      const activeFacility = appState.facilities.find(f => f.name === appState.currentBranch);
       const newRecord = {
         id: Date.now(),
         ...auditFields(),
@@ -5942,6 +5946,7 @@
         hasDecl,
         doctorId,
         doctor: resolveDoctorName(doctorId),
+        facilityId: activeFacility?.id || appState.currentUser?.facilityId || null,
         service,
         paymentType,
         amount
@@ -5958,6 +5963,9 @@
     }
 
     function deleteCashRecord(id) {
+      const item = appState.journal.find(j => j.id === id);
+      if (!item) return;
+      if (!confirm(`Видалити запис пацієнта «${item.patient || 'Без ПІБ'}»?`)) return;
       appState.journal = appState.journal.filter(j => j.id !== id);
       showToast("Запис видалено з каси", "info");
       renderJournalTable();
