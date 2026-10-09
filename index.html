@@ -53,7 +53,7 @@
 
       <button onclick="navigate('tests')" id="nav-btn-tests" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
         <i data-lucide="flask-conical" class="w-4 h-4 text-purple-600"></i>
-        <span>Аналізи та ЕКГ</span>
+        <span>Аналізи</span>
       </button>
 
       <div class="pt-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Аналітика та управління</div>
@@ -270,12 +270,12 @@
       <section id="view-tests" class="space-y-4 hidden">
         <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div>
-            <h3 class="font-bold text-slate-900 text-base">Лабораторні дослідження та діагностика</h3>
-            <p class="text-xs text-slate-600">Забір біоматеріалу, реєстрація ЕКГ, клінічні тести та результати</p>
+            <h3 class="font-bold text-slate-900 text-base">Аналізи</h3>
+            <p class="text-xs text-slate-600">Пакетні результати лабораторних досліджень від контрагентів</p>
           </div>
           <button onclick="openAddTestModal()" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-purple-200 transition">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
-            <span>+ Зареєструвати аналіз / ЕКГ</span>
+            <span>+ Додати результат аналізу</span>
           </button>
         </div>
 
@@ -286,11 +286,11 @@
                 <tr>
                   <th class="p-3">Дата</th>
                   <th class="p-3">Пацієнт</th>
-                  <th class="p-3">Дослідження</th>
+                  <th class="p-3">Пакет / контрагент</th>
                   <th class="p-3">Лікар</th>
                   <th class="p-3">Статус</th>
-                  <th class="p-3">Результат / Висновок</th>
-                  <th class="p-3 text-center">ШІ-Аналіз</th>
+                  <th class="p-3">Результат</th>
+                  <th class="p-3">Висновок ШІ</th>
                   <th class="p-3 text-center">Дія</th>
                 </tr>
               </thead>
@@ -657,7 +657,7 @@
             </label>
             <label class="flex items-center gap-2">
               <input type="checkbox" id="perm-tests" class="rounded text-purple-600">
-              <span>Аналізи та ЕКГ</span>
+              <span>Аналізи</span>
             </label>
             <label class="flex items-center gap-2">
               <input type="checkbox" id="perm-stats" class="rounded text-indigo-600">
@@ -775,7 +775,7 @@
   <div id="modal-test" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-slate-900 text-base">Реєстрація аналізу або ЕКГ</h3>
+        <h3 class="font-extrabold text-slate-900 text-base">Додати результат аналізу</h3>
         <button onclick="closeModal('modal-test')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
@@ -785,15 +785,22 @@
           <input type="text" id="test-patient" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Вид дослідження</label>
+          <label class="block font-bold text-slate-700 mb-1">Вид аналізу</label>
           <select id="test-type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
-            <option value="ЕКГ (Електрокардіограма)">ЕКГ (Електрокардіограма)</option>
             <option value="Загальний аналіз крові (ЗАК)">Загальний аналіз крові (ЗАК)</option>
             <option value="Глюкоза крові (експрес)">Глюкоза крові (експрес)</option>
             <option value="Біохімія крові">Біохімія крові</option>
             <option value="Загальний аналіз сечі (ЗАС)">Загальний аналіз сечі (ЗАС)</option>
             <option value="Швидкий тест на ВІЛ / Гепатити">Швидкий тест на ВІЛ / Гепатити</option>
           </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Контрагент / лабораторія</label>
+          <input type="text" id="test-provider" placeholder="Назва лабораторії або контрагента" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Ідентифікатор пакета результатів</label>
+          <input type="text" id="test-batch" placeholder="Наприклад: LAB-2026-001" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
         </div>
         <div>
           <label class="block font-bold text-slate-700 mb-1">Направлений лікарем</label>
@@ -808,6 +815,15 @@
           <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-md shadow-purple-200">Додати в чергу</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TEST RESULT DETAILS -->
+  <div id="modal-test-details" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 id="test-details-title" class="font-extrabold text-slate-900 text-base">Результат аналізу</h3><button onclick="closeModal('modal-test-details')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div id="test-details-content" class="space-y-3 text-xs"></div>
+      <div class="flex justify-end gap-2 border-t border-slate-100 pt-3"><button id="test-details-print-result" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Друкувати результат</button><button id="test-details-print-all" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold">Друкувати все</button></div>
     </div>
   </div>
 
@@ -1175,6 +1191,7 @@
           if (parsed.journal) appState.journal = parsed.journal;
           if (parsed.vaccines) appState.vaccines = parsed.vaccines;
           if (parsed.tests) appState.tests = parsed.tests;
+          if (removeLegacyEcgTests()) saveToCloud(true);
           if (purgeExpiredAiComments()) saveToCloud(true);
           if (parsed.facilities) appState.facilities = parsed.facilities;
           if (parsed.users) appState.users = parsed.users;
@@ -1224,6 +1241,7 @@
             if (data.journal) appState.journal = data.journal;
             if (data.vaccines) appState.vaccines = data.vaccines;
             if (data.tests) appState.tests = data.tests;
+            if (removeLegacyEcgTests()) saveToCloud(true);
             if (purgeExpiredAiComments()) saveToCloud(true);
             if (data.facilities) appState.facilities = data.facilities;
             if (data.users) appState.users = data.users;
@@ -1364,7 +1382,7 @@
       const titleMap = {
         journal: 'Журнал місяця «Вересень»',
         vaccines: 'Журнал вакцин (Баланс)',
-        tests: 'Лабораторія та ЕКГ',
+        tests: 'Аналізи',
         stats: 'Зведена статистика та звіти',
         facilities: 'Заклади та Філії поліклініки',
         access: 'Користувачі та Права доступу',
@@ -1567,22 +1585,20 @@
             <td class="p-3 text-slate-600 whitespace-nowrap">${t.date}</td>
             <td class="p-3 font-bold text-slate-900">${t.patient}</td>
             <td class="p-3 font-semibold text-slate-800">${t.testName}</td>
-            <td class="p-3 text-slate-600">${resolveDoctorName(t.doctorId, t.doctor)}</td>
+            <td class="p-3 text-slate-600">${escapeHtml(t.batchId || 'Без номера пакета')}<br><span class="text-[10px] text-slate-400">${escapeHtml(t.provider || 'Контрагент не вказаний')}</span></td>
             <td class="p-3">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
                 ${t.status}
               </span>
             </td>
-            <td class="p-3 text-slate-700 font-mono text-[11px] max-w-[240px] truncate" title="${t.result}">${t.result}</td>
+            <td class="p-3 text-slate-700 font-mono text-[11px] max-w-[240px] truncate" title="${escapeHtml(t.result)}">${escapeHtml(t.result)}</td>
             <td class="p-3 text-center">
-              <button onclick="interpretTestWithGemini(${t.id})" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-[11px] font-bold flex items-center gap-1 mx-auto transition">
-                <i data-lucide="sparkles" class="w-3 h-3"></i> ШІ-Аналіз
-              </button>
+              ${t.aiComment ? `<button onclick="openTestDetailsModal(${t.id})" class="text-[11px] text-indigo-700 font-semibold text-left max-w-[220px] truncate" title="${escapeHtml(t.aiComment)}">${escapeHtml(t.aiComment)}</button>` : `<button onclick="interpretTestWithGemini(${t.id})" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-[11px] font-bold flex items-center gap-1 mx-auto transition"><i data-lucide="sparkles" class="w-3 h-3"></i> Сформувати</button>`}
             </td>
             <td class="p-3 text-center">
               <div class="flex flex-col items-center gap-1">
                 <button onclick="toggleTestStatus(${t.id})" class="text-xs font-bold text-sky-600 hover:text-sky-800">${isDone ? 'Відкрити' : 'Завершити'}</button>
-                <button onclick="printTestResult(${t.id}, 'all')" class="text-[10px] font-bold text-slate-600 hover:text-slate-900">Друкувати</button>
+                <button onclick="openTestDetailsModal(${t.id})" class="text-[10px] font-bold text-slate-600 hover:text-slate-900">Переглянути</button>
               </div>
             </td>
           </tr>
@@ -1618,6 +1634,27 @@
         }
       });
       return changed;
+    }
+
+    function removeLegacyEcgTests() {
+      const before = appState.tests.length;
+      appState.tests = appState.tests.filter(test => !String(test.testName || '').toLowerCase().includes('екг'));
+      return before !== appState.tests.length;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function openTestDetailsModal(testId) {
+      const test = appState.tests.find(item => Number(item.id) === Number(testId));
+      if (!test) return;
+      document.getElementById('test-details-title').textContent = `${test.testName} — ${test.patient}`;
+      document.getElementById('test-details-content').innerHTML = `<div class="grid grid-cols-2 gap-2"><div><span class="font-bold text-slate-500">Пацієнт:</span> ${escapeHtml(test.patient)}</div><div><span class="font-bold text-slate-500">Дата:</span> ${escapeHtml(test.date)}</div><div><span class="font-bold text-slate-500">Контрагент:</span> ${escapeHtml(test.provider || '—')}</div><div><span class="font-bold text-slate-500">Пакет:</span> ${escapeHtml(test.batchId || '—')}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Результат</h4><div class="p-3 bg-slate-50 border border-slate-200 rounded-xl whitespace-pre-wrap font-mono">${escapeHtml(test.result)}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Висновок ШІ</h4><div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl whitespace-pre-wrap">${escapeHtml(test.aiComment || 'Коментар ще не сформовано')}</div></div>`;
+      document.getElementById('test-details-print-result').onclick = () => printTestResult(test.id, 'result');
+      document.getElementById('test-details-print-all').onclick = () => printTestResult(test.id, 'all');
+      openModal('modal-test-details');
+      lucide.createIcons();
     }
 
     function escapePrintText(value) {
@@ -2149,6 +2186,8 @@
       e.preventDefault();
       const patient = document.getElementById('test-patient').value;
       const testName = document.getElementById('test-type').value;
+      const provider = document.getElementById('test-provider').value.trim();
+      const batchId = document.getElementById('test-batch').value.trim() || `ПАКЕТ-${new Date().toISOString().slice(0, 10)}`;
       const doctorId = Number(document.getElementById('test-doctor').value) || null;
       const result = document.getElementById('test-result').value || 'В роботі';
 
@@ -2158,6 +2197,8 @@
         date: new Date().toISOString().split('T')[0],
         patient,
         testName,
+        provider,
+        batchId,
         doctorId,
         doctor: resolveDoctorName(doctorId),
         status: result === 'В роботі' ? 'В роботі' : 'Готово',
@@ -2512,6 +2553,7 @@
       wasteVaccineDose,
       openAddTestModal,
       interpretTestWithGemini,
+      openTestDetailsModal,
       toggleTestStatus,
       printTestResult,
       generateExecutiveReportWithGemini,
@@ -2549,6 +2591,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
+      removeLegacyEcgTests();
       populateDropdowns();
       renderJournalTable();
       initCloudStorage();
