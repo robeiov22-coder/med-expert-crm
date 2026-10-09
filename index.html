@@ -1043,6 +1043,54 @@
     }
     migrateEntityRelations();
 
+
+    /* OFFLINE-FIRST PERSISTENCE */
+    const OFFLINE_DB = 'medexpert-crm-offline-v1';
+    let offlineDbPromise;
+    function openOfflineDb() {
+      if (offlineDbPromise) return offlineDbPromise;
+      offlineDbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(OFFLINE_DB, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains('pending')) db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      return offlineDbPromise;
+    }
+    function offlineSnapshot() {
+      return { ...appState, currentUser: undefined };
+    }
+    async function queueOfflineSnapshot() {
+      try {
+        const db = await openOfflineDb();
+        const tx = db.transaction('pending', 'readwrite');
+        tx.objectStore('pending').add({ payload: JSON.stringify(offlineSnapshot()), createdAt: Date.now() });
+        if (!navigator.onLine) updateCloudIndicator('Хмара: Офлайн, локально збережено', 'amber');
+      } catch (error) { console.warn('Offline queue error:', error); }
+    }
+    async function flushOfflineQueue() {
+      if (!navigator.onLine) { updateCloudIndicator('Хмара: Офлайн, локально збережено', 'amber'); return; }
+      try {
+        const db = await openOfflineDb();
+        const store = db.transaction('pending', 'readwrite').objectStore('pending');
+        const items = await new Promise((resolve, reject) => { const request = store.getAll(); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+        if (items.length && isCloudReady) {
+          await saveToCloud(true);
+          const clear = db.transaction('pending', 'readwrite').objectStore('pending').clear();
+          clear.onsuccess = () => updateCloudIndicator('Хмара: Синхронізовано', 'emerald');
+        } else if (!isCloudReady) updateCloudIndicator('Хмара: Очікує синхронізації', 'amber');
+      } catch (error) { updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); }
+    }
+    function initOfflineMode() {
+      window.addEventListener('offline', () => updateCloudIndicator('Хмара: Офлайн, локально збережено', 'amber'));
+      window.addEventListener('online', () => { updateCloudIndicator('Хмара: Синхронізація...', 'amber'); flushOfflineQueue(); saveToCloud(true); });
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(error => console.warn('Service Worker:', error));
+      flushOfflineQueue();
+    }
+
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
     let db = null;
     let auth = null;
@@ -1148,6 +1196,7 @@
     async function saveToCloud(immediate = false) {
       /* Always mirror into localStorage first for 100% offline safety */
       try {
+        if (!navigator.onLine) queueOfflineSnapshot();
         localStorage.setItem('med_expert_crm_backup', JSON.stringify({
           journal: appState.journal,
           vaccines: appState.vaccines,
@@ -1563,7 +1612,7 @@
       const div = document.createElement('div');
       div.className = "flex items-center gap-2 fac-phone-row";
       div.innerHTML = `
-        <input type="tel" value="${phoneValue}" placeholder="+380 462 67-00-11" required class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl fac-phone-input font-mono text-xs">
+        <input type="tel" value="${phoneValue}" placeholder="+380 462 67-00-11" class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl fac-phone-input font-mono text-xs">
         <button type="button" onclick="removeFacilityPhoneInput(this)" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition" title="Видалити номер">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
         </button>
@@ -1579,7 +1628,8 @@
         if (container.children.length > 1) {
           row.remove();
         } else {
-          showToast('Потрібно залишити щонайменше один номер реєстратури', 'info');
+          const input = row.querySelector('.fac-phone-input');
+          if (input) input.value = '';
         }
       }
     }
@@ -1630,7 +1680,7 @@
         .map(input => input.value.trim())
         .filter(val => val.length > 0);
 
-      const finalPhones = phones.length > 0 ? phones : ['+380 462 00-00-00'];
+      const finalPhones = phones.length > 0 ? phones : ['+380 462 67-00-11'];
 
       if (id) {
         const f = appState.facilities.find(item => item.id == id);
@@ -1873,7 +1923,9 @@
         patient: name,
         phone,
         hasDecl,
-        doctor,
+        doctorId,
+        doctor: resolveDoctorName(doctorId),
+        facilityId: appState.currentBranchId,
         service,
         paymentType,
         amount
@@ -1953,7 +2005,9 @@
         date: new Date().toISOString().split('T')[0],
         patient,
         testName,
-        doctor,
+        doctorId,
+        doctor: resolveDoctorName(doctorId),
+        facilityId: appState.currentBranchId,
         status: result === 'В роботі' ? 'В роботі' : 'Готово',
         result
       });
@@ -2203,6 +2257,7 @@
       populateDropdowns();
       renderJournalTable();
       initCloudStorage();
+      initOfflineMode();
       lucide.createIcons();
     });
   </script>
