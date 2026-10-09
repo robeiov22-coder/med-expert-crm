@@ -447,8 +447,12 @@
                 <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
                   <tr>
                     <th class="p-2">ПІБ Лікаря</th>
-                    <th class="p-2">Спеціальність</th>
-                    <th class="p-2 text-center">Кабінет</th>
+                    <th class="p-2">Спеціалізація / кваліфікація</th>
+                    <th class="p-2 text-center">Кабінети</th>
+                    <th class="p-2">Підрозділи</th>
+                    <th class="p-2">Послуги</th>
+                    <th class="p-2">Статус / графік</th>
+                    <th class="p-2 text-center">Дії</th>
                   </tr>
                 </thead>
                 <tbody id="doctors-table-body" class="divide-y divide-slate-100"></tbody>
@@ -883,6 +887,7 @@
         }
       ],
       roleAssignments: [],
+      doctorSubstitutions: [],
       prices: [
         { code: "K-01", name: "Консультація лікаря (без декларації)", price: 250 },
         { code: "K-02", name: "Електрокардіограма (ЕКГ) з розшифровкою", price: 150 },
@@ -1068,6 +1073,7 @@
           if (parsed.prices) appState.prices = parsed.prices;
           if (parsed.doctors) appState.doctors = parsed.doctors;
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
+          if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
         }
       } catch (e) {
@@ -1112,6 +1118,7 @@
             if (data.prices) appState.prices = data.prices;
             if (data.doctors) appState.doctors = data.doctors;
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
+            if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
             if (data.currentBranch) {
               appState.currentBranch = data.currentBranch;
               const el = document.getElementById('sidebar-branch-name');
@@ -1162,6 +1169,7 @@
           prices: appState.prices,
           doctors: appState.doctors,
           roleAssignments: appState.roleAssignments,
+          doctorSubstitutions: appState.doctorSubstitutions,
           currentBranch: appState.currentBranch
         }));
         if (!navigator.onLine) queueOfflineChange();
@@ -1186,6 +1194,7 @@
             prices: appState.prices,
             doctors: appState.doctors,
             roleAssignments: appState.roleAssignments,
+            doctorSubstitutions: appState.doctorSubstitutions,
             currentBranch: appState.currentBranch,
             updatedAt: new Date().toISOString()
           }, { merge: true });
@@ -1879,8 +1888,12 @@
         docsTbody.innerHTML = appState.doctors.map(d => `
           <tr class="hover:bg-slate-50 transition">
             <td class="p-2 font-bold text-slate-900">${d.name}</td>
-            <td class="p-2 text-slate-600">${d.spec}</td>
-            <td class="p-2 text-center font-mono font-bold text-sky-700">${d.room}</td>
+            <td class="p-2 text-slate-600">${d.spec || d.specialization || '—'}<br><span class="text-[10px] text-slate-400">${d.qualification || 'Кваліфікацію не вказано'}</span></td>
+            <td class="p-2 text-center font-mono font-bold text-sky-700">${(d.roomIds || [d.room]).filter(Boolean).join(', ') || '—'}</td>
+            <td class="p-2 text-xs text-slate-600">${(d.facilityIds || []).map(id => appState.facilities.find(f => Number(f.id) === Number(id))?.name).filter(Boolean).join(', ') || '—'}</td>
+            <td class="p-2 text-xs text-slate-600">${(d.serviceCodes || []).map(code => appState.prices.find(p => p.code === code)?.name).filter(Boolean).join(', ') || 'Усі послуги'}</td>
+            <td class="p-2 text-xs ${d.status === 'У відпустці' ? 'text-amber-600' : 'text-emerald-600'}">${d.status || 'Активний'}<br>${d.schedule || 'Графік не вказано'}</td>
+            <td class="p-2 text-center"><button onclick="editDoctorProfile(${d.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold">Редагувати</button></td>
           </tr>
         `).join('');
       }
@@ -2031,19 +2044,29 @@
       saveToCloud();
     }
 
-    function openAddDoctorModal() {
-      const name = prompt("ПІБ Лікаря:");
-      if (!name) return;
-      const spec = prompt("Спеціальність (наприклад: Кардіолог):", "Терапевт");
-      const room = prompt("Номер кабінету:", "205");
-      const facilityNumbers = prompt(`Номери підрозділів через кому:\n${appState.facilities.map((f, i) => `${i + 1}. ${f.name}`).join('\n')}`, '1');
+    function editDoctorProfile(id = null) {
+      const doctor = id ? appState.doctors.find(d => Number(d.id) === Number(id)) : null;
+      const name = prompt("ПІБ лікаря:", doctor?.name || ''); if (!name) return;
+      const spec = prompt("Медична спеціалізація:", doctor?.spec || 'Терапевт');
+      const qualification = prompt("Кваліфікація:", doctor?.qualification || 'Лікар-спеціаліст');
+      const phones = (prompt("Телефони через кому:", (doctor?.phones || []).join(', ')) || '').split(',').map(x => x.trim()).filter(Boolean);
+      const rooms = (prompt("Номери кабінетів через кому:", (doctor?.roomIds || [doctor?.room || '']).join(', ')) || '').split(',').map(x => x.trim()).filter(Boolean);
+      const facilityNumbers = prompt(`Номери підрозділів через кому:\n${appState.facilities.map((f, i) => `${i + 1}. ${f.name}`).join('\n')}`, doctor?.facilityIds?.map(id => appState.facilities.findIndex(f => Number(f.id) === Number(id)) + 1).join(',') || '1');
       const facilityIds = (facilityNumbers || '1').split(',').map(value => appState.facilities[Number(value.trim()) - 1]?.id).filter(Boolean);
-      appState.doctors.push({ id: Date.now(), name, spec, room, facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => f.id) });
+      const serviceNumbers = prompt(`Послуги через кому або порожньо для всіх:\n${appState.prices.map((p, i) => `${i + 1}. ${p.code} — ${p.name}`).join('\n')}`, (doctor?.serviceCodes || []).map(code => appState.prices.findIndex(p => p.code === code) + 1).join(',')) || '';
+      const serviceCodes = serviceNumbers.split(',').map(value => appState.prices[Number(value.trim()) - 1]?.code).filter(Boolean);
+      const schedule = prompt("Графік роботи:", doctor?.schedule || '08:00–16:00');
+      const workingDays = prompt("Дні прийому:", doctor?.workingDays || 'Пн, Вт, Ср, Чт, Пт');
+      const status = prompt("Статус (Активний / У відпустці):", doctor?.status || 'Активний');
+      const profile = { id: doctor?.id || Date.now(), name, spec, specialization: spec, qualification, phones, roomIds: rooms, room: rooms[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => f.id), serviceCodes, schedule, workingDays, status };
+      if (doctor) Object.assign(doctor, profile); else appState.doctors.push(profile);
       renderSettingsView();
       populateDropdowns();
-      showToast("Лікаря додано до штату", "success");
+      showToast(doctor ? "Профіль лікаря оновлено" : "Лікаря додано до штату", "success");
       saveToCloud();
     }
+
+    function openAddDoctorModal() { editDoctorProfile(); }
 
     function handleGlobalSearch() {
       if (appState.currentView === 'journal') renderJournalTable();
