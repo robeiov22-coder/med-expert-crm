@@ -680,6 +680,38 @@
     </div>
   </div>
 
+  <!-- MODAL: ADD / EDIT DOCTOR PROFILE -->
+  <div id="modal-doctor" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="modal-doctor-title" class="font-extrabold text-slate-900 text-base">Додати лікаря</h3>
+        <button type="button" onclick="closeModal('modal-doctor')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="form-doctor" onsubmit="handleSaveDoctor(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="doctor-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block font-bold text-slate-700 mb-1">ПІБ лікаря</label><input id="doctor-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Медична спеціалізація</label><input id="doctor-specialization" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        </div>
+        <div><label class="block font-bold text-slate-700 mb-1">Кваліфікація</label><input id="doctor-qualification" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div>
+          <div class="flex items-center justify-between mb-1"><label class="block font-bold text-slate-700">Телефони</label><button type="button" onclick="addDoctorPhoneInput()" class="text-sky-600 font-bold hover:text-sky-700">+ Додати номер</button></div>
+          <div id="doctor-phones-inputs-list" class="space-y-2"></div>
+        </div>
+        <div><label class="block font-bold text-slate-700 mb-1">Кабінети (через кому)</label><input id="doctor-rooms" placeholder="101, 102" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Підрозділи</label><div id="doctor-facilities-list" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200"></div></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Дозволені послуги</label><div id="doctor-services-list" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block font-bold text-slate-700 mb-1">Графік роботи</label><input id="doctor-schedule" placeholder="08:00–16:00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Дні прийому</label><input id="doctor-working-days" placeholder="Пн, Вт, Ср" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        </div>
+        <div><label class="block font-bold text-slate-700 mb-1">Статус</label><select id="doctor-status" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"><option>Активний</option><option>У відпустці</option></select></div>
+        <div class="border-t border-slate-100 pt-3"><label class="block font-bold text-slate-700 mb-1">Тимчасове заміщення лікаря</label><select id="doctor-replacement-for" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"><option value="">Не замінює іншого лікаря</option></select><div class="grid grid-cols-2 gap-3 mt-2"><input type="date" id="doctor-sub-start" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"><input type="date" id="doctor-sub-end" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div></div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100"><button type="button" onclick="closeModal('modal-doctor')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button><button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-md shadow-sky-200">Зберегти профіль</button></div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: ADD VACCINE BATCH -->
   <div id="modal-vaccine-batch" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -2044,32 +2076,81 @@
       saveToCloud();
     }
 
+    function addDoctorPhoneInput(phoneValue = '') {
+      const container = document.getElementById('doctor-phones-inputs-list');
+      if (!container) return;
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-2 doctor-phone-row';
+      row.innerHTML = `<input type="tel" value="${String(phoneValue).replace(/"/g, '&quot;')}" placeholder="+380 67 000 00 00" class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl doctor-phone-input font-mono text-xs"><button type="button" onclick="removeDoctorPhoneInput(this)" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl" title="Видалити номер"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+      container.appendChild(row);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function removeDoctorPhoneInput(button) {
+      const container = document.getElementById('doctor-phones-inputs-list');
+      const row = button?.closest('.doctor-phone-row');
+      if (!container || !row) return;
+      if (container.children.length > 1) row.remove();
+      else row.querySelector('.doctor-phone-input').value = '';
+    }
+
+    function populateDoctorProfileForm(doctor = null) {
+      document.getElementById('doctor-id').value = doctor?.id || '';
+      document.getElementById('modal-doctor-title').textContent = doctor ? 'Редагувати профіль лікаря' : 'Додати лікаря';
+      document.getElementById('doctor-name').value = doctor?.name || '';
+      document.getElementById('doctor-specialization').value = doctor?.specialization || doctor?.spec || '';
+      document.getElementById('doctor-qualification').value = doctor?.qualification || '';
+      document.getElementById('doctor-rooms').value = (doctor?.roomIds || (doctor?.room ? [doctor.room] : [])).join(', ');
+      document.getElementById('doctor-schedule').value = doctor?.schedule || '';
+      document.getElementById('doctor-working-days').value = doctor?.workingDays || '';
+      document.getElementById('doctor-status').value = doctor?.status || 'Активний';
+      const phones = document.getElementById('doctor-phones-inputs-list');
+      phones.innerHTML = '';
+      (doctor?.phones?.length ? doctor.phones : ['']).forEach(addDoctorPhoneInput);
+      const facilities = document.getElementById('doctor-facilities-list');
+      const facilityIds = doctorFacilityIds(doctor || {});
+      facilities.innerHTML = appState.facilities.map(f => `<label class="flex items-center gap-2"><input type="checkbox" value="${f.id}" class="doctor-facility-check rounded text-sky-600" ${facilityIds.includes(Number(f.id)) ? 'checked' : ''}><span>${f.name}</span></label>`).join('');
+      const services = document.getElementById('doctor-services-list');
+      const serviceCodes = doctor?.serviceCodes || [];
+      services.innerHTML = appState.prices.map(p => `<label class="flex items-center gap-2"><input type="checkbox" value="${p.code}" class="doctor-service-check rounded text-sky-600" ${serviceCodes.includes(p.code) ? 'checked' : ''}><span>${p.code} — ${p.name}</span></label>`).join('') || '<span class="text-slate-400">Послуги ще не додані до прейскуранта</span>';
+      const replacement = document.getElementById('doctor-replacement-for');
+      replacement.innerHTML = '<option value="">Не замінює іншого лікаря</option>' + appState.doctors.filter(d => Number(d.id) !== Number(doctor?.id)).map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      const activeSub = appState.doctorSubstitutions.find(s => Number(s.substituteDoctorId) === Number(doctor?.id) && s.status === 'Активне');
+      replacement.value = activeSub?.replacedDoctorId || '';
+      document.getElementById('doctor-sub-start').value = activeSub?.startDate || '';
+      document.getElementById('doctor-sub-end').value = activeSub?.endDate || '';
+    }
+
     function editDoctorProfile(id = null) {
       const doctor = id ? appState.doctors.find(d => Number(d.id) === Number(id)) : null;
-      const name = prompt("ПІБ лікаря:", doctor?.name || ''); if (!name) return;
-      const spec = prompt("Медична спеціалізація:", doctor?.spec || 'Терапевт');
-      const qualification = prompt("Кваліфікація:", doctor?.qualification || 'Лікар-спеціаліст');
-      const phones = (prompt("Телефони через кому:", (doctor?.phones || []).join(', ')) || '').split(',').map(x => x.trim()).filter(Boolean);
-      const rooms = (prompt("Номери кабінетів через кому:", (doctor?.roomIds || [doctor?.room || '']).join(', ')) || '').split(',').map(x => x.trim()).filter(Boolean);
-      const facilityNumbers = prompt(`Номери підрозділів через кому:\n${appState.facilities.map((f, i) => `${i + 1}. ${f.name}`).join('\n')}`, doctor?.facilityIds?.map(id => appState.facilities.findIndex(f => Number(f.id) === Number(id)) + 1).join(',') || '1');
-      const facilityIds = (facilityNumbers || '1').split(',').map(value => appState.facilities[Number(value.trim()) - 1]?.id).filter(Boolean);
-      const serviceNumbers = prompt(`Послуги через кому або порожньо для всіх:\n${appState.prices.map((p, i) => `${i + 1}. ${p.code} — ${p.name}`).join('\n')}`, (doctor?.serviceCodes || []).map(code => appState.prices.findIndex(p => p.code === code) + 1).join(',')) || '';
-      const serviceCodes = serviceNumbers.split(',').map(value => appState.prices[Number(value.trim()) - 1]?.code).filter(Boolean);
-      const schedule = prompt("Графік роботи:", doctor?.schedule || '08:00–16:00');
-      const workingDays = prompt("Дні прийому:", doctor?.workingDays || 'Пн, Вт, Ср, Чт, Пт');
-      const status = prompt("Статус (Активний / У відпустці):", doctor?.status || 'Активний');
-      const doctorId = doctor?.id || Date.now();
-      const replacementFor = prompt('ID лікаря, якого тимчасово замінює (необов’язково):', '');
-      const profile = { id: doctorId, name, spec, specialization: spec, qualification, phones, roomIds: rooms, room: rooms[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => f.id), serviceCodes, schedule, workingDays, status };
-      if (doctor) Object.assign(doctor, profile); else appState.doctors.push(profile);
-      if (replacementFor) appState.doctorSubstitutions.push({ id: Date.now(), substituteDoctorId: doctorId, replacedDoctorId: Number(replacementFor), startDate: isoToday(), endDate: '', status: 'Активне', createdByUserId: appState.currentUser.id });
-      renderSettingsView();
-      populateDropdowns();
-      showToast(doctor ? "Профіль лікаря оновлено" : "Лікаря додано до штату", "success");
-      saveToCloud();
+      populateDoctorProfileForm(doctor);
+      openModal('modal-doctor');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function openAddDoctorModal() { editDoctorProfile(); }
+
+    function handleSaveDoctor(e) {
+      e.preventDefault();
+      const idValue = document.getElementById('doctor-id').value;
+      const doctorId = idValue ? Number(idValue) : Date.now();
+      const name = document.getElementById('doctor-name').value.trim();
+      const phones = [...document.querySelectorAll('.doctor-phone-input')].map(input => input.value.trim()).filter(Boolean);
+      const roomIds = document.getElementById('doctor-rooms').value.split(',').map(value => value.trim()).filter(Boolean);
+      const facilityIds = [...document.querySelectorAll('.doctor-facility-check:checked')].map(input => Number(input.value));
+      const serviceCodes = [...document.querySelectorAll('.doctor-service-check:checked')].map(input => input.value);
+      const profile = { id: doctorId, name, spec: document.getElementById('doctor-specialization').value.trim(), specialization: document.getElementById('doctor-specialization').value.trim(), qualification: document.getElementById('doctor-qualification').value.trim(), phones, roomIds, room: roomIds[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => Number(f.id)), serviceCodes, schedule: document.getElementById('doctor-schedule').value.trim(), workingDays: document.getElementById('doctor-working-days').value.trim(), status: document.getElementById('doctor-status').value };
+      const existing = appState.doctors.find(d => Number(d.id) === doctorId);
+      if (existing) Object.assign(existing, profile); else appState.doctors.push(profile);
+      appState.doctorSubstitutions = appState.doctorSubstitutions.filter(s => !(Number(s.substituteDoctorId) === doctorId && s.status === 'Активне'));
+      const replacedDoctorId = Number(document.getElementById('doctor-replacement-for').value);
+      if (replacedDoctorId) appState.doctorSubstitutions.push({ id: Date.now(), substituteDoctorId: doctorId, replacedDoctorId, startDate: document.getElementById('doctor-sub-start').value || isoToday(), endDate: document.getElementById('doctor-sub-end').value || '', status: 'Активне', createdByUserId: appState.currentUser?.id || null });
+      closeModal('modal-doctor');
+      renderSettingsView();
+      populateDropdowns();
+      showToast(existing ? 'Профіль лікаря оновлено' : 'Лікаря додано до штату', 'success');
+      saveToCloud();
+    }
 
     function handleGlobalSearch() {
       if (appState.currentView === 'journal') renderJournalTable();
@@ -2250,6 +2331,9 @@
       openAddPriceModal,
       openAddDoctorModal,
       editDoctorProfile,
+      addDoctorPhoneInput,
+      removeDoctorPhoneInput,
+      handleSaveDoctor,
       closeModal,
       handleSaveCashRecord,
       parseVisitWithGemini,
