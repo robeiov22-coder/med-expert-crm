@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMainAdministrator() {
+      return signedIn() && request.auth.token.mainAdministrator == true;
+    }
+
+    function hasFacility(facilityId) {
+      return signedIn() && facilityId in request.auth.token.facilityIds;
+    }
+
+    function canReadFacility(facilityId) {
+      return isMainAdministrator() || hasFacility(facilityId);
+    }
+
+    function canWriteFacility(facilityId) {
+      return isMainAdministrator() ||
+        (hasFacility(facilityId) && request.auth.token.permissions.write == true);
+    }
+
+    match /facilities/{facilityId}/{collection}/{documentId} {
+      allow read: if canReadFacility(facilityId);
+      allow create, update: if canWriteFacility(facilityId);
+      allow delete: if isMainAdministrator() ||
+        (hasFacility(facilityId) && request.auth.token.permissions.delete == true);
+    }
+
+    match /facilities/{facilityId} {
+      allow read: if canReadFacility(facilityId);
+      allow create, update, delete: if isMainAdministrator();
+    }
+
+    match /users/{userId} {
+      allow read: if isMainAdministrator() || signedIn() && request.auth.uid == userId;
+      allow create, update, delete: if isMainAdministrator();
+    }
+
+    match /audit/{auditId} {
+      allow read: if isMainAdministrator();
+      allow create: if signedIn();
+      allow update, delete: if false;
+    }
+
+    match /gmail_connections/{mailboxKey} {
+      allow read, write: if isMainAdministrator();
+    }
+
+    match /gmail_imports/{importId} {
+      allow read: if isMainAdministrator() ||
+        (signedIn() && resource.data.facilityId in request.auth.token.facilityIds);
+      allow create, update: if isMainAdministrator() ||
+        (signedIn() && request.resource.data.facilityId in request.auth.token.facilityIds);
+      allow delete: if isMainAdministrator();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
