@@ -1007,6 +1007,42 @@
       ]
     };
 
+
+    /* STABLE ENTITY RELATIONSHIPS AND LEGACY DATA MIGRATION */
+    const getFacility = id => appState.facilities.find(f => Number(f.id) === Number(id));
+    const getDoctor = id => appState.doctors.find(d => Number(d.id) === Number(id));
+    const resolveFacilityName = (id, legacyName = '') => getFacility(id)?.name || legacyName || 'Не призначено';
+    const resolveDoctorName = (id, legacyName = '') => getDoctor(id)?.name || legacyName || 'Не призначено';
+    function migrateEntityRelations() {
+      appState.facilities = (appState.facilities || []).map((f, index) => ({ ...f, id: Number(f.id) || Date.now() + index }));
+      const facilityByName = new Map(appState.facilities.map(f => [f.name, f.id]));
+      const defaultFacilityId = appState.facilities[0]?.id || null;
+      appState.currentBranchId = Number(appState.currentBranchId) || facilityByName.get(appState.currentBranch) || defaultFacilityId;
+      appState.currentBranch = resolveFacilityName(appState.currentBranchId, appState.currentBranch);
+      appState.doctors = (appState.doctors || []).map((d, index) => ({
+        ...d,
+        id: Number(d.id) || Date.now() + index,
+        facilityId: Number(d.facilityId) || facilityByName.get(d.facility) || defaultFacilityId
+      }));
+      const doctorByName = new Map(appState.doctors.map(d => [d.name, d.id]));
+      appState.users = (appState.users || []).map(u => ({
+        ...u,
+        facilityId: Number(u.facilityId) || facilityByName.get(u.facility) || defaultFacilityId,
+        facility: undefined
+      }));
+      appState.journal = (appState.journal || []).map(j => ({
+        ...j,
+        facilityId: Number(j.facilityId) || appState.currentBranchId || defaultFacilityId,
+        doctorId: Number(j.doctorId) || doctorByName.get(j.doctor) || null
+      }));
+      appState.tests = (appState.tests || []).map(t => ({
+        ...t,
+        facilityId: Number(t.facilityId) || appState.currentBranchId || defaultFacilityId,
+        doctorId: Number(t.doctorId) || doctorByName.get(t.doctor) || null
+      }));
+    }
+    migrateEntityRelations();
+
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
     let db = null;
     let auth = null;
@@ -1118,7 +1154,8 @@
           users: appState.users,
           prices: appState.prices,
           doctors: appState.doctors,
-          currentBranch: appState.currentBranch
+          currentBranch: appState.currentBranch,
+            currentBranchId: appState.currentBranchId
         }));
       } catch (e) {
         console.warn("LocalStorage save error:", e);
@@ -1225,22 +1262,22 @@
     }
 
     function populateDropdowns() {
+      const activeId = Number(appState.currentBranchId);
+      const availableDoctors = appState.doctors.filter(d => !activeId || Number(d.facilityId) === activeId);
+      const doctorOptions = availableDoctors.length ? availableDoctors : appState.doctors;
       const docSelects = [document.getElementById('cr-doctor'), document.getElementById('test-doctor')];
       docSelects.forEach(select => {
         if (!select) return;
-        select.innerHTML = appState.doctors.map(d => `<option value="${d.name}">${d.name} (${d.spec}, каб. ${d.room})</option>`).join('');
+        select.innerHTML = doctorOptions.map(d => \`<option value="${d.id}">${d.name} (${d.spec}, каб. ${d.room})</option>\`).join('');
       });
-
       const filterDoc = document.getElementById('filter-doctor');
-      if (filterDoc) {
-        filterDoc.innerHTML = `<option value="all">Усі лікарі</option>` + appState.doctors.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
-      }
-
+      if (filterDoc) filterDoc.innerHTML = \`<option value="all">Усі лікарі</option>\` + doctorOptions.map(d => \`<option value="${d.id}">${d.name}</option>\`).join('');
       const srvSelect = document.getElementById('cr-service');
-      if (srvSelect) {
-        srvSelect.innerHTML = appState.prices.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} — ${p.price} ₴</option>`).join('');
-      }
-
+      if (srvSelect) srvSelect.innerHTML = appState.prices.map(p => \`<option value="${p.name}" data-price="${p.price}">${p.name} — ${p.price} ₴</option>\`).join('');
+      const userFacSelect = document.getElementById('usr-facility');
+      if (userFacSelect) userFacSelect.innerHTML = appState.facilities.map(f => \`<option value="${f.id}">${f.name}</option>\`).join('');
+      const branchSelect = document.getElementById('sidebar-branch-select');
+      if (branchSelect) { branchSelect.innerHTML = appState.facilities.map(f => \`<option value="${f.id}">${f.name}</option>\`).join(''); branchSelect.value = String(appState.currentBranchId); }
       const today = new Date().toISOString().split('T')[0];
       const crDateInput = document.getElementById('cr-date');
       if (crDateInput && !crDateInput.value) crDateInput.value = today;
@@ -1256,7 +1293,7 @@
       const search = document.getElementById('global-search')?.value.toLowerCase() || '';
 
       const filtered = appState.journal.filter(item => {
-        if (docFilter !== 'all' && item.doctor !== docFilter) return false;
+        if (docFilter !== 'all' && String(item.doctorId || item.doctor) !== String(docFilter)) return false;
         if (declFilter !== 'all' && item.hasDecl !== declFilter) return false;
         if (payFilter !== 'all' && item.paymentType !== payFilter) return false;
         if (search && !item.patient.toLowerCase().includes(search) && !item.phone.includes(search)) return false;
@@ -1305,7 +1342,7 @@
             <td class="p-3 text-slate-600">${item.birth || '-'}</td>
             <td class="p-3 text-slate-600 font-mono text-[11px] whitespace-nowrap">${item.phone || '-'}</td>
             <td class="p-3">${declBadge}</td>
-            <td class="p-3 text-slate-800 font-medium">${item.doctor}</td>
+            <td class="p-3 text-slate-800 font-medium">${resolveDoctorName(item.doctorId, item.doctor)}</td>
             <td class="p-3 text-slate-700 max-w-[200px] truncate" title="${item.service}">${item.service}</td>
             <td class="p-3"><span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${payBadgeClass}">${item.paymentType}</span></td>
             <td class="p-3 text-right font-black ${item.amount > 0 ? 'text-slate-900' : 'text-slate-400'}">${item.amount} ₴</td>
@@ -1391,7 +1428,7 @@
             <td class="p-3 text-slate-600 whitespace-nowrap">${t.date}</td>
             <td class="p-3 font-bold text-slate-900">${t.patient}</td>
             <td class="p-3 font-semibold text-slate-800">${t.testName}</td>
-            <td class="p-3 text-slate-600">${t.doctor}</td>
+            <td class="p-3 text-slate-600">${resolveDoctorName(t.doctorId, t.doctor)}</td>
             <td class="p-3">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
                 ${t.status}
@@ -1500,13 +1537,21 @@
       lucide.createIcons();
     }
 
-    function switchBranch(branchName) {
-      appState.currentBranch = branchName.includes('Любецька') ? 'ПМР Любецька' : branchName;
+    function switchBranchById(branchId) {
+      const facility = getFacility(branchId);
+      if (!facility) return;
+      appState.currentBranchId = Number(facility.id);
+      appState.currentBranch = facility.name;
       const el = document.getElementById('sidebar-branch-name');
-      if (el) el.innerText = appState.currentBranch;
-      showToast(`Переключено на: ${appState.currentBranch}`, 'success');
-      renderFacilitiesView();
+      if (el) el.innerText = facility.name;
+      populateDropdowns();
+      renderActiveView();
       saveToCloud();
+    }
+
+    function switchBranch(branchName) {
+      const facility = appState.facilities.find(f => f.name === branchName) || appState.facilities.find(f => f.name.includes(branchName));
+      if (facility) switchBranchById(facility.id);
     }
 
     function addFacilityPhoneInput(phoneValue = '') {
@@ -1633,7 +1678,7 @@
             <td class="p-3 font-bold text-slate-900">${u.name}</td>
             <td class="p-3 font-mono text-[11px] text-slate-600">${u.login}</td>
             <td class="p-3 font-semibold text-slate-800">${u.role}</td>
-            <td class="p-3 text-slate-600">${u.facility}</td>
+            <td class="p-3 text-slate-600">${resolveFacilityName(u.facilityId, u.facility)}</td>
             <td class="p-3"><div class="flex flex-wrap gap-1">${badges.join('')}</div></td>
             <td class="p-3 text-center">
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${u.status || 'Активний'}</span>
@@ -1658,7 +1703,7 @@
       document.getElementById('usr-name').value = u.name;
       document.getElementById('usr-login').value = u.login;
       document.getElementById('usr-role').value = u.role;
-      document.getElementById('usr-facility').value = u.facility;
+      document.getElementById('usr-facility').value = String(u.facilityId || '');
 
       const p = u.permissions || {};
       document.getElementById('perm-journal').checked = !!p.journal;
@@ -1689,7 +1734,7 @@
       const name = document.getElementById('usr-name').value;
       const login = document.getElementById('usr-login').value;
       const role = document.getElementById('usr-role').value;
-      const facility = document.getElementById('usr-facility').value;
+      const facilityId = Number(document.getElementById('usr-facility').value) || appState.currentBranchId;
 
       const perms = {
         journal: document.getElementById('perm-journal').checked,
@@ -1707,7 +1752,7 @@
           target.name = name;
           target.login = login;
           target.role = role;
-          target.facility = facility;
+          target.facilityId = facilityId;
           target.permissions = perms;
         }
       } else {
@@ -1812,7 +1857,7 @@
       const name = document.getElementById('cr-name').value;
       const phone = document.getElementById('cr-phone').value;
       const hasDecl = document.getElementById('cr-has-decl').value;
-      const doctor = document.getElementById('cr-doctor').value;
+      const doctorId = Number(document.getElementById('cr-doctor').value) || null;
       const service = document.getElementById('cr-service').value;
       const paymentType = document.getElementById('cr-payment-type').value;
       const amount = parseFloat(document.getElementById('cr-amount').value) || 0;
@@ -1896,7 +1941,7 @@
       e.preventDefault();
       const patient = document.getElementById('test-patient').value;
       const testName = document.getElementById('test-type').value;
-      const doctor = document.getElementById('test-doctor').value;
+      const doctorId = Number(document.getElementById('test-doctor').value) || null;
       const result = document.getElementById('test-result').value || 'В роботі';
 
       appState.tests.unshift({
@@ -1951,7 +1996,7 @@
       if (!name) return;
       const spec = prompt("Спеціальність (наприклад: Кардіолог):", "Терапевт");
       const room = prompt("Номер кабінету:", "205");
-      appState.doctors.push({ id: Date.now(), name, spec, room });
+      appState.doctors.push({ id: Date.now(), name, spec, room, facilityId: Number(appState.currentBranchId) || appState.facilities[0]?.id || null });
       renderSettingsView();
       populateDropdowns();
       showToast("Лікаря додано до штату", "success");
