@@ -1288,6 +1288,13 @@
         srvSelect.innerHTML = appState.prices.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} — ${p.price} ₴</option>`).join('');
       }
 
+      const userFacilitySelect = document.getElementById('usr-facility');
+      if (userFacilitySelect) {
+        const selected = userFacilitySelect.value;
+        userFacilitySelect.innerHTML = appState.facilities.map(f => `<option value="${f.name}">${f.name}</option>`).join('');
+        if (selected && appState.facilities.some(f => f.name === selected)) userFacilitySelect.value = selected;
+      }
+
       const today = new Date().toISOString().split('T')[0];
       const crDateInput = document.getElementById('cr-date');
       if (crDateInput && !crDateInput.value) crDateInput.value = today;
@@ -1703,6 +1710,7 @@
       const u = appState.users.find(item => item.id === id);
       if (!u) return;
 
+      populateDropdowns();
       document.getElementById('usr-id').value = u.id;
       document.getElementById('usr-name').value = u.name;
       document.getElementById('usr-login').value = u.login;
@@ -1723,6 +1731,7 @@
     }
 
     function openUserModal() {
+      populateDropdowns();
       document.getElementById('usr-id').value = '';
       document.getElementById('form-user').reset();
       document.getElementById('perm-journal').checked = true;
