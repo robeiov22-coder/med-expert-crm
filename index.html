@@ -4779,31 +4779,31 @@
   {
     "code": "1",
     "name": "ЗАК НСЗУ (1081)",
-    "price": 150,
-    "cost": 110,
+    "price": 0,
+    "cost": 140,
     "category": "ПАКЕТИ",
     "parentCode": ""
   },
   {
     "code": "2",
     "name": "ЗАС НСЗУ (1085)",
-    "price": 120,
-    "cost": 90,
+    "price": 0,
+    "cost": 120,
     "category": "ПАКЕТИ",
     "parentCode": ""
   },
   {
     "code": "3",
     "name": "Холестерин НСЗУ (1049)",
-    "price": 100,
-    "cost": 73,
+    "price": 0,
+    "cost": 75,
     "category": "ПАКЕТИ",
     "parentCode": ""
   },
   {
     "code": "4",
     "name": "ЗАК НСЗУ+ШОЕ (1082)",
-    "price": 200,
+    "price": 100,
     "cost": 150,
     "category": "ПАКЕТИ",
     "parentCode": ""
@@ -4814,6 +4814,14 @@
       const existingCodes = new Set((appState.prices || []).map(price => String(price.code)));
       const imported = IMPORTED_ANALYSIS_PRICES.filter(price => !existingCodes.has(String(price.code)));
       appState.prices = [...(appState.prices || []), ...imported];
+      const nszuCosts = { '1': 140, '2': 120, '3': 75, '4': 150 };
+      appState.prices.forEach(price => {
+        const code = String(price.code);
+        if (nszuCosts[code]) {
+          price.cost = nszuCosts[code];
+          price.price = code === '4' ? 100 : 0;
+        }
+      });
     }
 
 
