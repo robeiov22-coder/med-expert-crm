@@ -4827,7 +4827,8 @@
 
     function mergeImportedAnalysisPrices() {
       const existingCodes = new Set((appState.prices || []).map(price => String(price.code)));
-      const imported = IMPORTED_ANALYSIS_PRICES.filter(price => !existingCodes.has(String(price.code)));
+      const deletedCodes = new Set(JSON.parse(localStorage.getItem('med-expert-crm-deleted-price-codes') || '[]').map(String));
+      const imported = IMPORTED_ANALYSIS_PRICES.filter(price => !existingCodes.has(String(price.code)) && !deletedCodes.has(String(price.code)));
       appState.prices = [...(appState.prices || []), ...imported];
       const nszuCosts = { '1': 140, '2': 120, '3': 75, '4': 150 };
       appState.prices.forEach(price => {
@@ -6135,6 +6136,9 @@
       const item = appState.prices.find(item => item.code === originalCode);
       if (item) Object.assign(item, { code, name, price: priceValue, cost: costValue, category, parentCode });
       else appState.prices.push({ code, name, price: priceValue, cost: costValue, category, parentCode });
+      const deletedCodes = new Set(JSON.parse(localStorage.getItem('med-expert-crm-deleted-price-codes') || '[]').map(String));
+      deletedCodes.delete(String(code));
+      localStorage.setItem('med-expert-crm-deleted-price-codes', JSON.stringify([...deletedCodes]));
       closeModal('modal-price');
       renderSettingsView();
       populateDropdowns();
@@ -6154,6 +6158,9 @@
       if (!item) return;
       if (!confirm(`Видалити послугу «${item.name}»?`)) return;
       appState.prices = appState.prices.filter(price => price.code !== code);
+      const deletedCodes = new Set(JSON.parse(localStorage.getItem('med-expert-crm-deleted-price-codes') || '[]').map(String));
+      if (IMPORTED_ANALYSIS_PRICES.some(price => String(price.code) === String(code))) deletedCodes.add(String(code));
+      localStorage.setItem('med-expert-crm-deleted-price-codes', JSON.stringify([...deletedCodes]));
       appState.doctors.forEach(doctor => { doctor.serviceCodes = (doctor.serviceCodes || []).filter(serviceCode => serviceCode !== code); });
       renderSettingsView();
       populateDropdowns();
