@@ -692,6 +692,18 @@
               <input type="checkbox" id="perm-edit-prices" class="rounded text-slate-600">
               <span>Зміна цін та тарифів</span>
             </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-journal-delete" class="rounded text-rose-600">
+              <span>Видалення касових записів</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-manage-doctors" class="rounded text-sky-600">
+              <span>Керування лікарями</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="perm-manage-staff" class="rounded text-amber-600">
+              <span>Керування персоналом</span>
+            </label>
           </div>
         </div>
 
@@ -5717,6 +5729,9 @@
       document.getElementById('perm-facilities').checked = !!p.facilities;
       document.getElementById('perm-users').checked = !!p.users;
       document.getElementById('perm-edit-prices').checked = !!p.editPrices;
+      document.getElementById('perm-journal-delete').checked = !!p.journalDelete;
+      document.getElementById('perm-manage-doctors').checked = !!p.manageDoctors;
+      document.getElementById('perm-manage-staff').checked = !!p.manageStaff;
 
       document.getElementById('modal-usr-title').innerText = `Редагувати: ${u.name}`;
       openModal('modal-user');
@@ -5749,6 +5764,9 @@
         facilities: document.getElementById('perm-facilities').checked,
         users: document.getElementById('perm-users').checked,
         editPrices: document.getElementById('perm-edit-prices').checked,
+        journalDelete: document.getElementById('perm-journal-delete').checked,
+        manageDoctors: document.getElementById('perm-manage-doctors').checked,
+        manageStaff: document.getElementById('perm-manage-staff').checked,
       };
 
       if (id) {
