@@ -5711,6 +5711,7 @@
     }
 
     function editUser(id) {
+      if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
       const u = appState.users.find(item => item.id === id);
       if (!u) return;
 
@@ -5738,6 +5739,7 @@
     }
 
     function openUserModal() {
+      if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
       populateDropdowns();
       document.getElementById('usr-id').value = '';
       document.getElementById('form-user').reset();
@@ -5750,6 +5752,7 @@
 
     function handleSaveUser(e) {
       e.preventDefault();
+      if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
       const id = document.getElementById('usr-id').value;
       const name = document.getElementById('usr-name').value;
       const login = document.getElementById('usr-login').value;
@@ -6129,6 +6132,7 @@
     }
 
     function openAddPriceModal() {
+      if (!hasPermission('editPrices', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права змінювати прейскурант', 'error');
       if (appState.currentUser?.role !== 'Адміністратор') return showToast('Додавати послуги може лише адміністратор', 'error');
       document.getElementById('price-id').value = '';
       document.getElementById('modal-price-title').textContent = 'Додати послугу';
@@ -6143,6 +6147,7 @@
     }
 
     function editPrice(code) {
+      if (!hasPermission('editPrices', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права змінювати прейскурант', 'error');
       if (appState.currentUser?.role !== 'Адміністратор') return showToast('Редагувати послуги може лише адміністратор', 'error');
       const price = appState.prices.find(item => item.code === code);
       if (!price) return;
@@ -6160,6 +6165,7 @@
 
     function handleSavePrice(e) {
       e.preventDefault();
+      if (!hasPermission('editPrices', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права змінювати прейскурант', 'error');
       if (appState.currentUser?.role !== 'Адміністратор') return showToast('Змінювати прейскурант може лише адміністратор', 'error');
       const originalCode = document.getElementById('price-id').value;
       const code = document.getElementById('price-code').value.trim();
@@ -6192,7 +6198,7 @@
     }
 
     function deletePrice(code) {
-      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Видаляти послуги може лише адміністратор', 'error');
+      if (!hasPermission('editPrices', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права змінювати прейскурант', 'error');
       const item = appState.prices.find(price => price.code === code);
       if (!item) return;
       if (!confirm(`Видалити послугу «${item.name}»?`)) return;
@@ -6255,6 +6261,7 @@
     }
 
     function editDoctorProfile(id = null) {
+      if (!hasPermission('manageDoctors', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати лікарями', 'error');
       const doctor = id ? appState.doctors.find(d => Number(d.id) === Number(id)) : null;
       populateDoctorProfileForm(doctor);
       openModal('modal-doctor');
@@ -6264,7 +6271,7 @@
     function openAddDoctorModal() { editDoctorProfile(); }
 
     function deleteDoctorFromProfile() {
-      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Видаляти лікарів може лише адміністратор', 'error');
+      if (!hasPermission('manageDoctors', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати лікарями', 'error');
       const doctorId = Number(document.getElementById('doctor-id').value);
       const doctor = appState.doctors.find(item => Number(item.id) === doctorId);
       if (!doctor) return;
@@ -6283,6 +6290,7 @@
 
     function handleSaveDoctor(e) {
       e.preventDefault();
+      if (!hasPermission('manageDoctors', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати лікарями', 'error');
       const idValue = document.getElementById('doctor-id').value;
       const doctorId = idValue ? Number(idValue) : Date.now();
       const name = document.getElementById('doctor-name').value.trim();
