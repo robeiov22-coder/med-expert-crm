@@ -43,7 +43,7 @@
 
       <button onclick="navigate('journal')" id="nav-btn-journal" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition bg-sky-50 text-sky-700 font-bold border border-sky-100">
         <i data-lucide="calendar-check-2" class="w-4 h-4 text-sky-600"></i>
-        <span>Вересень (Каса й візити)</span>
+        <span>Каса і візити</span>
       </button>
 
       <button onclick="navigate('vaccines')" id="nav-btn-vaccines" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
@@ -104,7 +104,7 @@
     <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-4">
         <h2 id="view-title" class="font-extrabold text-slate-900 text-base flex items-center gap-2">
-          <span>Журнал місяця «Вересень»</span>
+          <span>Каса і візити</span>
           <span class="text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full">2026</span>
         </h2>
       </div>
@@ -472,7 +472,7 @@
   <div id="modal-cash-record" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-slate-900 text-base">Додати запис у Вересень / Касу</h3>
+        <h3 class="font-extrabold text-slate-900 text-base">Додати запис у касу і візити</h3>
         <button onclick="closeModal('modal-cash-record')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
@@ -5137,7 +5137,7 @@
       });
 
       const titleMap = {
-        journal: 'Журнал місяця «Вересень»',
+        journal: 'Каса і візити',
         vaccines: 'Журнал вакцин (Баланс)',
         tests: 'Аналізи',
         stats: 'Зведена статистика та звіти',
@@ -5949,7 +5949,7 @@
       appState.journal.unshift(newRecord);
       closeModal('modal-cash-record');
       document.getElementById('form-cash-record').reset();
-      showToast(`Запис для ${name} успішно додано у Вересень!`, 'success');
+      showToast(`Запис для ${name} успішно додано у касу і візити!`, 'success');
       renderJournalTable();
       saveToCloud();
     }
