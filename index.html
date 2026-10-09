@@ -1091,6 +1091,49 @@
     async function flushOfflineQueue() { if (!navigator.onLine) { updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); return; } try { const db = await openOfflineDb(); const store = db.transaction('pending', 'readonly').objectStore('pending'); const pending = await new Promise((resolve, reject) => { const r = store.getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); if (!pending.length) return; if (!isCloudReady) { updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); return; } updateCloudIndicator('Хмара: Синхронізація...', 'amber'); await saveToCloud(true); db.transaction('pending', 'readwrite').objectStore('pending').clear(); updateCloudIndicator('Хмара: Синхронізовано', 'emerald'); } catch (error) { console.warn('Offline sync error:', error); updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); } }
     function initOfflineMode() { window.addEventListener('offline', () => updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber')); window.addEventListener('online', () => { updateCloudIndicator('Хмара: Синхронізація...', 'amber'); flushOfflineQueue(); }); if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(error => console.warn('Service Worker:', error)); if (!navigator.onLine) updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); }
 
+    function ensureDirectoryStaff() {
+      const staff = [
+        ['Робейко','Фаїна','Олександрівна','22.02.1986','380637891194','robeiov22@ukr.net','Керівник закладу (ПМСД) / ФОП','3146414000'],
+        ['Базіль','Анастасія','Іванівна','20.04.1991','380634754198','Nastya_Demydenko@bigmir.net','Лікар ЗП - сімейний лікар','3334701000'],
+        ['Горбатович','Валерія','Ігорівна','14.01.1997','380969488506','gorbatovichvaleria42123@gmail.com','Працівник реєстратури','3544308000'],
+        ['Грищенко','Наталія','Анатоліївна','14.09.1976','380937330293','natalia.grischenko1976@gmail.com','Лікар ЗП - сімейний лікар','2801613000'],
+        ['Гуйченко','Марина','Сергіївна','05.07.1991','380936480926','guichenko91@gmail.com','Лікар ЗП - сімейний лікар','3342309000'],
+        ['Дрозд','Ліана','Олександрівна','09.11.1998','380974074241','lianamiatenko1998@gmail.com','Сестра медична','3610706000'],
+        ['Здрелько','Любов','Богданівна','02.08.1996','380988693528','luybabavushka@gmail.com','Лікар ЗП - сімейний лікар','3527805000'],
+        ['Лучко','Юлія','Вячеславівна','03.09.1997','380966540259','yuliaosipenkoluchko@gmail.com','Сестра медична ЗП-СМ','3567510000'],
+        ['Мала','Оксана','Дмитрівна','23.06.1965','380935093662','malaoksana468@gmail.com','Сестра медична','2391516000'],
+        ['Мозоль','Артем','Олександрович','25.01.1995','380965919806','acon002@gmail.com','Лікар ЗП - сімейний лікар','3472306000'],
+        ['Паславська','Тамара','Сергіївна','10.08.1974','380509459249','tamara.paslavska@gmail.com','Працівник реєстратури','2725011000'],
+        ['Соболевська','Наталія','Михайлівна','17.12.1971','380681223759','sobolevska7119@ukr.net','Лікар ЗП - сімейний лікар','2628313000'],
+        ['Ткаченко','Анастасія','Миколаївна','13.06.1990','380967220853','likar2522@gmail.com','Лікар ЗП - сімейний лікар / Мед. директор','3303600000'],
+        ['Шарапата','Антоніна','Петрівна','08.03.1981','380677448534','antoninaama41522@gmail.com','Сестра медична ЗП-СМ','2965225000'],
+        ['Костенко','Тетяна','Анатоліївна','05.07.1996','380686154775','dr.kostenko.tetiana@gmail.com','Лікар ЗП - сімейний лікар','3525005864'],
+        ['Малинецька','Вероніка','Юріївна','01.06.1998','380639559169','niknikich169@gmail.com','Сестра медична','3594603466'],
+        ['Самотяжко','Ганна','Олександрівна','04.11.1995','380636463412','annsamotyazhko@gmail.com','Адміністратор',''],
+        ['Фещенко','Марія','Олександрівна','10.12.2002','380661374136','mary.feshcenko@gmail.com','Сестра медична','3759904389'],
+        ['Шестак','Ірина','Павлівна','08.03.1981','380939575347','7irinashestak@gmail.com','Лікар-педіатр','2965215627']
+      ];
+      const permissions = role => ({ ...(appState.rolePermissions[role] || appState.rolePermissions['Реєстратор / Касир']) });
+      let changed = false;
+      staff.forEach((row, index) => {
+        const [surname, firstName, patronymic, birthDate, phone, email, position, taxId] = row;
+        const name = `${surname} ${firstName} ${patronymic}`;
+        const isDoctor = position.includes('Лікар');
+        const existingDoctor = appState.doctors.find(d => d.taxId === taxId || d.email === email || d.name === name);
+        const existingUser = appState.users.find(u => u.taxId === taxId || u.login === email || u.name === name);
+        const facilityIds = appState.facilities.map(f => Number(f.id));
+        if (isDoctor && !existingDoctor) {
+          appState.doctors.push({ id: 1000 + index, name, spec: position, specialization: position, qualification: '', phones: phone ? [`+${phone}`] : [], email, taxId, birthDate, roomIds: [], room: '', facilityIds, serviceCodes: [], schedule: '', workingDays: '', status: 'Активний' });
+          changed = true;
+        } else if (!isDoctor && !existingUser) {
+          const role = position.includes('реєстратури') ? 'Реєстратор / Касир' : position.includes('медична') ? 'Медсестра / Маніпуляційна' : 'Адміністратор';
+          appState.users.push({ id: 1000 + index, name, login: email || `staff${1000 + index}@med.ua`, email, role, facility: appState.facilities[0]?.name || '', facilityId: Number(appState.facilities[0]?.id) || null, phone: phone ? `+${phone}` : '', taxId, birthDate, position, status: 'Активний', permissions: permissions(role) });
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
     async function initCloudStorage() {
       /* First check local persistence */
       try {
@@ -1107,6 +1150,7 @@
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
+          if (ensureDirectoryStaff()) saveToCloud(true);
         }
       } catch (e) {
         console.warn("Local storage read exception:", e);
@@ -1151,6 +1195,7 @@
             if (data.doctors) appState.doctors = data.doctors;
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
+            if (ensureDirectoryStaff()) saveToCloud(true);
             if (data.currentBranch) {
               appState.currentBranch = data.currentBranch;
               const el = document.getElementById('sidebar-branch-name');
