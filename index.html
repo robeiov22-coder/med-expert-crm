@@ -5945,6 +5945,28 @@
       return result;
     }
 
+    let cashRecordServices = [];
+
+    function renderCashRecordServices() {
+      const list = document.getElementById('cash-services-list');
+      const select = document.getElementById('cr-service');
+      if (!list || !select) return;
+      select.innerHTML = cashRecordServices.map(service => `<option value="${escapeHtml(service.name)}">${escapeHtml(service.name)}</option>`).join('');
+      select.value = cashRecordServices[0]?.name || '';
+      select.required = cashRecordServices.length === 0;
+      list.innerHTML = cashRecordServices.length
+        ? cashRecordServices.map((service, index) => `<div class="flex min-w-0 items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"><div class="min-w-0 flex-1"><div class="whitespace-normal break-words text-xs font-bold text-slate-800" style="overflow-wrap:anywhere">${escapeHtml(service.name)}</div><div class="text-[10px] text-slate-500">Код: ${escapeHtml(service.code || '—')}</div></div><div class="shrink-0 pt-0.5 text-xs font-extrabold text-sky-700">${Number(service.price || 0).toFixed(2)} ₴</div><button type="button" data-remove-service-index="${index}" class="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50" title="Прибрати послугу">×</button></div>`).join('')
+        : '<div class="rounded-xl border border-dashed border-slate-300 px-3 py-2 text-xs text-slate-400">Послугу ще не додано</div>';
+      document.getElementById('cr-amount').value = document.getElementById('cr-has-decl').value === 'Так'
+        ? 0
+        : cashRecordServices.reduce((sum, service) => sum + Number(service.price || 0), 0).toFixed(2);
+    }
+
+    function removeCashRecordService(index) {
+      cashRecordServices.splice(index, 1);
+      renderCashRecordServices();
+    }
+
     function handleSaveCashRecord(e) {
       e.preventDefault();
       const date = document.getElementById('cr-date').value;
@@ -6533,6 +6555,11 @@
         const button = event.target.closest('button[data-service-code]');
         if (button) chooseServiceFromPicker(button.dataset.serviceCode);
       });
+      document.getElementById('cash-services-list')?.addEventListener('click', event => {
+        const button = event.target.closest('button[data-remove-service-index]');
+        if (button) removeCashRecordService(Number(button.dataset.removeServiceIndex));
+      });
+      renderCashRecordServices();
       removeLegacyEcgTests();
       populateDropdowns();
       renderJournalTable();
