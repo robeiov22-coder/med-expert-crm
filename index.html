@@ -4969,6 +4969,12 @@
           changed = true;
         }
       });
+      const vaccination = appState.prices.find(price => price.name.trim().toLowerCase() === 'вакцинація');
+      if (vaccination && !appState.prices.some(price => price.name.trim().toLowerCase() === 'послуга вакцинації')) {
+        const code = appState.prices.some(price => price.code === 'VAC-SERVICE') ? `VAC-SERVICE-${Date.now()}` : 'VAC-SERVICE';
+        appState.prices.push({ code, name: 'Послуга вакцинації', price: 200, cost: 0, category: 'Вакцинація', parentCode: vaccination.code });
+        changed = true;
+      }
       return changed;
     }
 
@@ -5243,7 +5249,7 @@
       const payFilter = document.getElementById('filter-pay')?.value || 'all';
       const search = document.getElementById('global-search')?.value.toLowerCase() || '';
 
-      const activeFacility = appState.facilities.find(f => f.name === appState.currentBranch);
+      const activeFacility = appState.facilities.find(f => Number(f.id) === activeVaccineFacilityId());
       const canSeeAllFacilities = appState.currentUser?.isMainAdministrator === true || appState.currentUser?.permissions?.allFacilities === true;
       const filtered = appState.journal.filter(item => {
         if (!canSeeAllFacilities && activeFacility && item.facilityId && Number(item.facilityId) !== Number(activeFacility.id)) return false;
@@ -5301,6 +5307,7 @@
             <td class="p-3"><span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${payBadgeClass}">${item.paymentType}</span></td>
             <td class="p-3 text-right font-black ${item.amount > 0 ? 'text-slate-900' : 'text-slate-400'}">${item.amount} ₴</td>
             <td class="p-3 text-center">
+              ${(item.vaccineReservations || []).some(res => res.status === 'Очікує введення') && canManageVaccine('use') ? `<button onclick="confirmVaccinationForCashRecord(${item.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Підтвердити введення</button>` : ''}
               <button onclick="deleteCashRecord(${item.id})" class="p-1 hover:bg-rose-50 text-rose-500 rounded-lg transition" title="Видалити">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
@@ -5347,11 +5354,12 @@
       if (!tbody) return;
 
       tbody.innerHTML = appState.vaccines.filter(v => vaccineFacilityId(v) === activeVaccineFacilityId()).map(v => {
-        const balance = vaccineBalance(v);
+        const balance = vaccineAvailable(v);
         const isCritical = balance <= 5;
         const purchasePriceLabel = v.isFree || v.costPrice === null || v.costPrice === undefined || v.costPrice === '' ? 'Безкоштовно' : `${Number(v.costPrice ?? v.price).toFixed(2)} грн`;
         const retailPriceLabel = v.isFree || v.retailPrice === null || v.retailPrice === undefined || v.retailPrice === '' ? 'Безкоштовно' : `${Number(v.retailPrice).toFixed(2)} грн`;
         const canUse = canManageVaccine('use');
+        const pendingRecords = appState.journal.filter(record => Number(record.facilityId) === activeVaccineFacilityId() && (record.vaccineReservations || []).some(res => Number(res.batchId) === Number(v.id) && res.status === 'Очікує введення'));
 
         return `
           <tr class="hover:bg-slate-50 transition">
@@ -5377,6 +5385,7 @@
               <div class="flex items-center justify-center gap-1.5">
                 ${canUse ? `<button onclick="useVaccineDose(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Ввести (-1)</button><button onclick="wasteVaccineDose(${v.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[11px] font-bold transition" title="Списати за актом">Списати</button>` : '<span class="text-[10px] text-slate-400">Доступно медсестрі</span>'}
                 ${canUse ? `<button onclick="openTransferVaccineModal(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Перемістити</button>` : ''}
+                ${canUse ? pendingRecords.map(record => `<button onclick="confirmVaccinationForCashRecord(${record.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition" title="${escapeHtml(record.patient)}">Підтвердити введення</button>`).join('') : ''}
               </div>
             </td>
           </tr>
@@ -5389,7 +5398,7 @@
     function useVaccineDose(id) {
       if (!canManageVaccine('use')) return showToast('Списувати вакцини може лише медична сестра', 'error');
       const v = appState.vaccines.find(item => item.id === id);
-      if (v && vaccineFacilityId(v) === activeVaccineFacilityId() && vaccineBalance(v) > 0) {
+      if (v && vaccineFacilityId(v) === activeVaccineFacilityId() && vaccineAvailable(v) > 0) {
         v.used = Number(v.used || 0) + 1;
         showToast(`Введено 1 дозу «${v.name}». Залишок списано автоматично!`, 'success');
         renderVaccinesTable();
@@ -5400,7 +5409,7 @@
     function wasteVaccineDose(id) {
       if (!canManageVaccine('use')) return showToast('Списувати вакцини може лише медична сестра', 'error');
       const v = appState.vaccines.find(item => item.id === id);
-      if (v && vaccineFacilityId(v) === activeVaccineFacilityId() && vaccineBalance(v) > 0) {
+      if (v && vaccineFacilityId(v) === activeVaccineFacilityId() && vaccineAvailable(v) > 0) {
         v.wasted = Number(v.wasted || 0) + 1;
         showToast(`Списано 1 дозу «${v.name}» за актом непридатності`, 'info');
         renderVaccinesTable();
@@ -5412,7 +5421,7 @@
       if (!canManageVaccine('use')) return showToast('Немає права переміщувати вакцини', 'error');
       const v = appState.vaccines.find(item => Number(item.id) === Number(id));
       if (!v || vaccineFacilityId(v) !== activeVaccineFacilityId()) return showToast('Партія недоступна в цьому закладі', 'error');
-      const balance = vaccineBalance(v);
+      const balance = vaccineAvailable(v);
       if (balance < 1) return showToast('Немає доступних доз', 'error');
       const destinations = appState.facilities.filter(f => Number(f.id) !== vaccineFacilityId(v));
       if (!destinations.length) return showToast('Інший підрозділ не знайдено', 'error');
@@ -5433,7 +5442,7 @@
       const doses = Number(document.getElementById('transfer-vaccine-doses').value);
       if (!v || vaccineFacilityId(v) !== activeVaccineFacilityId()) return showToast('Партія недоступна в цьому закладі', 'error');
       if (!appState.facilities.some(f => Number(f.id) === targetId) || targetId === vaccineFacilityId(v)) return showToast('Оберіть інший підрозділ', 'error');
-      if (!Number.isSafeInteger(doses) || doses < 1 || doses > vaccineBalance(v)) return showToast('Перевірте кількість доступних доз', 'error');
+      if (!Number.isSafeInteger(doses) || doses < 1 || doses > vaccineAvailable(v)) return showToast('Перевірте кількість доступних доз', 'error');
       const sourceId = vaccineFacilityId(v);
       const newId = Math.max(Date.now(), ...appState.vaccines.map(item => Number(item.id) || 0)) + 1;
       const transfer = { ...v, id: newId, facilityId: targetId, startDoses: 0, received: doses, used: 0, wasted: 0, transferredOut: 0, transferFromFacilityId: sourceId, transferSourceBatchId: v.id, transferredAt: new Date().toISOString() };
@@ -6045,6 +6054,25 @@
 
     let cashRecordServices = [];
 
+    function vaccineAvailable(v) { return vaccineBalance(v) - Number(v.reservedDoses || 0); }
+
+    function availableVaccineBatches() {
+      const facilityId = activeVaccineFacilityId();
+      const today = new Date().toISOString().slice(0, 10);
+      return appState.vaccines.filter(v => vaccineFacilityId(v) === facilityId && vaccineAvailable(v) > 0 && (!v.expiry || v.expiry >= today))
+        .sort((a, b) => String(a.expiry || '9999').localeCompare(String(b.expiry || '9999')));
+    }
+
+    function vaccineOffers() {
+      return availableVaccineBatches().map(v => ({
+        name: String(v.name || '').trim(),
+        lot: String(v.lot || ''),
+        batchId: v.id,
+        count: vaccineAvailable(v),
+        retailPrice: v.isFree ? 0 : Number(v.retailPrice || 0)
+      })).filter(v => v.name);
+    }
+
     function renderCashRecordServices() {
       const list = document.getElementById('cash-services-list');
       const select = document.getElementById('cr-service');
@@ -6055,7 +6083,7 @@
       list.innerHTML = cashRecordServices.length
         ? cashRecordServices.map((service, index) => `<div class="flex min-w-0 items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"><div class="min-w-0 flex-1"><div class="whitespace-normal break-words text-xs font-bold text-slate-800" style="overflow-wrap:anywhere">${escapeHtml(service.name)}</div><div class="text-[10px] text-slate-500">Код: ${escapeHtml(service.code || '—')}</div></div><div class="shrink-0 pt-0.5 text-xs font-extrabold text-sky-700">${Number(service.price || 0).toFixed(2)} ₴</div><button type="button" data-remove-service-index="${index}" class="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50" title="Прибрати послугу">×</button></div>`).join('')
         : '<div class="rounded-xl border border-dashed border-slate-300 px-3 py-2 text-xs text-slate-400">Послугу ще не додано</div>';
-      document.getElementById('cr-amount').value = document.getElementById('cr-has-decl').value === 'Так'
+      document.getElementById('cr-amount').value = document.getElementById('cr-payment-type').value === 'Безоплатно'
         ? 0
         : cashRecordServices.reduce((sum, service) => sum + Number(service.price || 0), 0).toFixed(2);
     }
@@ -6074,10 +6102,17 @@
       const hasDecl = document.getElementById('cr-has-decl').value;
       const doctorId = Number(document.getElementById('cr-doctor').value) || null;
       const service = cashRecordServices.map(item => item.name).join('\n');
+      const reservedVaccines = [];
+      const available = availableVaccineBatches();
+      for (const selected of cashRecordServices.filter(item => item.vaccineBatchId)) {
+        const batch = available.find(v => Number(v.id) === Number(selected.vaccineBatchId));
+        if (!batch) return showToast(`Вакцина «${selected.vaccineName}» більше не доступна в цьому підрозділі`, 'error');
+        reservedVaccines.push({ batchId: batch.id, name: batch.name, status: 'Очікує введення' });
+        available.splice(available.indexOf(batch), 1);
+      }
       const paymentType = document.getElementById('cr-payment-type').value;
       const amount = parseFloat(document.getElementById('cr-amount').value) || 0;
 
-      const activeFacility = appState.facilities.find(f => f.name === appState.currentBranch);
       const newRecord = {
         id: Date.now(),
         ...auditFields(),
@@ -6088,12 +6123,18 @@
         hasDecl,
         doctorId,
         doctor: resolveDoctorName(doctorId),
-        facilityId: activeFacility?.id || appState.currentUser?.facilityId || null,
+        facilityId: activeVaccineFacilityId(),
         service,
+        services: cashRecordServices.map(item => ({ ...item })),
+        vaccineReservations: reservedVaccines,
         paymentType,
         amount
       };
 
+      reservedVaccines.forEach(item => {
+        const batch = appState.vaccines.find(v => Number(v.id) === Number(item.batchId));
+        batch.reservedDoses = Number(batch.reservedDoses || 0) + 1;
+      });
       appState.journal.unshift(newRecord);
       closeModal('modal-cash-record');
       cashRecordServices = [];
@@ -6101,7 +6142,31 @@
       renderCashRecordServices();
       showToast(`Запис для ${name} успішно додано у касу і візити!`, 'success');
       renderJournalTable();
+      renderVaccinesTable();
       saveToCloud();
+    }
+
+    function confirmVaccinationForCashRecord(recordId) {
+      if (!canManageVaccine('use')) return showToast('Підтверджувати введення вакцини може медсестра або адміністратор', 'error');
+      const record = appState.journal.find(item => Number(item.id) === Number(recordId));
+      if (!record || Number(record.facilityId) !== activeVaccineFacilityId()) return showToast('Запис недоступний у цьому закладі', 'error');
+      const pending = (record.vaccineReservations || []).filter(item => item.status === 'Очікує введення');
+      if (!pending.length) return showToast('Немає доз, що очікують підтвердження', 'error');
+      if (!confirm(`Підтвердити введення ${pending.length} доз для пацієнта «${record.patient}»?`)) return;
+      const batches = pending.map(item => appState.vaccines.find(v => Number(v.id) === Number(item.batchId)));
+      if (batches.some(batch => !batch || vaccineFacilityId(batch) !== activeVaccineFacilityId() || Number(batch.reservedDoses || 0) < 1)) return showToast('Не вдалося звірити зарезервовані дози', 'error');
+      pending.forEach((item, index) => {
+        const batch = batches[index];
+        batch.reservedDoses -= 1;
+        batch.used = Number(batch.used || 0) + 1;
+        item.status = 'Введено';
+        item.confirmedAt = new Date().toISOString();
+        item.confirmedByUserId = effectiveUser().id;
+      });
+      renderVaccinesTable();
+      renderJournalTable();
+      saveToCloud();
+      showToast('Введення вакцини підтверджено', 'success');
     }
 
     function deleteCashRecord(id) {
@@ -6109,8 +6174,13 @@
       const item = appState.journal.find(j => j.id === id);
       if (!item) return;
       if (!confirm(`Видалити запис пацієнта «${item.patient || 'Без ПІБ'}»?`)) return;
+      (item.vaccineReservations || []).filter(res => res.status === 'Очікує введення').forEach(res => {
+        const batch = appState.vaccines.find(v => Number(v.id) === Number(res.batchId));
+        if (batch) batch.reservedDoses = Math.max(0, Number(batch.reservedDoses || 0) - 1);
+      });
       appState.journal = appState.journal.filter(j => j.id !== id);
       showToast("Запис видалено з каси", "info");
+      renderVaccinesTable();
       renderJournalTable();
       saveToCloud();
     }
@@ -6150,7 +6220,9 @@
       if (!list) return;
       const query = (document.getElementById('service-picker-search')?.value || '').trim().toLowerCase();
       const importedCodes = new Set(IMPORTED_ANALYSIS_PRICES.map(item => String(item.code)));
-      const allRows = getPriceTree();
+      const allRows = getPriceTree().filter(row => row.price.name.trim().toLowerCase() !== 'вакцинація' && row.price.name.trim().toLowerCase() !== 'послуга вакцинації');
+      const vaccineRows = vaccineOffers();
+      const vaccinationService = appState.prices.find(price => price.name.trim().toLowerCase() === 'послуга вакцинації');
       const matches = row => !query || `${row.price.code} ${row.price.name} ${row.category || ''} ${row.parentName || ''}`.toLowerCase().includes(query);
       const button = ({ price, depth = 0, parentName = '' }) => `<button type="button" data-service-code="${escapeHtml(price.code)}" class="w-full min-w-0 max-w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-start justify-between gap-3 overflow-hidden" style="padding-left:${12 + depth * 18}px"><span class="min-w-0 max-w-full break-words" style="overflow-wrap:anywhere"><span class="block text-xs break-words ${depth ? 'text-slate-600' : 'font-bold text-slate-800'}">${depth ? '↳ ' : ''}${escapeHtml(price.name)}</span><span class="block text-[10px] text-slate-400 break-words" style="overflow-wrap:anywhere">Код: ${escapeHtml(price.code)}${parentName ? ` · підпослуга: ${escapeHtml(parentName)}` : ''}</span></span><span class="shrink-0 text-xs font-extrabold text-sky-700 whitespace-nowrap">${Number(price.price || 0).toFixed(2)} ₴</span></button>`;
       const groups = allRows.filter(matches).reduce((map, row) => {
@@ -6163,7 +6235,28 @@
         const isAnalysis = entries.some(row => importedCodes.has(String(row.price.code)));
         const groupId = `service-picker-group-${index}`;
         return `<details class="group border-b border-slate-100" ${query ? 'open' : ''}><summary class="cursor-pointer list-none px-3 py-2 bg-slate-50 hover:bg-sky-50 text-xs font-bold text-sky-800 flex items-center justify-between"><span>▸ ${isAnalysis ? category : category} <span class="text-[10px] text-slate-500">(${entries.length})</span></span><span class="text-[10px] text-slate-500">Натисніть для перегляду</span></summary><div id="${groupId}" class="divide-y divide-slate-100">${entries.map(button).join('')}</div></details>`;
-      }).join('') : '<div class="p-4 text-center text-slate-400 text-xs">Послуг за вашим запитом не знайдено</div>';
+      }).join('') : '';
+      const matchingVaccines = vaccineRows.filter(v => !query || `вакцинація ${v.name} ${v.lot}`.toLowerCase().includes(query));
+      const showService = vaccinationService && (!query || `вакцинація послуга вакцинації`.includes(query));
+      if (showService || matchingVaccines.length) {
+        const count = matchingVaccines.length + (showService ? 1 : 0);
+        const serviceButton = showService ? `<button type="button" data-service-code="${escapeHtml(vaccinationService.code)}" class="w-full min-w-0 max-w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-start justify-between gap-3 overflow-hidden"><span class="whitespace-normal break-words text-xs font-bold text-slate-800">Послуга вакцинації</span><span class="shrink-0 text-xs font-extrabold text-sky-700 whitespace-nowrap">${Number(vaccinationService.price || 0).toFixed(2)} ₴</span></button>` : '';
+        const vaccinationHtml = `<details class="group border-b border-slate-100" ${query ? 'open' : ''}><summary class="cursor-pointer list-none px-3 py-2 bg-slate-50 hover:bg-sky-50 text-xs font-bold text-sky-800 flex items-center justify-between"><span>▸ Вакцинація <span class="text-[10px] text-slate-500">(${count})</span></span><span class="text-[10px] text-slate-500">Натисніть для перегляду</span></summary><div class="divide-y divide-slate-100">${serviceButton}${matchingVaccines.map(v => `<button type="button" data-vaccine-id="${escapeHtml(String(v.batchId))}" class="w-full min-w-0 max-w-full text-left px-3 py-2 hover:bg-sky-50 transition flex items-start justify-between gap-3 overflow-hidden"><span class="min-w-0 max-w-full break-words"><span class="whitespace-normal break-words text-xs font-bold text-slate-800">Вакцинація вакциною ${escapeHtml(v.name)}</span><span class="block text-[10px] text-slate-400">Серія: ${escapeHtml(v.lot)} · наявно: ${v.count} доз</span></span><span class="shrink-0 text-xs font-extrabold text-sky-700 whitespace-nowrap">${v.retailPrice.toFixed(2)} ₴</span></button>`).join('')}</div></details>`;
+        const otherIndex = groupEntries.findIndex(([category]) => category === 'Інші послуги');
+        const otherContainer = otherIndex < 0 ? null : document.getElementById(`service-picker-group-${otherIndex}`);
+        if (otherContainer) otherContainer.insertAdjacentHTML('beforeend', vaccinationHtml);
+        else list.innerHTML += `<details class="group border-b border-slate-100" ${query ? 'open' : ''}><summary class="cursor-pointer list-none px-3 py-2 bg-slate-50 hover:bg-sky-50 text-xs font-bold text-sky-800 flex items-center justify-between"><span>▸ Інші послуги</span><span class="text-[10px] text-slate-500">Натисніть для перегляду</span></summary><div class="divide-y divide-slate-100">${vaccinationHtml}</div></details>`;
+      }
+      if (!list.innerHTML) list.innerHTML = '<div class="p-4 text-center text-slate-400 text-xs">Послуг за вашим запитом не знайдено</div>';
+    }
+
+    function chooseVaccineFromPicker(batchId) {
+      const offer = vaccineOffers().find(item => Number(item.batchId) === Number(batchId));
+      if (!offer) return showToast('Цієї вакцини зараз немає в наявності', 'error');
+      const name = `Вакцинація вакциною ${offer.name}`;
+      if (!cashRecordServices.some(service => Number(service.vaccineBatchId) === Number(offer.batchId))) cashRecordServices.push({ name, code: `VAC-${offer.batchId}`, price: offer.retailPrice, vaccineName: offer.name, vaccineBatchId: offer.batchId });
+      renderCashRecordServices();
+      closeModal('modal-service-picker');
     }
 
     function chooseServiceFromPicker(serviceCode) {
@@ -6612,6 +6705,7 @@
       exportCurrentSheetToCsv,
       renderJournalTable,
       deleteCashRecord,
+      confirmVaccinationForCashRecord,
       openAddVaccineBatchModal,
       openTransferVaccineModal,
       useVaccineDose,
@@ -6665,7 +6759,10 @@
       document.getElementById('service-picker-list')?.addEventListener('click', event => {
         const button = event.target.closest('button[data-service-code]');
         if (button) chooseServiceFromPicker(button.dataset.serviceCode);
+        const vaccineButton = event.target.closest('button[data-vaccine-id]');
+        if (vaccineButton) chooseVaccineFromPicker(vaccineButton.dataset.vaccineId);
       });
+      document.getElementById('cr-payment-type')?.addEventListener('change', renderCashRecordServices);
       document.getElementById('cash-services-list')?.addEventListener('click', event => {
         const button = event.target.closest('button[data-remove-service-index]');
         if (button) removeCashRecordService(Number(button.dataset.removeServiceIndex));
