@@ -4854,6 +4854,7 @@
     const isAssignmentActive = a => a.status !== 'Завершене' && a.startDate <= isoToday() && (!a.endDate || a.endDate >= isoToday());
     function getActiveAssignments(userId = appState.currentUser.id) { return (appState.roleAssignments || []).filter(a => Number(a.userId) === Number(userId) && isAssignmentActive(a)); }
     function effectiveUser() { const assignments = getActiveAssignments(); const permissions = { ...(appState.currentUser.permissions || {}) }; assignments.forEach(a => Object.assign(permissions, ROLE_PERMISSIONS[a.temporaryRole] || {})); return { ...appState.currentUser, permissions, activeAssignments: assignments }; }
+    function hasPermission(permission, fallback = false) { const user = effectiveUser(); return user.isMainAdministrator === true || user.permissions?.[permission] === true || (user.permissions?.[permission] === undefined && fallback); }
     function auditFields() { const user = effectiveUser(); return { createdByUserId: user.id, actingRole: user.activeAssignments?.[0]?.temporaryRole || user.role, assignmentId: user.activeAssignments?.[0]?.id || null, createdAt: new Date().toISOString() }; }
     const doctorFacilityIds = doctor => Array.isArray(doctor.facilityIds) && doctor.facilityIds.length ? doctor.facilityIds.map(Number) : appState.facilities.map(f => Number(f.id));
     const resolveDoctorName = (id, legacyName = '') => appState.doctors.find(d => Number(d.id) === Number(id))?.name || legacyName || 'Не призначено';
@@ -5963,6 +5964,7 @@
     }
 
     function deleteCashRecord(id) {
+      if (!hasPermission('journalDelete', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права видаляти касові записи', 'error');
       const item = appState.journal.find(j => j.id === id);
       if (!item) return;
       if (!confirm(`Видалити запис пацієнта «${item.patient || 'Без ПІБ'}»?`)) return;
