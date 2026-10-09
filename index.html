@@ -572,6 +572,10 @@
           <label class="block font-bold text-slate-700 mb-1">Завідувач / Керівник філії</label>
           <input type="text" id="fac-head" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
         </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Електронна адреса закладу</label>
+          <input type="email" id="fac-email" placeholder="реєстратура@заклад.ua" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
 
         <!-- DYNAMIC PHONES CONTAINER -->
         <div class="space-y-2 pt-1">
@@ -1650,6 +1654,7 @@
                   ${phonesHtml}
                 </div>
               </div>
+              ${f.email ? `<div class="py-1 flex justify-between gap-3"><span class="text-slate-500 font-medium">E-mail закладу:</span><a href="mailto:${f.email}" class="font-bold text-sky-700 hover:text-sky-900 break-all">${f.email}</a></div>` : ''}
             </div>
 
             <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
@@ -1716,6 +1721,7 @@
       document.getElementById('fac-name').value = f.name;
       document.getElementById('fac-address').value = f.address;
       document.getElementById('fac-head').value = f.head;
+      document.getElementById('fac-email').value = f.email || '';
       document.getElementById('fac-rooms').value = f.rooms;
 
       const container = document.getElementById('fac-phones-inputs-list');
@@ -1747,6 +1753,7 @@
       const name = document.getElementById('fac-name').value;
       const address = document.getElementById('fac-address').value;
       const head = document.getElementById('fac-head').value;
+      const email = document.getElementById('fac-email').value.trim();
       const rooms = parseInt(document.getElementById('fac-rooms').value) || 1;
 
       const phoneInputs = document.querySelectorAll('.fac-phone-input');
@@ -1762,6 +1769,7 @@
           f.name = name;
           f.address = address;
           f.head = head;
+          f.email = email;
           f.rooms = rooms;
           f.phones = finalPhones;
           f.phone = finalPhones[0];
@@ -1772,6 +1780,7 @@
           name,
           address,
           head,
+          email,
           rooms,
           phones: finalPhones,
           phone: finalPhones[0],
