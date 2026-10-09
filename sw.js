@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medexpert-crm-shell-v3';
+const CACHE_NAME = 'medexpert-crm-shell-v4';
 const APP_SHELL = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {
