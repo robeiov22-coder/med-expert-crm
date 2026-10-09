@@ -1,8 +1,6 @@
 const { onRequest } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
-const { google } = require('googleapis');
-const pdfParse = require('pdf-parse');
 const crypto = require('crypto');
 
 admin.initializeApp();
@@ -29,6 +27,7 @@ function setCors(res) {
 }
 
 function oauthClient() {
+  const { google } = require('googleapis');
   return new google.auth.OAuth2(
     gmailClientId.value(),
     gmailClientSecret.value(),
@@ -119,6 +118,8 @@ exports.gmailSync = onRequest({ secrets: [gmailClientId, gmailClientSecret, gmai
   if (!connectionSnap.exists) return res.status(409).json({ error: 'Спочатку авторизуйте цю робочу скриньку.' });
 
   const client = oauthClient();
+  const { google } = require('googleapis');
+  const pdfParse = require('pdf-parse');
   client.setCredentials(connectionSnap.data().tokens);
   const gmail = google.gmail({ version: 'v1', auth: client });
   const bucket = admin.storage().bucket();
