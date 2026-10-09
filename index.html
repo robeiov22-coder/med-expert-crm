@@ -785,6 +785,10 @@
           <input type="text" id="test-patient" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
         </div>
         <div>
+          <label class="block font-bold text-slate-700 mb-1">E-mail пацієнта</label>
+          <input type="email" id="test-patient-email" placeholder="Введіть e-mail або залиште порожнім" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
           <label class="block font-bold text-slate-700 mb-1">Вид аналізу</label>
           <select id="test-type" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
             <option value="Загальний аналіз крові (ЗАК)">Загальний аналіз крові (ЗАК)</option>
@@ -823,7 +827,7 @@
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 id="test-details-title" class="font-extrabold text-slate-900 text-base">Результат аналізу</h3><button onclick="closeModal('modal-test-details')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
       <div id="test-details-content" class="space-y-3 text-xs"></div>
-      <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3"><button id="test-details-delete" class="hidden px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold">Видалити аналіз</button><div class="flex justify-end gap-2 ml-auto"><button id="test-details-print-result" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Друкувати результат</button><button id="test-details-print-all" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold">Друкувати все</button></div></div>
+      <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3"><button id="test-details-delete" class="hidden px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold">Видалити аналіз</button><div class="flex flex-wrap justify-end gap-2 ml-auto"><button id="test-details-email" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold">Надіслати на e-mail</button><button id="test-details-print-result" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Зберегти PDF</button><button id="test-details-print-all" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold">Друкувати все</button></div></div>
     </div>
   </div>
 
@@ -1649,15 +1653,30 @@
     function openTestDetailsModal(testId) {
       const test = appState.tests.find(item => Number(item.id) === Number(testId));
       if (!test) return;
+      const cardEmail = appState.journal.find(item => item.patient === test.patient && item.email)?.email || '';
       document.getElementById('test-details-title').textContent = `${test.testName} — ${test.patient}`;
-      document.getElementById('test-details-content').innerHTML = `<div class="grid grid-cols-2 gap-2"><div><span class="font-bold text-slate-500">Пацієнт:</span> ${escapeHtml(test.patient)}</div><div><span class="font-bold text-slate-500">Дата:</span> ${escapeHtml(test.date)}</div><div><span class="font-bold text-slate-500">Контрагент:</span> ${escapeHtml(test.provider || '—')}</div><div><span class="font-bold text-slate-500">Пакет:</span> ${escapeHtml(test.batchId || '—')}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Результат</h4><div class="p-3 bg-slate-50 border border-slate-200 rounded-xl whitespace-pre-wrap font-mono">${escapeHtml(test.result)}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Висновок ШІ</h4><div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl whitespace-pre-wrap">${escapeHtml(test.aiComment || 'Коментар ще не сформовано')}</div></div>`;
+      document.getElementById('test-details-content').innerHTML = `<div class="grid grid-cols-2 gap-2"><div><span class="font-bold text-slate-500">Пацієнт:</span> ${escapeHtml(test.patient)}</div><div><span class="font-bold text-slate-500">Дата:</span> ${escapeHtml(test.date)}</div><div><span class="font-bold text-slate-500">Контрагент:</span> ${escapeHtml(test.provider || '—')}</div><div><span class="font-bold text-slate-500">Пакет:</span> ${escapeHtml(test.batchId || '—')}</div></div><div><label class="block font-bold text-slate-700 mb-1">E-mail пацієнта</label><input type="email" id="test-details-email-input" value="${escapeHtml(test.patientEmail || cardEmail)}" placeholder="Введіть e-mail пацієнта" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div><div><h4 class="font-bold text-slate-700 mb-1">Результат</h4><div class="p-3 bg-slate-50 border border-slate-200 rounded-xl whitespace-pre-wrap font-mono">${escapeHtml(test.result)}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Висновок ШІ</h4><div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl whitespace-pre-wrap">${escapeHtml(test.aiComment || 'Коментар ще не сформовано')}</div></div>`;
       document.getElementById('test-details-print-result').onclick = () => printTestResult(test.id, 'result');
       document.getElementById('test-details-print-all').onclick = () => printTestResult(test.id, 'all');
+      document.getElementById('test-details-email').onclick = () => sendTestResultByEmail(test.id);
       const deleteButton = document.getElementById('test-details-delete');
       deleteButton.classList.toggle('hidden', appState.currentUser?.role !== 'Адміністратор');
       deleteButton.onclick = () => deleteTestRecord(test.id);
       openModal('modal-test-details');
       lucide.createIcons();
+    }
+
+    function sendTestResultByEmail(testId) {
+      const test = appState.tests.find(item => Number(item.id) === Number(testId));
+      if (!test) return;
+      const emailInput = document.getElementById('test-details-email-input');
+      const email = emailInput?.value.trim() || test.patientEmail || '';
+      if (!email) return showToast('Вкажіть e-mail пацієнта перед відправленням', 'error');
+      test.patientEmail = email;
+      saveToCloud();
+      const subject = `Результат аналізу — ${test.patient} — ${test.date}`;
+      const body = `Добрий день!\n\nРезультат аналізу пацієнта: ${test.patient}\nДата: ${test.date}\nДослідження: ${test.testName}\n\nРезультат:\n${test.result}\n\nВисновок ШІ:\n${test.aiComment || 'Не сформований'}\n\nКоментар ШІ має інформаційний характер і потребує перевірки медичним працівником.\n\nPDF-файл можна прикріпити до цього листа після збереження через кнопку «Зберегти PDF».`;
+      window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
     function deleteTestRecord(testId) {
@@ -2203,6 +2222,7 @@
     function handleSaveTest(e) {
       e.preventDefault();
       const patient = document.getElementById('test-patient').value;
+      const patientEmail = document.getElementById('test-patient-email').value.trim();
       const testName = document.getElementById('test-type').value;
       const provider = document.getElementById('test-provider').value.trim();
       const batchId = document.getElementById('test-batch').value.trim() || `ПАКЕТ-${new Date().toISOString().slice(0, 10)}`;
@@ -2214,6 +2234,7 @@
         ...auditFields(),
         date: new Date().toISOString().split('T')[0],
         patient,
+        patientEmail,
         testName,
         provider,
         batchId,
@@ -2572,6 +2593,7 @@
       openAddTestModal,
       interpretTestWithGemini,
       openTestDetailsModal,
+      sendTestResultByEmail,
       deleteTestRecord,
       toggleTestStatus,
       printTestResult,
