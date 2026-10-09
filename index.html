@@ -1175,6 +1175,7 @@
           if (parsed.journal) appState.journal = parsed.journal;
           if (parsed.vaccines) appState.vaccines = parsed.vaccines;
           if (parsed.tests) appState.tests = parsed.tests;
+          if (purgeExpiredAiComments()) saveToCloud(true);
           if (parsed.facilities) appState.facilities = parsed.facilities;
           if (parsed.users) appState.users = parsed.users;
           if (parsed.prices) appState.prices = parsed.prices;
@@ -1223,6 +1224,7 @@
             if (data.journal) appState.journal = data.journal;
             if (data.vaccines) appState.vaccines = data.vaccines;
             if (data.tests) appState.tests = data.tests;
+            if (purgeExpiredAiComments()) saveToCloud(true);
             if (data.facilities) appState.facilities = data.facilities;
             if (data.users) appState.users = data.users;
             if (data.prices) appState.prices = data.prices;
@@ -1578,9 +1580,10 @@
               </button>
             </td>
             <td class="p-3 text-center">
-              <button onclick="toggleTestStatus(${t.id})" class="text-xs font-bold text-sky-600 hover:text-sky-800">
-                ${isDone ? 'Відкрити' : 'Завершити'}
-              </button>
+              <div class="flex flex-col items-center gap-1">
+                <button onclick="toggleTestStatus(${t.id})" class="text-xs font-bold text-sky-600 hover:text-sky-800">${isDone ? 'Відкрити' : 'Завершити'}</button>
+                <button onclick="printTestResult(${t.id}, 'all')" class="text-[10px] font-bold text-slate-600 hover:text-slate-900">Друкувати</button>
+              </div>
             </td>
           </tr>
         `;
@@ -1600,6 +1603,38 @@
         renderTestsTable();
         saveToCloud();
       }
+    }
+
+    function purgeExpiredAiComments() {
+      const expiry = 30 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      let changed = false;
+      appState.tests.forEach(test => {
+        if (test.aiComment && test.aiCommentCreatedAt && now - new Date(test.aiCommentCreatedAt).getTime() >= expiry) {
+          delete test.aiComment;
+          delete test.aiCommentCreatedAt;
+          delete test.aiCommentAuthor;
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
+    function escapePrintText(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function printTestResult(testId, mode = 'all') {
+      const test = appState.tests.find(item => Number(item.id) === Number(testId));
+      if (!test) return;
+      const includeComment = mode !== 'result';
+      const comment = test.aiComment || 'Коментар ШІ ще не сформовано.';
+      const printWindow = window.open('', '_blank', 'width=800,height=900');
+      if (!printWindow) return showToast('Дозвольте спливаючі вікна для друку документа', 'error');
+      printWindow.document.write(`<!doctype html><html lang="uk"><head><meta charset="UTF-8"><title>Результат аналізу — ${escapePrintText(test.patient)}</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:32px;line-height:1.5}h1{font-size:22px;margin:0 0 24px}h2{font-size:16px;border-bottom:1px solid #cbd5e1;padding-bottom:8px;margin-top:24px}.row{margin:8px 0}.label{font-weight:700;color:#475569}.comment{white-space:pre-wrap;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:14px}.note{font-size:12px;color:#64748b;margin-top:24px}</style></head><body><h1>Результат лабораторного дослідження</h1><div class="row"><span class="label">Пацієнт:</span> ${escapePrintText(test.patient)}</div><div class="row"><span class="label">Дата:</span> ${escapePrintText(test.date)}</div><div class="row"><span class="label">Дослідження:</span> ${escapePrintText(test.testName)}</div><div class="row"><span class="label">Лікар:</span> ${escapePrintText(resolveDoctorName(test.doctorId, test.doctor))}</div><h2>Результат</h2><div class="comment">${escapePrintText(test.result)}</div>${includeComment ? `<h2>Коментар штучного інтелекту</h2><div class="comment">${escapePrintText(comment)}</div><div class="note">Коментар ШІ має інформаційний характер і потребує перевірки медичним працівником. Дата формування: ${escapePrintText(test.aiCommentCreatedAt ? new Date(test.aiCommentCreatedAt).toLocaleString('uk-UA') : '—')}</div>` : ''}</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
     }
 
     function renderFacilitiesView() {
@@ -2379,6 +2414,11 @@
 Надай лаконічний клінічний висновок українською мовою: чи є відхилення від норми та рекомендації для лікаря.`;
 
       const response = await callGeminiApi(prompt);
+      test.aiComment = response;
+      test.aiCommentCreatedAt = new Date().toISOString();
+      test.aiCommentAuthor = appState.currentUser?.id || null;
+      renderTestsTable();
+      saveToCloud();
       alert(`[ШІ-Інтерпретація для ${test.patient}]\n\n${response}`);
     }
 
@@ -2473,6 +2513,7 @@
       openAddTestModal,
       interpretTestWithGemini,
       toggleTestStatus,
+      printTestResult,
       generateExecutiveReportWithGemini,
       openFacilityModal,
       editFacility,
