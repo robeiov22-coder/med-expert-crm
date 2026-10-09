@@ -420,8 +420,9 @@
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="font-bold text-slate-900 text-sm">Прейскурант послуг каси</h4>
-              <button onclick="openAddPriceModal()" class="text-xs font-bold text-sky-600 hover:text-sky-700">+ Додати послугу</button>
+              <button id="add-price-button" onclick="openAddPriceModal()" class="text-xs font-bold text-sky-600 hover:text-sky-700">+ Додати послугу</button>
             </div>
+            <input id="price-search" oninput="renderSettingsView()" placeholder="Пошук послуги або коду..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-sky-500">
             <div class="border border-slate-100 rounded-xl overflow-hidden">
               <table class="w-full text-xs text-left">
                 <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
@@ -429,6 +430,7 @@
                     <th class="p-2">Код</th>
                     <th class="p-2">Найменування</th>
                     <th class="p-2 text-right">Ціна (грн)</th>
+                    <th class="p-2 text-center">Дії</th>
                   </tr>
                 </thead>
                 <tbody id="prices-table-body" class="divide-y divide-slate-100"></tbody>
@@ -676,6 +678,20 @@
           <button type="button" onclick="closeModal('modal-user')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button>
           <button type="submit" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-md shadow-rose-200">Зберегти доступ</button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT PRICE -->
+  <div id="modal-price" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 id="modal-price-title" class="font-extrabold text-slate-900 text-base">Додати послугу</h3><button type="button" onclick="closeModal('modal-price')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="form-price" onsubmit="handleSavePrice(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="price-id">
+        <div><label class="block font-bold text-slate-700 mb-1">Код послуги</label><input id="price-code" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Назва послуги</label><input id="price-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Ціна (грн)</label><input type="number" min="0" step="0.01" id="price-amount" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100"><button type="button" onclick="closeModal('modal-price')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button><button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold">Зберегти</button></div>
       </form>
     </div>
   </div>
@@ -1135,7 +1151,7 @@
     }
 
     function ensureDirectoryPrices() {
-      const newServices = ['Аналізи', 'Кардіограма', 'Прийом лікаря педіатра', 'Прийом спеціаліста', 'УЗД'];
+      const newServices = ['Аналізи', 'Кардіограма', 'Прийом лікаря педіатра', 'Прийом спеціаліста', 'УЗД', 'Послуги маніпуляційного кабінету', 'Вакцинація'];
       let changed = false;
       newServices.forEach((name, index) => {
         if (!appState.prices.some(price => price.name.trim().toLowerCase() === name.toLowerCase())) {
@@ -1965,13 +1981,19 @@
     function renderSettingsView() {
       const pricesTbody = document.getElementById('prices-table-body');
       if (pricesTbody) {
-        pricesTbody.innerHTML = appState.prices.map(p => `
+        const isAdmin = appState.currentUser?.role === 'Адміністратор';
+        const search = (document.getElementById('price-search')?.value || '').trim().toLowerCase();
+        const visiblePrices = appState.prices.filter(p => !search || `${p.code} ${p.name}`.toLowerCase().includes(search));
+        const addButton = document.getElementById('add-price-button');
+        if (addButton) addButton.classList.toggle('hidden', !isAdmin);
+        pricesTbody.innerHTML = visiblePrices.map(p => `
           <tr class="hover:bg-slate-50 transition">
             <td class="p-2 font-mono text-[10px] text-slate-500">${p.code}</td>
             <td class="p-2 font-medium text-slate-800">${p.name}</td>
             <td class="p-2 text-right font-bold text-slate-900">${p.price} ₴</td>
+            <td class="p-2 text-center whitespace-nowrap">${isAdmin ? `<button onclick="editPrice('${p.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold mr-1">Редагувати</button><button onclick="deletePrice('${p.code}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold">Видалити</button>` : '<span class="text-slate-400">—</span>'}</td>
           </tr>
-        `).join('');
+        `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Послуг за вашим запитом не знайдено</td></tr>`;
       }
 
       const docsTbody = document.getElementById('doctors-table-body');
@@ -2124,14 +2146,57 @@
     }
 
     function openAddPriceModal() {
-      const name = prompt("Введіть назву послуги:");
-      if (!name) return;
-      const price = parseFloat(prompt("Введіть тариф (грн):", "150")) || 0;
-      const code = `K-0${appState.prices.length + 1}`;
-      appState.prices.push({ code, name, price });
+      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Додавати послуги може лише адміністратор', 'error');
+      document.getElementById('price-id').value = '';
+      document.getElementById('modal-price-title').textContent = 'Додати послугу';
+      document.getElementById('price-code').value = `K-${String(appState.prices.length + 1).padStart(2, '0')}`;
+      document.getElementById('price-name').value = '';
+      document.getElementById('price-amount').value = 0;
+      openModal('modal-price');
+    }
+
+    function editPrice(code) {
+      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Редагувати послуги може лише адміністратор', 'error');
+      const price = appState.prices.find(item => item.code === code);
+      if (!price) return;
+      document.getElementById('price-id').value = price.code;
+      document.getElementById('modal-price-title').textContent = 'Редагувати послугу';
+      document.getElementById('price-code').value = price.code;
+      document.getElementById('price-name').value = price.name;
+      document.getElementById('price-amount').value = price.price;
+      openModal('modal-price');
+    }
+
+    function handleSavePrice(e) {
+      e.preventDefault();
+      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Змінювати прейскурант може лише адміністратор', 'error');
+      const originalCode = document.getElementById('price-id').value;
+      const code = document.getElementById('price-code').value.trim();
+      const name = document.getElementById('price-name').value.trim();
+      const priceValue = Number(document.getElementById('price-amount').value) || 0;
+      if (!code || !name) return showToast('Заповніть код і назву послуги', 'error');
+      const duplicate = appState.prices.find(item => item.code === code && item.code !== originalCode);
+      if (duplicate) return showToast('Такий код послуги вже використовується', 'error');
+      const item = appState.prices.find(item => item.code === originalCode);
+      if (item) Object.assign(item, { code, name, price: priceValue });
+      else appState.prices.push({ code, name, price: priceValue });
+      closeModal('modal-price');
       renderSettingsView();
       populateDropdowns();
-      showToast("Послугу додано в прейскурант", "success");
+      showToast(item ? 'Послугу оновлено' : 'Послугу додано в прейскурант', 'success');
+      saveToCloud();
+    }
+
+    function deletePrice(code) {
+      if (appState.currentUser?.role !== 'Адміністратор') return showToast('Видаляти послуги може лише адміністратор', 'error');
+      const item = appState.prices.find(price => price.code === code);
+      if (!item) return;
+      if (!confirm(`Видалити послугу «${item.name}»?`)) return;
+      appState.prices = appState.prices.filter(price => price.code !== code);
+      appState.doctors.forEach(doctor => { doctor.serviceCodes = (doctor.serviceCodes || []).filter(serviceCode => serviceCode !== code); });
+      renderSettingsView();
+      populateDropdowns();
+      showToast('Послугу видалено з прейскуранта', 'success');
       saveToCloud();
     }
 
@@ -2388,6 +2453,9 @@
       openUserModal,
       editUser,
       openAddPriceModal,
+      editPrice,
+      deletePrice,
+      handleSavePrice,
       openAddDoctorModal,
       editDoctorProfile,
       addDoctorPhoneInput,
