@@ -816,6 +816,19 @@
     </div>
   </div>
 
+  <!-- MODAL: TRANSFER VACCINE -->
+  <div id="modal-vaccine-transfer" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 class="font-extrabold text-slate-900 text-base">Перемістити вакцину</h3><button type="button" onclick="closeModal('modal-vaccine-transfer')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="form-vaccine-transfer" onsubmit="handleTransferVaccine(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="transfer-vaccine-id"><p id="transfer-vaccine-name" class="rounded-xl bg-amber-50 border border-amber-100 text-amber-900 p-3 font-bold"></p>
+        <div><label class="block font-bold text-slate-700 mb-1">Заклад-призначення</label><select id="transfer-vaccine-facility" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></select></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Кількість доз для переміщення</label><input type="number" id="transfer-vaccine-doses" min="1" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"></div>
+        <div class="pt-2 flex justify-end gap-2"><button type="button" onclick="closeModal('modal-vaccine-transfer')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button><button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-md shadow-amber-200">Перемістити</button></div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: ADD TEST / ECG -->
   <div id="modal-test" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -4980,6 +4993,7 @@
           const parsed = JSON.parse(localData);
           if (parsed.journal) appState.journal = parsed.journal;
           if (parsed.vaccines) appState.vaccines = parsed.vaccines;
+          if (normalizeVaccineFacilities()) saveToCloud(true);
           if (parsed.tests) appState.tests = parsed.tests;
           if (removeLegacyEcgTests()) saveToCloud(true);
           if (purgeExpiredAiComments()) saveToCloud(true);
@@ -5032,6 +5046,7 @@
             const data = docSnap.data();
             if (data.journal) appState.journal = data.journal;
             if (data.vaccines) appState.vaccines = data.vaccines;
+            if (normalizeVaccineFacilities()) saveToCloud(true);
             if (data.tests) appState.tests = data.tests;
             if (removeLegacyEcgTests()) saveToCloud(true);
             if (purgeExpiredAiComments()) saveToCloud(true);
@@ -5312,12 +5327,28 @@
       lucide.createIcons();
     }
 
+    function getCurrentFacility() {
+      return appState.facilities.find(f => Number(f.id) === Number(appState.currentBranchId))
+        || appState.facilities.find(f => f.name === appState.currentBranch || f.name.includes(appState.currentBranch))
+        || appState.facilities[0];
+    }
+    function normalizeVaccineFacilities() {
+      const facilityId = Number(getCurrentFacility()?.id || appState.facilities[0]?.id || 1);
+      let changed = false;
+      (appState.vaccines || []).forEach(v => { if (!v.facilityId) { v.facilityId = facilityId; changed = true; } if (v.transferredOut === undefined) { v.transferredOut = 0; changed = true; } });
+      return changed;
+    }
+    function vaccineBalance(vaccine) { return (vaccine.startDoses || 0) + (vaccine.received || 0) - (vaccine.used || 0) - (vaccine.wasted || 0) - (vaccine.transferredOut || 0); }
+
     function renderVaccinesTable() {
       const tbody = document.getElementById('vaccines-table-body');
       if (!tbody) return;
 
-      tbody.innerHTML = appState.vaccines.map(v => {
-        const balance = (v.startDoses || 0) + (v.received || 0) - (v.used || 0) - (v.wasted || 0);
+      normalizeVaccineFacilities();
+      const activeFacility = getCurrentFacility();
+      const visibleVaccines = appState.vaccines.filter(v => Number(v.facilityId) === Number(activeFacility?.id));
+      tbody.innerHTML = visibleVaccines.map(v => {
+        const balance = vaccineBalance(v);
         const isCritical = balance <= 5;
         const purchasePriceLabel = v.isFree || v.costPrice === null || v.costPrice === undefined || v.costPrice === '' ? 'Безкоштовно' : `${Number(v.costPrice ?? v.price).toFixed(2)} грн`;
         const retailPriceLabel = v.isFree || v.retailPrice === null || v.retailPrice === undefined || v.retailPrice === '' ? 'Безкоштовно' : `${Number(v.retailPrice).toFixed(2)} грн`;
@@ -5346,6 +5377,7 @@
             <td class="p-3 text-center">
               <div class="flex items-center justify-center gap-1.5">
                 ${canUse ? `<button onclick="useVaccineDose(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Ввести (-1)</button><button onclick="wasteVaccineDose(${v.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[11px] font-bold transition" title="Списати за актом">Списати</button>` : '<span class="text-[10px] text-slate-400">Доступно медсестрі</span>'}
+                ${canUse ? `<button onclick="openTransferVaccineModal(${v.id})" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-[11px] font-bold transition">Перемістити</button>` : ''}
               </div>
             </td>
           </tr>
@@ -5375,6 +5407,36 @@
         renderVaccinesTable();
         saveToCloud();
       }
+    }
+
+    function openTransferVaccineModal(id) {
+      if (!canManageVaccine('use')) return showToast('Переміщати вакцини може медсестра або адміністратор', 'error');
+      const vaccine = appState.vaccines.find(item => Number(item.id) === Number(id));
+      if (!vaccine) return;
+      const balance = vaccineBalance(vaccine);
+      if (balance <= 0) return showToast('Немає доступних доз для переміщення', 'error');
+      document.getElementById('transfer-vaccine-id').value = vaccine.id;
+      document.getElementById('transfer-vaccine-name').textContent = `${vaccine.name} · серія `${vaccine.lot} · доступно `${balance} доз`;
+      document.getElementById('transfer-vaccine-doses').max = balance;
+      document.getElementById('transfer-vaccine-doses').value = balance;
+      document.getElementById('transfer-vaccine-facility').innerHTML = appState.facilities.filter(f => Number(f.id) !== Number(vaccine.facilityId)).map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+      openModal('modal-vaccine-transfer');
+    }
+    function handleTransferVaccine(e) {
+      e.preventDefault();
+      if (!canManageVaccine('use')) return showToast('Переміщати вакцини може медсестра або адміністратор', 'error');
+      const vaccine = appState.vaccines.find(item => Number(item.id) === Number(document.getElementById('transfer-vaccine-id').value));
+      const doses = parseInt(document.getElementById('transfer-vaccine-doses').value) || 0;
+      const targetFacilityId = Number(document.getElementById('transfer-vaccine-facility').value);
+      if (!vaccine || !targetFacilityId || doses < 1) return showToast('Вкажіть заклад-призначення та кількість доз', 'error');
+      const balance = vaccineBalance(vaccine);
+      if (doses > balance) return showToast('Недостатньо доз для переміщення', 'error');
+      vaccine.transferredOut = (vaccine.transferredOut || 0) + doses;
+      appState.vaccines.push({ ...vaccine, id: Date.now(), facilityId: targetFacilityId, startDoses: 0, received: doses, used: 0, wasted: 0, transferredOut: 0, transferFromId: vaccine.facilityId || null });
+      closeModal('modal-vaccine-transfer');
+      renderVaccinesTable();
+      saveToCloud();
+      showToast(`Переміщено ${doses} доз вакцини`, 'success');
     }
 
     function renderTestsTable() {
@@ -5589,6 +5651,7 @@
       if (el) el.innerText = appState.currentBranch;
       showToast(`Переключено на: ${appState.currentBranch}`, 'success');
       renderFacilitiesView();
+      renderVaccinesTable();
       saveToCloud();
     }
 
@@ -6133,7 +6196,9 @@
         startDoses: 0,
         received: doses,
         used: 0,
-        wasted: 0
+        wasted: 0,
+        transferredOut: 0,
+        facilityId: Number(getCurrentFacility()?.id) || null
       });
 
       closeModal('modal-vaccine-batch');
@@ -6542,6 +6607,8 @@
       renderJournalTable,
       deleteCashRecord,
       openAddVaccineBatchModal,
+      openTransferVaccineModal,
+      handleTransferVaccine,
       useVaccineDose,
       wasteVaccineDose,
       openAddTestModal,
