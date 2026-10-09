@@ -399,6 +399,13 @@
             </table>
           </div>
         </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div><h4 class="font-bold text-slate-900 text-sm">Тимчасові заміщення</h4><p class="text-xs text-slate-600">Працівник входить під власним логіном, але тимчасово отримує права іншої ролі.</p></div>
+            <button onclick="openAssignmentPrompt()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold">+ Додати заміщення</button>
+          </div>
+          <div id="assignments-list" class="space-y-2"></div>
+        </div>
       </section>
 
       <!-- 7. VIEW: SETTINGS -->
@@ -875,6 +882,7 @@
           permissions: { journal: true, vaccines: false, tests: false, stats: true, facilities: false, users: false, editPrices: false }
         }
       ],
+      roleAssignments: [],
       prices: [
         { code: "K-01", name: "Консультація лікаря (без декларації)", price: 250 },
         { code: "K-02", name: "Електрокардіограма (ЕКГ) з розшифровкою", price: 150 },
@@ -1007,6 +1015,18 @@
       ]
     };
 
+    /* Тимчасові заміщення за датами без зміни постійної ролі працівника. */
+    const ROLE_PERMISSIONS = {
+      'Адміністратор': { journal: true, vaccines: true, tests: true, stats: true, facilities: true, users: true, editPrices: true },
+      'Лікар': { journal: true, vaccines: false, tests: true, stats: true, facilities: false, users: false, editPrices: false },
+      'Медсестра / Маніпуляційна': { journal: false, vaccines: true, tests: true, stats: false, facilities: false, users: false, editPrices: false },
+      'Реєстратор / Касир': { journal: true, vaccines: false, tests: false, stats: true, facilities: false, users: false, editPrices: false }
+    };
+    const isoToday = () => new Date().toISOString().slice(0, 10);
+    const isAssignmentActive = a => a.status !== 'Завершене' && a.startDate <= isoToday() && (!a.endDate || a.endDate >= isoToday());
+    function getActiveAssignments(userId = appState.currentUser.id) { return (appState.roleAssignments || []).filter(a => Number(a.userId) === Number(userId) && isAssignmentActive(a)); }
+    function effectiveUser() { const assignments = getActiveAssignments(); const permissions = { ...(appState.currentUser.permissions || {}) }; assignments.forEach(a => Object.assign(permissions, ROLE_PERMISSIONS[a.temporaryRole] || {})); return { ...appState.currentUser, permissions, activeAssignments: assignments }; }
+    function auditFields() { const user = effectiveUser(); return { createdByUserId: user.id, actingRole: user.activeAssignments?.[0]?.temporaryRole || user.role, assignmentId: user.activeAssignments?.[0]?.id || null, createdAt: new Date().toISOString() }; }
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
     let db = null;
     let auth = null;
@@ -1044,6 +1064,7 @@
           if (parsed.users) appState.users = parsed.users;
           if (parsed.prices) appState.prices = parsed.prices;
           if (parsed.doctors) appState.doctors = parsed.doctors;
+          if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
         }
       } catch (e) {
@@ -1087,6 +1108,7 @@
             if (data.users) appState.users = data.users;
             if (data.prices) appState.prices = data.prices;
             if (data.doctors) appState.doctors = data.doctors;
+            if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.currentBranch) {
               appState.currentBranch = data.currentBranch;
               const el = document.getElementById('sidebar-branch-name');
@@ -1136,6 +1158,7 @@
           users: appState.users,
           prices: appState.prices,
           doctors: appState.doctors,
+          roleAssignments: appState.roleAssignments,
           currentBranch: appState.currentBranch
         }));
         if (!navigator.onLine) queueOfflineChange();
@@ -1159,6 +1182,7 @@
             users: appState.users,
             prices: appState.prices,
             doctors: appState.doctors,
+            roleAssignments: appState.roleAssignments,
             currentBranch: appState.currentBranch,
             updatedAt: new Date().toISOString()
           }, { merge: true });
@@ -1188,7 +1212,7 @@
     }
 
     function navigate(viewName) {
-      const allowed = appState.currentUser.permissions;
+      const allowed = effectiveUser().permissions;
       if (viewName === 'journal' && !allowed.journal) return showToast("Немає доступу до Каси", "error");
       if (viewName === 'vaccines' && !allowed.vaccines) return showToast("Немає доступу до Вакцин", "error");
       if (viewName === 'tests' && !allowed.tests) return showToast("Немає доступу до Аналізів", "error");
@@ -1237,7 +1261,8 @@
       if (appState.users[idx]) {
         appState.currentUser = appState.users[idx];
         document.getElementById('current-user-name').innerText = appState.currentUser.name;
-        document.getElementById('current-user-role').innerText = appState.currentUser.role;
+        const activeAssignments = getActiveAssignments();
+        document.getElementById('current-user-role').innerText = activeAssignments.length ? `${appState.currentUser.role} · заміщення: ${activeAssignments[0].temporaryRole}` : appState.currentUser.role;
         showToast(`Перемкнуто на: ${appState.currentUser.name}`, 'info');
         navigate(appState.currentUser.permissions.journal ? 'journal' : 'vaccines');
       }
@@ -1668,6 +1693,7 @@
       }).join('');
 
       lucide.createIcons();
+      renderAssignments();
     }
 
     function editUser(id) {
@@ -1746,6 +1772,29 @@
       showToast("Користувача та доступи збережено!", 'success');
       renderUsersTable();
       saveToCloud();
+    }
+
+    function renderAssignments() {
+      const el = document.getElementById('assignments-list');
+      if (!el) return;
+      el.innerHTML = (appState.roleAssignments || []).map(a => {
+        const user = appState.users.find(u => Number(u.id) === Number(a.userId));
+        const facility = appState.facilities.find(f => Number(f.id) === Number(a.facilityId));
+        const active = isAssignmentActive(a);
+        return `<div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl border ${active ? 'border-sky-200 bg-sky-50' : 'border-slate-200 bg-slate-50'}"><div><b>${user?.name || 'Невідомий працівник'}</b><span class="text-slate-500"> · ${a.temporaryRole} · ${facility?.name || 'Підрозділ не вказано'}</span><div class="text-[11px] text-slate-500">${a.startDate} — ${a.endDate || 'безстроково'} · ${a.reason || 'Заміщення'}</div></div><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${active ? 'Активне' : 'Завершене'}</span></div>`;
+      }).join('') || '<div class="text-xs text-slate-500">Заміщень не створено.</div>';
+    }
+    function openAssignmentPrompt() {
+      const userIndex = Number(prompt(`Оберіть працівника:\n${appState.users.map((u, i) => `${i + 1}. ${u.name}`).join('\n')}`, '1')) - 1;
+      const user = appState.users[userIndex]; if (!user) return;
+      const facilityIndex = Number(prompt(`Оберіть підрозділ:\n${appState.facilities.map((f, i) => `${i + 1}. ${f.name}`).join('\n')}`, '1')) - 1;
+      const facility = appState.facilities[facilityIndex]; if (!facility) return;
+      const temporaryRole = prompt('Тимчасова роль:', 'Адміністратор');
+      if (!ROLE_PERMISSIONS[temporaryRole]) return showToast('Невідома роль заміщення', 'error');
+      const startDate = prompt('Дата початку (YYYY-MM-DD):', isoToday()) || isoToday();
+      const endDate = prompt('Дата завершення (YYYY-MM-DD, необов’язково):', '') || '';
+      appState.roleAssignments.push({ id: Date.now(), userId: user.id, facilityId: facility.id, temporaryRole, startDate, endDate, reason: 'Тимчасове заміщення', status: 'Активне', grantedBy: appState.currentUser.id, ...auditFields() });
+      renderAssignments(); saveToCloud(); showToast('Тимчасове заміщення активовано', 'success');
     }
 
     function renderStatsView() {
@@ -1839,6 +1888,7 @@
 
       const newRecord = {
         id: Date.now(),
+        ...auditFields(),
         date,
         birth,
         patient: name,
@@ -1921,6 +1971,7 @@
 
       appState.tests.unshift({
         id: Date.now(),
+        ...auditFields(),
         date: new Date().toISOString().split('T')[0],
         patient,
         testName,
@@ -2165,6 +2216,8 @@
       handleSaveFacility,
       handleSaveVaccineBatch,
       handleSaveTest,
+      openAssignmentPrompt,
+      renderAssignments,
       setAiQuery,
       askGeminiClinicalAssistant,
       saveToCloud
