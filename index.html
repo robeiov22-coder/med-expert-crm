@@ -5856,19 +5856,7 @@
         const visiblePrices = getPriceTree().filter(({ price, category }) => !search || `${price.code} ${price.name} ${category || ''}`.toLowerCase().includes(search));
         const addButton = document.getElementById('add-price-button');
         if (addButton) addButton.classList.toggle('hidden', !isAdmin);
-        const grouped = visiblePrices.reduce((map, row) => { const key = row.category || 'Інші послуги'; (map[key] ||= []).push(row); return map; }, {});
-        pricesTbody.innerHTML = Object.entries(grouped).map(([category, entries]) => {
-          const groupId = `price-group-${Object.keys(grouped).indexOf(category)}`;
-          const expanded = !!search;
-          return `<tr class="bg-sky-50/70 border-y border-sky-100"><td colspan="5" class="p-0"><button type="button" onclick="togglePriceGroup('${groupId}')" class="w-full flex items-center justify-between px-3 py-2.5 text-left font-extrabold text-sky-900 hover:bg-sky-100 text-sm"><span class="flex items-center gap-1"><i data-lucide="chevron-${expanded ? 'down' : 'right'}" class="inline w-4 h-4 mr-1"></i>${category} <span class="text-xs font-semibold text-sky-600">(${entries.length})</span></span><span class="text-xs font-semibold text-slate-500">Натисніть для перегляду</span></button></td></tr>` + entries.map(({ price: p, depth, parentName }) => `
-            <tr data-price-group="${groupId}" class="price-group-row ${expanded ? '' : 'hidden'} hover:bg-slate-50 transition">
-              <td class="p-2.5 font-mono text-xs text-slate-500 align-top">${p.code}</td>
-              <td class="p-2.5 font-medium text-sm text-slate-800 leading-snug"><span style="padding-left:${depth * 18}px">${depth ? '↳ ' : ''}${p.name}</span>${parentName ? `<span class="block text-xs text-slate-400 mt-0.5" style="padding-left:${depth * 18}px">підпослуга: ${parentName}</span>` : ''}</td>
-              <td class="p-2.5 text-right text-sm font-bold text-slate-900 align-top whitespace-nowrap">${p.price} ₴</td>
-              <td class="p-2.5 text-right text-sm text-slate-600 align-top whitespace-nowrap">${Number(p.cost || 0).toFixed(2)} ₴</td>
-              <td class="p-2.5 text-center whitespace-nowrap align-top">${isAdmin ? `<button onclick="editPrice('${p.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold mr-1">Редагувати</button><button onclick="deletePrice('${p.code}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold">Видалити</button>` : '<span class="text-slate-400">—</span>'}</td>
-            </tr>`).join('');
-        }).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Послуг за вашим запитом не знайдено</td></tr>`;
+        pricesTbody.innerHTML = renderHierarchicalPriceCatalog(visiblePrices, isAdmin, search) || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Послуг за вашим запитом не знайдено</td></tr>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
       }
 
@@ -5886,6 +5874,27 @@
           </tr>
         `).join('');
       }
+    }
+
+    function renderHierarchicalPriceCatalog(rows, isAdmin, search) {
+      const importedCodes = new Set(IMPORTED_ANALYSIS_PRICES.map(item => String(item.code)));
+      const analysisRoot = rows.find(row => row.price.name.trim().toLowerCase() === 'аналізи');
+      const topServices = rows.filter(row => !importedCodes.has(String(row.price.code)) && row.price.name.trim().toLowerCase() !== 'аналізи');
+      const analysisRows = rows.filter(row => importedCodes.has(String(row.price.code)));
+      const categories = analysisRows.reduce((map, row) => { const key = row.category || 'Інші аналізи'; (map[key] ||= []).push(row); return map; }, {});
+      const actionCells = p => isAdmin ? `<button onclick="editPrice('${p.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold mr-1">Редагувати</button><button onclick="deletePrice('${p.code}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold">Видалити</button>` : '<span class="text-slate-400">—</span>';
+      const serviceRow = ({ price: p }) => `<tr class="hover:bg-slate-50 transition"><td class="p-2 font-mono text-[10px] text-slate-500">${p.code}</td><td class="p-2 font-medium text-xs text-slate-800">${p.name}</td><td class="p-2 text-right text-xs font-bold text-slate-900">${p.price} ₴</td><td class="p-2 text-right text-xs text-slate-600">${Number(p.cost || 0).toFixed(2)} ₴</td><td class="p-2 text-center whitespace-nowrap">${actionCells(p)}</td></tr>`;
+      let html = topServices.map(serviceRow).join('');
+      if (analysisRoot) {
+        const rootExpanded = !!search;
+        html += `<tr class="bg-sky-50/70 border-y border-sky-100"><td colspan="5" class="p-0"><button type="button" onclick="togglePriceGroup('analysis-root')" class="w-full flex items-center justify-between px-3 py-2 text-left font-bold text-sky-900 hover:bg-sky-100 text-xs"><span><i data-lucide="chevron-${rootExpanded ? 'down' : 'right'}" class="inline w-4 h-4 mr-1"></i>Аналізи <span class="text-[10px] font-semibold text-sky-600">(${analysisRows.length})</span></span><span class="text-[10px] font-semibold text-slate-500">Натисніть для перегляду</span></button></td></tr>`;
+        html += Object.entries(categories).map(([category, entries], index) => {
+          const groupId = `analysis-category-${index}`;
+          const expanded = !!search;
+          return `<tr data-price-group="analysis-root" class="${rootExpanded ? '' : 'hidden'} bg-sky-50/40 border-y border-sky-100"><td colspan="5" class="p-0"><button type="button" onclick="togglePriceGroup('${groupId}')" class="w-full flex items-center justify-between px-3 py-2 text-left font-bold text-sky-800 hover:bg-sky-100 text-xs"><span style="padding-left:18px"><i data-lucide="chevron-${expanded ? 'down' : 'right'}" class="inline w-4 h-4 mr-1"></i>${category} <span class="text-[10px] font-semibold text-sky-600">(${entries.length})</span></span><span class="text-[10px] text-slate-500">Натисніть для перегляду</span></button></td></tr>` + entries.map(({ price: p, depth, parentName }) => `<tr data-price-group="${groupId}" class="${expanded ? '' : 'hidden'} hover:bg-slate-50 transition"><td class="p-2 font-mono text-[10px] text-slate-500">${p.code}</td><td class="p-2 font-medium text-xs text-slate-800 leading-snug"><span style="padding-left:36px">${p.name}</span>${parentName ? `<span class="block text-[10px] text-slate-400" style="padding-left:36px">підпослуга: ${parentName}</span>` : ''}</td><td class="p-2 text-right text-xs font-bold text-slate-900">${p.price} ₴</td><td class="p-2 text-right text-xs text-slate-600">${Number(p.cost || 0).toFixed(2)} ₴</td><td class="p-2 text-center whitespace-nowrap">${actionCells(p)}</td></tr>`).join('');
+        }).join('');
+      }
+      return html;
     }
 
     function togglePriceGroup(groupId) {
