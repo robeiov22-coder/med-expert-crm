@@ -1067,6 +1067,7 @@
       } catch (e) {
         console.warn("Local storage read exception:", e);
       }
+      migrateEntityRelations();
 
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
@@ -1111,6 +1112,7 @@
               if (el) el.innerText = appState.currentBranch;
             }
 
+            migrateEntityRelations();
             populateDropdowns();
             renderActiveView();
             updateCloudIndicator('Хмара: Синхронізовано', 'emerald');
@@ -1655,7 +1657,9 @@
 
       closeModal('modal-facility');
       showToast("Інформацію про заклад оновлено!", 'success');
+      populateDropdowns();
       renderFacilitiesView();
+      renderUsersTable();
       saveToCloud();
     }
 
@@ -1761,7 +1765,7 @@
           name,
           login,
           role,
-          facility,
+          facilityId,
           status: "Активний",
           permissions: perms
         });
