@@ -694,6 +694,8 @@
         <input type="hidden" id="price-id">
         <div><label class="block font-bold text-slate-700 mb-1">Код послуги</label><input id="price-code" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
         <div><label class="block font-bold text-slate-700 mb-1">Назва послуги</label><input id="price-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Категорія</label><input id="price-category" placeholder="Наприклад: Аналізи" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Батьківська послуга (необов'язково)</label><select id="price-parent" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"><option value="">Без батьківської послуги — основна послуга</option></select><p class="text-[10px] text-slate-400 mt-1">Заповніть, щоб створити підпослугу, наприклад «Експрес-тест на Ковід» у складі «Швидкі тести».</p></div>
         <div><label class="block font-bold text-slate-700 mb-1">Ціна (грн)</label><input type="number" min="0" step="0.01" id="price-amount" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
         <div class="pt-3 flex justify-end gap-2 border-t border-slate-100"><button type="button" onclick="closeModal('modal-price')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button><button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold">Зберегти</button></div>
       </form>
@@ -1429,7 +1431,7 @@
 
       const srvSelect = document.getElementById('cr-service');
       if (srvSelect) {
-        srvSelect.innerHTML = appState.prices.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} — ${p.price} ₴</option>`).join('');
+        srvSelect.innerHTML = getPriceTree().map(({ price, depth, category }) => `<option value="${price.name}" data-price="${price.price}">${'  '.repeat(depth)}${category ? `${category}: ` : ''}${price.name} — ${price.price} ₴</option>`).join('');
       }
 
       const userFacilitySelect = document.getElementById('usr-facility');
@@ -2101,13 +2103,13 @@
       if (pricesTbody) {
         const isAdmin = appState.currentUser?.role === 'Адміністратор';
         const search = (document.getElementById('price-search')?.value || '').trim().toLowerCase();
-        const visiblePrices = appState.prices.filter(p => !search || `${p.code} ${p.name}`.toLowerCase().includes(search));
+        const visiblePrices = getPriceTree().filter(({ price, category }) => !search || `${price.code} ${price.name} ${category || ''}`.toLowerCase().includes(search));
         const addButton = document.getElementById('add-price-button');
         if (addButton) addButton.classList.toggle('hidden', !isAdmin);
-        pricesTbody.innerHTML = visiblePrices.map(p => `
+        pricesTbody.innerHTML = visiblePrices.map(({ price: p, depth, category, parentName }) => `
           <tr class="hover:bg-slate-50 transition">
             <td class="p-2 font-mono text-[10px] text-slate-500">${p.code}</td>
-            <td class="p-2 font-medium text-slate-800">${p.name}</td>
+            <td class="p-2 font-medium text-slate-800"><span class="text-[10px] text-slate-400">${category || 'Інші послуги'}</span><br><span style="padding-left:${depth * 18}px">${depth ? '↳ ' : ''}${p.name}</span>${parentName ? `<span class="block text-[10px] text-slate-400" style="padding-left:${depth * 18}px">підпослуга: ${parentName}</span>` : ''}</td>
             <td class="p-2 text-right font-bold text-slate-900">${p.price} ₴</td>
             <td class="p-2 text-center whitespace-nowrap">${isAdmin ? `<button onclick="editPrice('${p.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold mr-1">Редагувати</button><button onclick="deletePrice('${p.code}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold">Видалити</button>` : '<span class="text-slate-400">—</span>'}</td>
           </tr>
@@ -2128,6 +2130,21 @@
           </tr>
         `).join('');
       }
+    }
+
+    function getPriceTree() {
+      const prices = appState.prices || [];
+      const result = [];
+      const visit = (parentCode, depth, category, parentName) => {
+        prices.filter(p => (p.parentCode || '') === (parentCode || '')).forEach(price => {
+          const currentCategory = price.category || category || 'Інші послуги';
+          result.push({ price, depth, category: currentCategory, parentName });
+          visit(price.code, depth + 1, currentCategory, price.name);
+        });
+      };
+      visit('', 0, '', '');
+      prices.filter(p => !result.some(item => item.price.code === p.code)).forEach(price => result.push({ price, depth: 0, category: price.category || 'Інші послуги', parentName: '' }));
+      return result;
     }
 
     function handleSaveCashRecord(e) {
@@ -2275,6 +2292,9 @@
       document.getElementById('modal-price-title').textContent = 'Додати послугу';
       document.getElementById('price-code').value = `K-${String(appState.prices.length + 1).padStart(2, '0')}`;
       document.getElementById('price-name').value = '';
+      document.getElementById('price-category').value = '';
+      populatePriceParents();
+      document.getElementById('price-parent').value = '';
       document.getElementById('price-amount').value = 0;
       openModal('modal-price');
     }
@@ -2287,6 +2307,9 @@
       document.getElementById('modal-price-title').textContent = 'Редагувати послугу';
       document.getElementById('price-code').value = price.code;
       document.getElementById('price-name').value = price.name;
+      document.getElementById('price-category').value = price.category || '';
+      populatePriceParents(price.code);
+      document.getElementById('price-parent').value = price.parentCode || '';
       document.getElementById('price-amount').value = price.price;
       openModal('modal-price');
     }
@@ -2297,18 +2320,27 @@
       const originalCode = document.getElementById('price-id').value;
       const code = document.getElementById('price-code').value.trim();
       const name = document.getElementById('price-name').value.trim();
+      const category = document.getElementById('price-category').value.trim();
+      const parentCode = document.getElementById('price-parent').value;
       const priceValue = Number(document.getElementById('price-amount').value) || 0;
       if (!code || !name) return showToast('Заповніть код і назву послуги', 'error');
       const duplicate = appState.prices.find(item => item.code === code && item.code !== originalCode);
       if (duplicate) return showToast('Такий код послуги вже використовується', 'error');
+      if (parentCode === code) return showToast('Послуга не може бути батьківською сама для себе', 'error');
       const item = appState.prices.find(item => item.code === originalCode);
-      if (item) Object.assign(item, { code, name, price: priceValue });
-      else appState.prices.push({ code, name, price: priceValue });
+      if (item) Object.assign(item, { code, name, price: priceValue, category, parentCode });
+      else appState.prices.push({ code, name, price: priceValue, category, parentCode });
       closeModal('modal-price');
       renderSettingsView();
       populateDropdowns();
       showToast(item ? 'Послугу оновлено' : 'Послугу додано в прейскурант', 'success');
       saveToCloud();
+    }
+
+    function populatePriceParents(excludeCode = '') {
+      const select = document.getElementById('price-parent');
+      if (!select) return;
+      select.innerHTML = `<option value="">Без батьківської послуги — основна послуга</option>` + (appState.prices || []).filter(p => p.code !== excludeCode && !p.parentCode).map(p => `<option value="${p.code}">${p.name} (${p.code})</option>`).join('');
     }
 
     function deletePrice(code) {
