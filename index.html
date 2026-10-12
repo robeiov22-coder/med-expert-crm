@@ -5258,6 +5258,16 @@
         document.body.appendChild(holder);
       }
       holder.value = JSON.stringify(backup);
+      if (new URLSearchParams(location.search).get('migrationTransfer') === '1') {
+        fetch('http://127.0.0.1:8765/backup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: holder.value
+        }).then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          showToast('Копію отримано локально для перенесення', 'success');
+        }).catch(error => showToast(`Локальна передача не вдалася: ${error.message}`, 'error'));
+      }
       const url = URL.createObjectURL(new Blob([JSON.stringify(backup)], { type: 'application/json' }));
       const link = document.createElement('a');
       link.href = url;
