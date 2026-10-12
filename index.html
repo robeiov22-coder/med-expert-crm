@@ -5632,7 +5632,7 @@
             <td class="p-3 text-slate-600 font-mono text-[11px] whitespace-nowrap">${item.phone || '-'}</td>
             <td class="p-3">${declBadge}</td>
             <td class="p-3 text-slate-800 font-medium">${resolveDoctorName(item.doctorId, item.doctor)}</td>
-            <td class="p-3 text-slate-700 max-w-[200px] truncate" title="${item.service}">${item.service}</td>
+            <td class="p-3 text-slate-700 max-w-[200px] truncate" title="${escapeHtml(item.service)}">${Array.isArray(item.services) && item.services.length ? item.services.map(service => `${escapeHtml(service.name)}${service.discountValue ? ` (знижка ${service.discountType === "fixed" ? Number(service.discountValue).toFixed(2) + " ₴" : Number(service.discountValue).toFixed(2) + "%"})` : ""}`).join("<br>") : escapeHtml(item.service)}</td>
             <td class="p-3"><span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${payBadgeClass}">${item.paymentType}</span></td>
             <td class="p-3 text-right font-black ${item.amount > 0 ? 'text-slate-900' : 'text-slate-400'}">${item.amount} ₴</td>
             <td class="p-3 text-center">
@@ -6437,6 +6437,23 @@
       })).filter(v => v.name);
     }
 
+    function serviceFinalPrice(service) {
+      const base = Math.max(0, Number(service.price || 0));
+      const value = Math.max(0, Number(service.discountValue || 0));
+      const discount = service.discountType === 'fixed' ? value : base * Math.min(100, value) / 100;
+      return Math.max(0, Math.round((base - discount) * 100) / 100);
+    }
+    function serviceDiscountLabel(service) {
+      const value = Math.max(0, Number(service.discountValue || 0));
+      if (!value) return '';
+      return service.discountType === 'fixed' ? `−${value.toFixed(2)} ₴` : `−${Math.min(100, value).toFixed(2)}%`;
+    }
+    function updateCashServiceDiscount(index, field, value) {
+      const service = cashRecordServices[index];
+      if (!service) return;
+      service[field] = field === 'discountType' ? value : Math.max(0, Number(value) || 0);
+      renderCashRecordServices();
+    }
     function renderCashRecordServices() {
       const list = document.getElementById('cash-services-list');
       const select = document.getElementById('cr-service');
@@ -6445,11 +6462,30 @@
       select.value = cashRecordServices[0]?.name || '';
       select.required = cashRecordServices.length === 0;
       list.innerHTML = cashRecordServices.length
-        ? cashRecordServices.map((service, index) => `<div class="flex min-w-0 items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"><div class="min-w-0 flex-1"><div class="whitespace-normal break-words text-xs font-bold text-slate-800" style="overflow-wrap:anywhere">${escapeHtml(service.name)}</div><div class="text-[10px] text-slate-500">Код: ${escapeHtml(service.code || '—')}</div></div><div class="shrink-0 pt-0.5 text-xs font-extrabold text-sky-700">${Number(service.price || 0).toFixed(2)} ₴</div><button type="button" data-remove-service-index="${index}" class="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50" title="Прибрати послугу">×</button></div>`).join('')
+        ? cashRecordServices.map((service, index) => {
+          const base = Number(service.price || 0);
+          const finalPrice = serviceFinalPrice(service);
+          return `<div class="flex min-w-0 items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+            <div class="min-w-0 flex-1">
+              <div class="whitespace-normal break-words text-xs font-bold text-slate-800" style="overflow-wrap:anywhere">${escapeHtml(service.name)}</div>
+              <div class="text-[10px] text-slate-500">Код: ${escapeHtml(service.code || '—')} · Ціна: ${base.toFixed(2)} ₴</div>
+              <div class="mt-1 flex items-center gap-1">
+                <select data-discount-type-index="${index}" class="p-1 bg-white border border-slate-200 rounded-lg text-[10px]">
+                  <option value="percent" ${service.discountType !== 'fixed' ? 'selected' : ''}>Знижка %</option>
+                  <option value="fixed" ${service.discountType === 'fixed' ? 'selected' : ''}>Знижка ₴</option>
+                </select>
+                <input type="number" min="0" step="0.01" max="${service.discountType === 'fixed' ? base : 100}" value="${Number(service.discountValue || 0)}" data-discount-value-index="${index}" class="w-20 p-1 bg-white border border-slate-200 rounded-lg text-[10px]" placeholder="0">
+                ${serviceDiscountLabel(service) ? `<span class="text-[10px] text-rose-600 font-bold">${serviceDiscountLabel(service)}</span>` : ''}
+              </div>
+            </div>
+            <div class="shrink-0 pt-0.5 text-right text-xs font-extrabold text-sky-700"><div>${finalPrice.toFixed(2)} ₴</div>${service.discountValue ? `<div class="text-[10px] text-slate-400 line-through">${base.toFixed(2)} ₴</div>` : ''}</div>
+            <button type="button" data-remove-service-index="${index}" class="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50" title="Прибрати послугу">×</button>
+          </div>`;
+        }).join('')
         : '<div class="rounded-xl border border-dashed border-slate-300 px-3 py-2 text-xs text-slate-400">Послугу ще не додано</div>';
       document.getElementById('cr-amount').value = document.getElementById('cr-payment-type').value === 'Безоплатно'
         ? 0
-        : cashRecordServices.reduce((sum, service) => sum + Number(service.price || 0), 0).toFixed(2);
+        : cashRecordServices.reduce((sum, service) => sum + serviceFinalPrice(service), 0).toFixed(2);
     }
 
     function removeCashRecordService(index) {
@@ -6495,7 +6531,7 @@
       const fields = {
         date, birth, patient: name, patientId: patientCard.id, phone, hasDecl, doctorId,
         doctor: resolveDoctorName(doctorId), service,
-        services: cashRecordServices.map(item => ({ ...item })),
+        services: cashRecordServices.map(item => ({ ...item, finalPrice: serviceFinalPrice(item) })),
         vaccineReservations: [...keep, ...added], paymentType, amount
       };
       removed.forEach(item => {
@@ -7253,6 +7289,12 @@
       document.getElementById('cash-services-list')?.addEventListener('click', event => {
         const button = event.target.closest('button[data-remove-service-index]');
         if (button) removeCashRecordService(Number(button.dataset.removeServiceIndex));
+      });
+      document.getElementById('cash-services-list')?.addEventListener('change', event => {
+        const type = event.target.closest('select[data-discount-type-index]');
+        const value = event.target.closest('input[data-discount-value-index]');
+        if (type) updateCashServiceDiscount(Number(type.dataset.discountTypeIndex), 'discountType', type.value);
+        if (value) updateCashServiceDiscount(Number(value.dataset.discountValueIndex), 'discountValue', value.value);
       });
       renderCashRecordServices();
       removeLegacyEcgTests();
