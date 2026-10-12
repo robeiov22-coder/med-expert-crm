@@ -4937,6 +4937,10 @@
     mergeImportedAnalysisPrices();
     appState.doctors.forEach(doctor => { if (!Array.isArray(doctor.facilityIds)) doctor.facilityIds = appState.facilities.map(f => Number(f.id)); });
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'med-expert-crm-pmr';
+    const STAFF_DIRECTORY_SEED_KEY = 'med-expert-crm-staff-directory-seeded-v1';
+    function markStaffDirectorySeeded() {
+      try { localStorage.setItem(STAFF_DIRECTORY_SEED_KEY, '1'); } catch (error) { console.warn('Staff seed marker:', error); }
+    }
     let db = null;
     let auth = null;
     let isCloudReady = false;
@@ -4961,6 +4965,7 @@
     function initOfflineMode() { window.addEventListener('offline', () => updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber')); window.addEventListener('online', () => { updateCloudIndicator('Хмара: Синхронізація...', 'amber'); flushOfflineQueue(); }); if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=4').catch(error => console.warn('Service Worker:', error)); if (!navigator.onLine) updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); }
 
     function ensureDirectoryStaff() {
+      try { if (localStorage.getItem(STAFF_DIRECTORY_SEED_KEY) === '1') return false; } catch (error) { console.warn('Staff seed marker:', error); }
       const staff = [
         ['Робейко','Фаїна','Олександрівна','22.02.1986','380637891194','robeiov22@ukr.net','Керівник закладу (ПМСД) / ФОП','3146414000'],
         ['Базіль','Анастасія','Іванівна','20.04.1991','380634754198','Nastya_Demydenko@bigmir.net','Лікар ЗП - сімейний лікар','3334701000'],
@@ -5000,6 +5005,7 @@
           changed = true;
         }
       });
+      markStaffDirectorySeeded();
       return changed;
     }
 
@@ -5063,7 +5069,10 @@
           if (parsed.users) appState.users = parsed.users;
           if (parsed.prices) appState.prices = parsed.prices;
           mergeImportedAnalysisPrices();
-          if (parsed.doctors) appState.doctors = parsed.doctors;
+          if (Array.isArray(parsed.doctors)) {
+            appState.doctors = parsed.doctors;
+            markStaffDirectorySeeded();
+          }
           if (removeDemoDoctors()) saveToCloud(true);
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
@@ -5119,7 +5128,10 @@
             if (data.users) appState.users = data.users;
             if (data.prices) appState.prices = data.prices;
             mergeImportedAnalysisPrices();
-            if (data.doctors) appState.doctors = data.doctors;
+            if (Array.isArray(data.doctors)) {
+              appState.doctors = data.doctors;
+              markStaffDirectorySeeded();
+            }
             if (removeDemoDoctors()) saveToCloud(true);
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
