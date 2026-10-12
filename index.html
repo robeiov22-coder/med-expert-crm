@@ -379,6 +379,7 @@
           <div>
             <h3 class="font-bold text-slate-900 text-base">Користувачі та Права доступу</h3>
             <p class="text-xs text-slate-600">Налаштування ролей персоналу: адміністратори, лікарі, медсестри, касири</p>
+            <p class="text-xs text-slate-600">До підключення серверного входу блокування діє лише в цьому браузері.</p>
           </div>
           <button onclick="openUserModal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-rose-200 transition">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -714,6 +715,11 @@
             <option value="Амбулаторія №2">Амбулаторія №2</option>
           </select>
         </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block font-bold text-slate-700 mb-1">Телефон</label><input id="usr-phone" type="tel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Дата народження</label><input id="usr-birth-date" placeholder="ДД.ММ.РРРР" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        </div>
+        <div><label class="block font-bold text-slate-700 mb-1">Посада / спеціальність</label><input id="usr-position" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
 
         <!-- Permissions Checkboxes -->
         <div class="space-y-2 pt-2 border-t border-slate-100">
@@ -4928,8 +4934,8 @@
     const isoToday = () => new Date().toISOString().slice(0, 10);
     const isAssignmentActive = a => a.status !== 'Завершене' && a.startDate <= isoToday() && (!a.endDate || a.endDate >= isoToday());
     function getActiveAssignments(userId = appState.currentUser.id) { return (appState.roleAssignments || []).filter(a => Number(a.userId) === Number(userId) && isAssignmentActive(a)); }
-    function effectiveUser() { const assignments = getActiveAssignments(); const permissions = { ...(appState.currentUser.permissions || {}) }; assignments.forEach(a => Object.assign(permissions, ROLE_PERMISSIONS[a.temporaryRole] || {})); return { ...appState.currentUser, permissions, activeAssignments: assignments }; }
-    function hasPermission(permission, fallback = false) { const user = effectiveUser(); return user.isMainAdministrator === true || user.permissions?.[permission] === true || (user.permissions?.[permission] === undefined && fallback); }
+    function effectiveUser() { if (appState.currentUser?.status === 'Заблокований' || appState.currentUser?.status === 'Архівний') return { ...appState.currentUser, permissions: {}, activeAssignments: [] }; const assignments = getActiveAssignments(); const permissions = { ...(appState.currentUser.permissions || {}) }; assignments.forEach(a => Object.assign(permissions, ROLE_PERMISSIONS[a.temporaryRole] || {})); return { ...appState.currentUser, permissions, activeAssignments: assignments }; }
+    function hasPermission(permission, fallback = false) { const user = effectiveUser(); if (user.status === 'Заблокований' || user.status === 'Архівний') return false; return user.isMainAdministrator === true || user.permissions?.[permission] === true || (user.permissions?.[permission] === undefined && fallback); }
     function canManageVaccine(action) { const role = String(effectiveUser().role || ''); if (effectiveUser().isMainAdministrator === true || role === 'Адміністратор') return true; if (role.includes('Медсестра')) return true; return false; }
     function auditFields() { const user = effectiveUser(); return { createdByUserId: user.id, actingRole: user.activeAssignments?.[0]?.temporaryRole || user.role, assignmentId: user.activeAssignments?.[0]?.id || null, createdAt: new Date().toISOString() }; }
     const doctorFacilityIds = doctor => Array.isArray(doctor.facilityIds) && doctor.facilityIds.length ? doctor.facilityIds.map(Number) : appState.facilities.map(f => Number(f.id));
@@ -4987,7 +4993,6 @@
         ['Фещенко','Марія','Олександрівна','10.12.2002','380661374136','mary.feshcenko@gmail.com','Сестра медична','3759904389'],
         ['Шестак','Ірина','Павлівна','08.03.1981','380939575347','7irinashestak@gmail.com','Лікар-педіатр','2965215627']
       ];
-      const permissions = role => ({ ...(ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS['Реєстратор / Касир']) });
       let changed = false;
       staff.forEach((row, index) => {
         const [surname, firstName, patronymic, birthDate, phone, email, position, taxId] = row;
@@ -5001,11 +5006,51 @@
           changed = true;
         } else if (!isDoctor && !existingUser) {
           const role = position.includes('реєстратури') ? 'Реєстратор / Касир' : position.includes('медична') ? 'Медсестра / Маніпуляційна' : 'Адміністратор';
-          appState.users.push({ id: 1000 + index, name, login: email || `staff${1000 + index}@med.ua`, email, role, facility: appState.facilities[0]?.name || '', facilityId: Number(appState.facilities[0]?.id) || null, phone: phone ? `+${phone}` : '', taxId, birthDate, position, status: 'Активний', permissions: permissions(role) });
+          appState.users.push({ id: 1000 + index, name, login: email || '', email, role, facility: appState.facilities[0]?.name || '', facilityId: Number(appState.facilities[0]?.id) || null, phone: phone ? `+${phone}` : '', taxId, birthDate, position, status: 'Активний', permissions: {} });
           changed = true;
         }
       });
       markStaffDirectorySeeded();
+      return changed;
+    }
+
+    function userForDoctor(doctor) {
+      return appState.users.find(user => Number(user.id) === Number(doctor.userId) || Number(user.doctorId) === Number(doctor.id))
+        || appState.users.find(user => user.role === 'Лікар' && ((doctor.taxId && user.taxId === doctor.taxId) || (doctor.email && (user.email === doctor.email || user.login === doctor.email)) || user.name === doctor.name));
+    }
+
+    function syncDoctorUser(doctor) {
+      let user = userForDoctor(doctor);
+      let changed = false;
+      if (!user) {
+        const id = Math.max(0, ...appState.users.map(item => Number(item.id) || 0)) + 1;
+        user = { id, name: doctor.name, login: doctor.email || '', role: 'Лікар', status: 'Активний', permissions: {} };
+        appState.users.push(user);
+        changed = true;
+      }
+      const facilityIds = doctorFacilityIds(doctor);
+      const primaryFacility = appState.facilities.find(item => facilityIds.includes(Number(item.id)));
+      const updates = { doctorId: doctor.id, name: doctor.name, role: 'Лікар', facilityIds, facility: primaryFacility?.name || user.facility || '', email: doctor.email || user.email || '', phone: doctor.phones?.[0] || user.phone || '', birthDate: doctor.birthDate || user.birthDate || '', taxId: doctor.taxId || user.taxId || '', position: doctor.specialization || doctor.spec || user.position || '' };
+      Object.entries(updates).forEach(([key, value]) => {
+        if (JSON.stringify(user[key]) !== JSON.stringify(value)) { user[key] = value; changed = true; }
+      });
+      if (Number(doctor.userId) !== Number(user.id)) { doctor.userId = user.id; changed = true; }
+      return changed;
+    }
+
+    function reconcileDoctorUsers() {
+      let changed = false;
+      const removedDemoNames = new Set(['Ковальчук Олена Василівна', 'Мельник Андрій Сергійович', 'Шевченко Віктор Олегович', 'Бондаренко Ірина Петрівна', 'Савченко Надія Юріївна']);
+      appState.users.filter(user => user.role === 'Лікар' && !appState.doctors.some(doctor => userForDoctor(doctor)?.id === user.id)).forEach(user => {
+        if (removedDemoNames.has(user.name)) {
+          if (user.status !== 'Архівний') { user.status = 'Архівний'; changed = true; }
+          return;
+        }
+        const id = Number(user.doctorId) || (appState.doctors.some(doctor => Number(doctor.id) === Number(user.id)) ? Date.now() + Number(user.id) : Number(user.id));
+        appState.doctors.push({ id, userId: user.id, name: user.name, spec: user.position || 'Лікар', specialization: user.position || 'Лікар', qualification: '', phones: user.phone ? [user.phone] : [], email: user.email || user.login || '', taxId: user.taxId || '', birthDate: user.birthDate || '', roomIds: [], room: '', facilityIds: user.facilityIds?.length ? user.facilityIds.map(Number) : appState.facilities.filter(f => f.name === user.facility).map(f => Number(f.id)), serviceCodes: [], schedule: '', workingDays: '', status: 'Активний' });
+        changed = true;
+      });
+      appState.doctors.forEach(doctor => { if (syncDoctorUser(doctor)) changed = true; });
       return changed;
     }
 
@@ -5038,6 +5083,15 @@
         changed = true;
       }
       return changed;
+    }
+
+    function reconcileDirectories() {
+      const removedDemoDoctors = removeDemoDoctors();
+      const importedStaff = ensureDirectoryStaff();
+      const linkedDoctors = reconcileDoctorUsers();
+      const addedPrices = ensureDirectoryPrices();
+      const linkedPatients = reconcilePatientLinks();
+      return removedDemoDoctors || importedStaff || linkedDoctors || addedPrices || linkedPatients;
     }
 
     let offlineRecoveryInProgress = false;
@@ -5078,13 +5132,13 @@
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
           appState.currentBranch = localStorage.getItem('med_expert_crm_active_branch') || appState.currentBranch;
-          if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+          if (reconcileDirectories()) saveToCloud(true);
         }
       } catch (e) {
         console.warn("Local storage read exception:", e);
       }
 
-      if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+      if (reconcileDirectories()) saveToCloud(true);
       localBootstrapped = true;
 
       try {
@@ -5135,7 +5189,7 @@
             if (removeDemoDoctors()) saveToCloud(true);
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
-            if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+            if (reconcileDirectories()) saveToCloud(true);
             const branchLabel = document.getElementById('sidebar-branch-name');
             if (branchLabel) branchLabel.innerText = appState.currentBranch;
 
@@ -5539,11 +5593,12 @@
     }
 
     function switchUserRolePrompt() {
-      const userNames = appState.users.map((u, i) => `${i + 1}. ${u.name} (${u.role})`).join('\n');
+      const availableUsers = appState.users.filter(user => user.status !== 'Заблокований' && user.status !== 'Архівний');
+      const userNames = availableUsers.map((u, i) => `${i + 1}. ${u.name} (${u.role})`).join('\n');
       const choice = prompt(`Виберіть користувача для перегляду системи:\n\n${userNames}`, "1");
       const idx = parseInt(choice) - 1;
-      if (appState.users[idx]) {
-        appState.currentUser = appState.users[idx];
+      if (availableUsers[idx]) {
+        appState.currentUser = availableUsers[idx];
         document.getElementById('current-user-name').innerText = appState.currentUser.name;
         const activeAssignments = getActiveAssignments();
         document.getElementById('current-user-role').innerText = activeAssignments.length ? `${appState.currentUser.role} · заміщення: ${activeAssignments[0].temporaryRole}` : appState.currentUser.role;
@@ -5553,10 +5608,14 @@
     }
 
     function populateDropdowns() {
+      const availableDoctors = appState.doctors.filter(doctor => {
+        const user = userForDoctor(doctor);
+        return !user || (user.status !== 'Заблокований' && user.status !== 'Архівний');
+      });
       const docSelects = [document.getElementById('cr-doctor'), document.getElementById('test-doctor')];
       docSelects.forEach(select => {
         if (!select) return;
-        select.innerHTML = appState.doctors.map(d => `<option value="${d.id}">${d.name} (${d.spec}, каб. ${d.room})</option>`).join('');
+        select.innerHTML = availableDoctors.map(d => `<option value="${d.id}">${d.name} (${d.spec}, каб. ${d.room})</option>`).join('');
       });
 
       const filterDoc = document.getElementById('filter-doctor');
@@ -6128,7 +6187,8 @@
       const tbody = document.getElementById('users-table-body');
       if (!tbody) return;
 
-      tbody.innerHTML = appState.users.map(u => {
+      const mayManage = hasPermission('manageStaff', effectiveUser().role === 'Адміністратор');
+      tbody.innerHTML = appState.users.filter(u => u.status !== 'Архівний').map(u => {
         const p = u.permissions || {};
         const badges = [];
         if (p.journal) badges.push(`<span class="px-2 py-0.5 rounded bg-sky-50 text-sky-700 font-bold text-[10px]">Каса</span>`);
@@ -6140,18 +6200,20 @@
 
         return `
           <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 font-bold text-slate-900">${u.name}</td>
-            <td class="p-3 font-mono text-[11px] text-slate-600">${u.login}</td>
-            <td class="p-3 font-semibold text-slate-800">${u.role}</td>
-            <td class="p-3 text-slate-600">${u.facility}</td>
+            <td class="p-3 font-bold text-slate-900">${escapeHtml(u.name)}</td>
+            <td class="p-3 font-mono text-[11px] text-slate-600">${escapeHtml(u.login || 'Не призначено')}</td>
+            <td class="p-3 font-semibold text-slate-800">${escapeHtml(u.role)}</td>
+            <td class="p-3 text-slate-600">${escapeHtml(u.role === 'Лікар' && u.facilityIds?.length ? u.facilityIds.map(id => appState.facilities.find(f => Number(f.id) === Number(id))?.name).filter(Boolean).join(', ') : u.facility || '—')}</td>
             <td class="p-3"><div class="flex flex-wrap gap-1">${badges.join('')}</div></td>
             <td class="p-3 text-center">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${u.status || 'Активний'}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'Заблокований' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">${escapeHtml(u.status || 'Активний')}</span>
             </td>
             <td class="p-3 text-center">
-              <button onclick="editUser(${u.id})" class="p-1 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Редагувати">
+              ${mayManage ? `<button onclick="editUser(${Number(u.id)})" class="p-1 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Редагувати">
                 <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
               </button>
+              <button onclick="toggleUserAccess(${Number(u.id)})" class="px-2 py-1 rounded-lg text-[10px] font-bold ${u.status === 'Заблокований' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">${u.status === 'Заблокований' ? 'Розблокувати' : 'Блокувати'}</button>
+              <button onclick="deleteUser(${Number(u.id)})" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700">Видалити</button>` : '—'}
             </td>
           </tr>
         `;
@@ -6159,6 +6221,60 @@
 
       lucide.createIcons();
       renderAssignments();
+    }
+
+    function userHasHistory(user) {
+      const id = Number(user.id);
+      return [appState.journal, appState.tests, appState.vaccines, appState.patients].some(rows => (rows || []).some(row => Number(row.createdByUserId) === id || Number(row.updatedByUserId) === id))
+        || appState.roleAssignments.some(row => Number(row.userId) === id || Number(row.grantedBy) === id);
+    }
+
+    function doctorHasHistory(doctor) {
+      const id = Number(doctor.id);
+      return appState.journal.some(row => Number(row.doctorId) === id || row.doctor === doctor.name)
+        || appState.tests.some(row => Number(row.doctorId) === id || row.doctor === doctor.name)
+        || appState.doctorSubstitutions.some(row => Number(row.substituteDoctorId) === id || Number(row.replacedDoctorId) === id);
+    }
+
+    function canChangeUserAccess(user) {
+      if (user.isMainAdministrator || Number(user.id) === 1 || Number(user.id) === Number(appState.currentUser?.id)) {
+        showToast('Неможливо змінити власний або головний адміністративний доступ', 'error');
+        return false;
+      }
+      if (user.role === 'Адміністратор' && user.status !== 'Заблокований' && appState.users.filter(item => item.role === 'Адміністратор' && item.status !== 'Заблокований' && item.status !== 'Архівний').length <= 1) {
+        showToast('Потрібно залишити хоча б одного активного адміністратора', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    function toggleUserAccess(id) {
+      if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
+      const user = appState.users.find(item => Number(item.id) === Number(id));
+      if (!user || !canChangeUserAccess(user)) return;
+      const blocking = user.status !== 'Заблокований';
+      if (!confirm(`${blocking ? 'Заблокувати' : 'Відновити'} доступ для «${user.name}»?`)) return;
+      user.status = blocking ? 'Заблокований' : 'Активний';
+      renderUsersTable();
+      populateDropdowns();
+      saveToCloud();
+      showToast(blocking ? 'Доступ заблоковано в CRM' : 'Доступ відновлено в CRM', 'success');
+    }
+
+    function deleteUser(id) {
+      if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
+      const user = appState.users.find(item => Number(item.id) === Number(id));
+      if (!user || !canChangeUserAccess(user)) return;
+      const doctor = appState.doctors.find(item => Number(item.userId) === Number(user.id) || Number(item.id) === Number(user.doctorId));
+      if (userHasHistory(user) || (doctor && doctorHasHistory(doctor))) return showToast('Працівник має пов’язані записи. Замість видалення заблокуйте доступ.', 'error');
+      if (!confirm(`Видалити працівника «${user.name}»${doctor ? ' разом із профілем лікаря' : ''}? Підтвердіть видалення.`)) return;
+      if (doctor) appState.doctors = appState.doctors.filter(item => Number(item.id) !== Number(doctor.id));
+      appState.users = appState.users.filter(item => Number(item.id) !== Number(user.id));
+      renderUsersTable();
+      renderSettingsView();
+      populateDropdowns();
+      saveToCloud();
+      showToast('Працівника видалено', 'success');
     }
 
     function editUser(id) {
@@ -6172,6 +6288,9 @@
       document.getElementById('usr-login').value = u.login;
       document.getElementById('usr-role').value = u.role;
       document.getElementById('usr-facility').value = u.facility;
+      document.getElementById('usr-phone').value = u.phone || '';
+      document.getElementById('usr-birth-date').value = u.birthDate || '';
+      document.getElementById('usr-position').value = u.position || '';
 
       const p = u.permissions || {};
       document.getElementById('perm-journal').checked = !!p.journal;
@@ -6194,9 +6313,7 @@
       populateDropdowns();
       document.getElementById('usr-id').value = '';
       document.getElementById('form-user').reset();
-      document.getElementById('perm-journal').checked = true;
-      document.getElementById('perm-vaccines').checked = true;
-      document.getElementById('perm-tests').checked = true;
+      document.querySelectorAll('#form-user input[type="checkbox"]').forEach(input => { input.checked = false; });
       document.getElementById('modal-usr-title').innerText = 'Новий співробітник';
       openModal('modal-user');
     }
@@ -6205,10 +6322,15 @@
       e.preventDefault();
       if (!hasPermission('manageStaff', effectiveUser().role === 'Адміністратор')) return showToast('У вас немає права керувати персоналом', 'error');
       const id = document.getElementById('usr-id').value;
-      const name = document.getElementById('usr-name').value;
-      const login = document.getElementById('usr-login').value;
+      const name = document.getElementById('usr-name').value.trim();
+      const login = document.getElementById('usr-login').value.trim();
       const role = document.getElementById('usr-role').value;
       const facility = document.getElementById('usr-facility').value;
+      const phone = document.getElementById('usr-phone').value.trim();
+      const birthDate = document.getElementById('usr-birth-date').value.trim();
+      const position = document.getElementById('usr-position').value.trim();
+      if (!name || !login) return showToast('Вкажіть ПІБ та логін працівника', 'error');
+      if (appState.users.some(user => String(user.id) !== String(id) && user.login?.toLowerCase() === login.toLowerCase())) return showToast('Такий логін уже використовується', 'error');
 
       const perms = {
         journal: document.getElementById('perm-journal').checked,
@@ -6226,27 +6348,63 @@
       if (id) {
         const target = appState.users.find(u => u.id == id);
         if (target) {
+          const linkedDoctor = appState.doctors.find(doctor => Number(doctor.userId) === Number(target.id) || Number(doctor.id) === Number(target.doctorId));
+          if (target.role === 'Лікар' && role !== 'Лікар' && linkedDoctor) {
+            if (doctorHasHistory(linkedDoctor)) return showToast('Лікар має пов’язані записи. Спочатку заблокуйте доступ.', 'error');
+            appState.doctors = appState.doctors.filter(doctor => Number(doctor.id) !== Number(linkedDoctor.id));
+            delete target.doctorId;
+          }
           target.name = name;
           target.login = login;
           target.role = role;
           target.facility = facility;
+          target.phone = phone;
+          target.birthDate = birthDate;
+          target.position = position;
           target.permissions = perms;
+          if (role === 'Лікар') {
+            const doctor = linkedDoctor || { id: Date.now(), name, roomIds: [], serviceCodes: [], phones: [], status: 'Активний' };
+            if (!linkedDoctor) appState.doctors.push(doctor);
+            doctor.name = name;
+            doctor.userId = target.id;
+            doctor.phones = phone ? [phone] : [];
+            doctor.birthDate = birthDate;
+            doctor.email = login;
+            doctor.spec = position || doctor.spec || 'Лікар';
+            doctor.specialization = doctor.spec;
+            const facilityId = appState.facilities.find(item => item.name === facility)?.id;
+            doctor.facilityIds = [...new Set([...(doctor.facilityIds || []), ...(facilityId ? [Number(facilityId)] : [])])];
+            target.doctorId = doctor.id;
+            target.facilityIds = doctor.facilityIds;
+          }
         }
       } else {
-        appState.users.push({
+        const target = {
           id: Date.now(),
           name,
           login,
           role,
           facility,
+          phone,
+          birthDate,
+          position,
           status: "Активний",
           permissions: perms
-        });
+        };
+        appState.users.push(target);
+        if (role === 'Лікар') {
+          const doctor = { id: Date.now() + 1, userId: target.id, name, spec: position || 'Лікар', specialization: position || 'Лікар', qualification: '', phones: phone ? [phone] : [], email: login, birthDate, roomIds: [], room: '', facilityIds: appState.facilities.filter(item => item.name === facility).map(item => Number(item.id)), serviceCodes: [], schedule: '', workingDays: '', status: 'Активний' };
+          target.doctorId = doctor.id;
+          target.facilityIds = doctor.facilityIds;
+          appState.doctors.push(doctor);
+        }
       }
 
       closeModal('modal-user');
       showToast("Користувача та доступи збережено!", 'success');
       renderUsersTable();
+      renderSettingsView();
+      populateDropdowns();
       saveToCloud();
     }
 
@@ -6261,8 +6419,9 @@
       }).join('') || '<div class="text-xs text-slate-500">Заміщень не створено.</div>';
     }
     function openAssignmentPrompt() {
-      const userIndex = Number(prompt(`Оберіть працівника:\n${appState.users.map((u, i) => `${i + 1}. ${u.name}`).join('\n')}`, '1')) - 1;
-      const user = appState.users[userIndex]; if (!user) return;
+      const eligibleUsers = appState.users.filter(user => user.status !== 'Заблокований' && user.status !== 'Архівний');
+      const userIndex = Number(prompt(`Оберіть працівника:\n${eligibleUsers.map((u, i) => `${i + 1}. ${u.name}`).join('\n')}`, '1')) - 1;
+      const user = eligibleUsers[userIndex]; if (!user) return;
       const facilityIndex = Number(prompt(`Оберіть підрозділ:\n${appState.facilities.map((f, i) => `${i + 1}. ${f.name}`).join('\n')}`, '1')) - 1;
       const facility = appState.facilities[facilityIndex]; if (!facility) return;
       const temporaryRole = prompt('Тимчасова роль:', 'Адміністратор');
@@ -7026,11 +7185,15 @@
       const hasJournal = appState.journal.some(item => Number(item.doctorId) === doctorId || item.doctor === doctor.name);
       const hasTests = appState.tests.some(item => Number(item.doctorId) === doctorId || item.doctor === doctor.name);
       const hasSubstitutions = appState.doctorSubstitutions.some(item => Number(item.substituteDoctorId) === doctorId || Number(item.replacedDoctorId) === doctorId);
-      if (hasJournal || hasTests || hasSubstitutions) return showToast('Лікаря не можна видалити: він має пов’язані записи або заміщення', 'error');
+      const linkedUser = userForDoctor(doctor);
+      if (linkedUser && (Number(linkedUser.id) === Number(appState.currentUser?.id) || linkedUser.isMainAdministrator)) return showToast('Неможливо видалити власний або головний адміністративний профіль', 'error');
+      if (hasJournal || hasTests || hasSubstitutions || (linkedUser && userHasHistory(linkedUser))) return showToast('Лікаря не можна видалити: він має пов’язані записи або заміщення. Заблокуйте доступ.', 'error');
       if (!confirm(`Підтвердити видалення лікаря «${doctor.name}»? Цю дію неможливо скасувати.`)) return;
       appState.doctors = appState.doctors.filter(item => Number(item.id) !== doctorId);
+      if (linkedUser) appState.users = appState.users.filter(item => Number(item.id) !== Number(linkedUser.id));
       closeModal('modal-doctor');
       renderSettingsView();
+      renderUsersTable();
       populateDropdowns();
       saveToCloud();
       showToast('Лікаря видалено зі штатного розпису', 'success');
@@ -7049,11 +7212,13 @@
       const profile = { id: doctorId, name, spec: document.getElementById('doctor-specialization').value.trim(), specialization: document.getElementById('doctor-specialization').value.trim(), qualification: document.getElementById('doctor-qualification').value.trim(), phones, roomIds, room: roomIds[0] || '', facilityIds: facilityIds.length ? facilityIds : appState.facilities.map(f => Number(f.id)), serviceCodes, schedule: document.getElementById('doctor-schedule').value.trim(), workingDays: document.getElementById('doctor-working-days').value.trim(), status: document.getElementById('doctor-status').value };
       const existing = appState.doctors.find(d => Number(d.id) === doctorId);
       if (existing) Object.assign(existing, profile); else appState.doctors.push(profile);
+      syncDoctorUser(existing || appState.doctors.find(d => Number(d.id) === doctorId));
       appState.doctorSubstitutions = appState.doctorSubstitutions.filter(s => !(Number(s.substituteDoctorId) === doctorId && s.status === 'Активне'));
       const replacedDoctorId = Number(document.getElementById('doctor-replacement-for').value);
       if (replacedDoctorId) appState.doctorSubstitutions.push({ id: Date.now(), substituteDoctorId: doctorId, replacedDoctorId, startDate: document.getElementById('doctor-sub-start').value || isoToday(), endDate: document.getElementById('doctor-sub-end').value || '', status: 'Активне', createdByUserId: appState.currentUser?.id || null });
       closeModal('modal-doctor');
       renderSettingsView();
+      renderUsersTable();
       populateDropdowns();
       showToast(existing ? 'Профіль лікаря оновлено' : 'Лікаря додано до штату', 'success');
       saveToCloud();
@@ -7256,6 +7421,8 @@
       removeFacilityPhoneInput,
       openUserModal,
       editUser,
+      toggleUserAccess,
+      deleteUser,
       openAddPriceModal,
       editPrice,
       deletePrice,
