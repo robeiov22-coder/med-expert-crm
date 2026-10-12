@@ -5232,7 +5232,7 @@
     }
 
     function exportMigrationBackup() {
-      if (!effectiveUser().isMainAdministrator) return showToast('Експорт доступний головному адміністратору', 'error');
+      if (Number(appState.currentUser?.id) !== 1 && !effectiveUser().isMainAdministrator) return showToast('Експорт доступний головному адміністратору', 'error');
       const backup = {
         format: 'med-expert-crm-browser-backup-v1',
         exportedAt: new Date().toISOString(),
