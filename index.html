@@ -5250,6 +5250,14 @@
         doctorSubstitutions: appState.doctorSubstitutions,
         deletedPriceCodes: JSON.parse(localStorage.getItem('med-expert-crm-deleted-price-codes') || '[]')
       };
+      let holder = document.getElementById('migration-backup-payload');
+      if (!holder) {
+        holder = document.createElement('textarea');
+        holder.id = 'migration-backup-payload';
+        holder.hidden = true;
+        document.body.appendChild(holder);
+      }
+      holder.value = JSON.stringify(backup);
       const url = URL.createObjectURL(new Blob([JSON.stringify(backup)], { type: 'application/json' }));
       const link = document.createElement('a');
       link.href = url;
