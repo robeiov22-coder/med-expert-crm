@@ -5308,6 +5308,7 @@
             <td class="p-3 text-right font-black ${item.amount > 0 ? 'text-slate-900' : 'text-slate-400'}">${item.amount} ₴</td>
             <td class="p-3 text-center">
               ${(item.vaccineReservations || []).some(res => res.status === 'Очікує введення') && canManageVaccine('use') ? `<button onclick="confirmVaccinationForCashRecord(${item.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Підтвердити введення</button>` : ''}
+              ${canEditCashRecord(item) ? `<button onclick="editCashRecord(${item.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Редагувати</button>` : ''}
               <button onclick="deleteCashRecord(${item.id})" class="p-1 hover:bg-rose-50 text-rose-500 rounded-lg transition" title="Видалити">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
@@ -6054,6 +6055,36 @@
     }
 
     let cashRecordServices = [];
+    let editingCashRecordId = null;
+
+    function canEditCashRecord(record) {
+      const user = effectiveUser();
+      return (user.isMainAdministrator === true || user.role === 'Адміністратор')
+        && (!record.facilityId || Number(record.facilityId) === activeVaccineFacilityId());
+    }
+
+    function editCashRecord(id) {
+      const record = appState.journal.find(item => Number(item.id) === Number(id));
+      if (!record || !canEditCashRecord(record)) return showToast('Редагування цього запису недоступне', 'error');
+      populateDropdowns();
+      editingCashRecordId = record.id;
+      cashRecordServices = Array.isArray(record.services) && record.services.length
+        ? record.services.map(item => ({ ...item }))
+        : String(record.service || '').split('\n').filter(Boolean).map(name => {
+            const price = appState.prices.find(item => item.name === name);
+            return { name, code: price?.code || '', price: Number(price?.price || 0) };
+          });
+      for (const [field, value] of Object.entries({
+        'cr-date': record.date, 'cr-birth': record.birth, 'cr-name': record.patient,
+        'cr-phone': record.phone, 'cr-has-decl': record.hasDecl,
+        'cr-doctor': record.doctorId, 'cr-payment-type': record.paymentType
+      })) document.getElementById(field).value = value ?? '';
+      renderCashRecordServices();
+      document.getElementById('cr-amount').value = Number(record.amount || 0);
+      document.querySelector('#modal-cash-record h3').textContent = 'Редагувати запис у касі і візитах';
+      document.querySelector('#form-cash-record button[type="submit"]').textContent = 'Зберегти зміни';
+      openModal('modal-cash-record');
+    }
 
     function vaccineAvailable(v) { return vaccineBalance(v) - Number(v.reservedDoses || 0); }
 
@@ -6096,52 +6127,62 @@
 
     function handleSaveCashRecord(e) {
       e.preventDefault();
+      const existing = editingCashRecordId === null ? null : appState.journal.find(item => Number(item.id) === Number(editingCashRecordId));
+      if (editingCashRecordId !== null && (!existing || !canEditCashRecord(existing))) return showToast('Немає права редагувати цей запис', 'error');
       const date = document.getElementById('cr-date').value;
       const birth = document.getElementById('cr-birth').value;
-      const name = document.getElementById('cr-name').value;
+      const name = document.getElementById('cr-name').value.trim();
       const phone = document.getElementById('cr-phone').value;
       const hasDecl = document.getElementById('cr-has-decl').value;
       const doctorId = Number(document.getElementById('cr-doctor').value) || null;
+      if (!cashRecordServices.length) return showToast('Додайте хоча б одну послугу', 'error');
       const service = cashRecordServices.map(item => item.name).join('\n');
-      const reservedVaccines = [];
+      const previous = Array.isArray(existing?.vaccineReservations) ? existing.vaccineReservations : [];
+      const chosen = cashRecordServices.filter(item => item.vaccineBatchId);
+      for (const res of previous.filter(item => item.status === 'Введено')) {
+        if (!chosen.some(item => Number(item.vaccineBatchId) === Number(res.batchId)))
+          return showToast('Не можна прибрати послугу з уже введеною вакциною', 'error');
+      }
+      const keep = [];
+      const added = [];
       const available = availableVaccineBatches();
-      for (const selected of cashRecordServices.filter(item => item.vaccineBatchId)) {
-        const batch = available.find(v => Number(v.id) === Number(selected.vaccineBatchId));
+      for (const selected of chosen) {
+        const retained = previous.find(item => Number(item.batchId) === Number(selected.vaccineBatchId) && !keep.includes(item));
+        if (retained) { keep.push(retained); continue; }
+        const batch = available.find(item => Number(item.id) === Number(selected.vaccineBatchId));
         if (!batch) return showToast(`Вакцина «${selected.vaccineName}» більше не доступна в цьому підрозділі`, 'error');
-        reservedVaccines.push({ batchId: batch.id, name: batch.name, status: 'Очікує введення' });
+        added.push({ batchId: batch.id, name: batch.name, status: 'Очікує введення' });
         available.splice(available.indexOf(batch), 1);
       }
+      const removed = previous.filter(item => !keep.includes(item));
       const paymentType = document.getElementById('cr-payment-type').value;
-      const amount = parseFloat(document.getElementById('cr-amount').value) || 0;
-
-      const newRecord = {
-        id: Date.now(),
-        ...auditFields(),
-        date,
-        birth,
-        patient: name,
-        phone,
-        hasDecl,
-        doctorId,
-        doctor: resolveDoctorName(doctorId),
-        facilityId: activeVaccineFacilityId(),
-        service,
+      const amount = Number(document.getElementById('cr-amount').value);
+      if (!Number.isFinite(amount) || amount < 0) return showToast('Вкажіть коректну суму', 'error');
+      const fields = {
+        date, birth, patient: name, phone, hasDecl, doctorId,
+        doctor: resolveDoctorName(doctorId), service,
         services: cashRecordServices.map(item => ({ ...item })),
-        vaccineReservations: reservedVaccines,
-        paymentType,
-        amount
+        vaccineReservations: [...keep, ...added], paymentType, amount
       };
-
-      reservedVaccines.forEach(item => {
+      removed.forEach(item => {
+        const batch = appState.vaccines.find(v => Number(v.id) === Number(item.batchId));
+        if (batch) batch.reservedDoses = Math.max(0, Number(batch.reservedDoses || 0) - 1);
+      });
+      added.forEach(item => {
         const batch = appState.vaccines.find(v => Number(v.id) === Number(item.batchId));
         batch.reservedDoses = Number(batch.reservedDoses || 0) + 1;
       });
-      appState.journal.unshift(newRecord);
+      if (existing) {
+        Object.assign(existing, fields, { updatedAt: new Date().toISOString(), updatedByUserId: effectiveUser().id });
+      } else {
+        appState.journal.unshift({ id: Date.now(), ...auditFields(), facilityId: activeVaccineFacilityId(), ...fields });
+      }
       closeModal('modal-cash-record');
+      editingCashRecordId = null;
       cashRecordServices = [];
       document.getElementById('form-cash-record').reset();
       renderCashRecordServices();
-      showToast(`Запис для ${name} успішно додано у касу і візити!`, 'success');
+      showToast(existing ? 'Зміни касового запису збережено' : `Запис для ${name} успішно додано у касу і візити!`, 'success');
       renderJournalTable();
       renderVaccinesTable();
       saveToCloud();
@@ -6418,7 +6459,13 @@
     }
 
     function openCashModal() {
+      editingCashRecordId = null;
+      cashRecordServices = [];
+      document.getElementById('form-cash-record').reset();
       populateDropdowns();
+      renderCashRecordServices();
+      document.querySelector('#modal-cash-record h3').textContent = 'Додати запис у касу і візити';
+      document.querySelector('#form-cash-record button[type="submit"]').textContent = 'Зберегти запис';
       openModal('modal-cash-record');
     }
 
@@ -6788,6 +6835,7 @@
       exportCurrentSheetToCsv,
       renderJournalTable,
       deleteCashRecord,
+      editCashRecord,
       confirmVaccinationForCashRecord,
       openAddVaccineBatchModal,
       editVaccineBatch,
