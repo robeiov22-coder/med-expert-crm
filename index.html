@@ -5385,6 +5385,7 @@
               <div class="flex items-center justify-center gap-1.5">
                 ${canUse ? `<button onclick="useVaccineDose(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Ввести (-1)</button><button onclick="wasteVaccineDose(${v.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[11px] font-bold transition" title="Списати за актом">Списати</button>` : '<span class="text-[10px] text-slate-400">Доступно медсестрі</span>'}
                 ${canUse ? `<button onclick="openTransferVaccineModal(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Перемістити</button>` : ''}
+                ${canUse ? `<button onclick="editVaccineBatch(${v.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition">Редагувати</button>` : ''}
                 ${canUse ? pendingRecords.map(record => `<button onclick="confirmVaccinationForCashRecord(${record.id})" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-bold transition" title="${escapeHtml(record.patient)}">Підтвердити введення</button>`).join('') : ''}
               </div>
             </td>
@@ -6269,41 +6270,118 @@
       closeModal('modal-service-picker');
     }
 
+    let editingVaccineBatchId = null;
+
+    function editVaccineBatch(id) {
+      if (!canManageVaccine('receive')) return showToast('Немає права редагувати партії вакцин', 'error');
+      const v = appState.vaccines.find(item => Number(item.id) === Number(id));
+      if (!v || vaccineFacilityId(v) !== activeVaccineFacilityId()) return showToast('Партія недоступна в цьому закладі', 'error');
+      editingVaccineBatchId = v.id;
+      document.getElementById('form-vaccine-batch').reset();
+      document.querySelector('#modal-vaccine-batch h3').textContent = 'Редагувати партію вакцини';
+      document.querySelector('#form-vaccine-batch button[type="submit"]').textContent = 'Зберегти зміни';
+      document.getElementById('vac-name').value = v.name || '';
+      document.getElementById('vac-maker').value = v.maker || '';
+      document.getElementById('vac-lot').value = v.lot || '';
+      document.getElementById('vac-expiry').value = v.expiry || '';
+      document.getElementById('vac-doses').value = Number(v.received || 0);
+      document.getElementById('vac-price').value = v.costPrice ?? v.price ?? '';
+      document.getElementById('vac-retail-price').value = v.retailPrice ?? '';
+      document.getElementById('vac-free').checked = Boolean(v.isFree);
+      const deleteButton = document.getElementById('delete-doctor-button').cloneNode(true);
+      deleteButton.id = 'delete-vaccine-button';
+      deleteButton.removeAttribute('onclick');
+      deleteButton.classList.remove('hidden');
+      deleteButton.textContent = 'Видалити партію';
+      deleteButton.onclick = () => deleteVaccineBatch(v.id);
+      document.getElementById('delete-vaccine-button')?.remove();
+      document.querySelector('#form-vaccine-batch .pt-2.flex.justify-end.gap-2').prepend(deleteButton);
+      openModal('modal-vaccine-batch');
+    }
+
+    function deleteVaccineBatch(id) {
+      if (!canManageVaccine('receive')) return showToast('Немає права видаляти партії вакцин', 'error');
+      const v = appState.vaccines.find(item => Number(item.id) === Number(id));
+      if (!v || vaccineFacilityId(v) !== activeVaccineFacilityId()) return showToast('Партія недоступна в цьому закладі', 'error');
+      const linkedToVisit = appState.journal.some(record => (record.vaccineReservations || []).some(res => Number(res.batchId) === Number(v.id)));
+      const linkedToTransfer = appState.vaccines.some(item => Number(item.transferSourceBatchId) === Number(v.id));
+      if (linkedToVisit || linkedToTransfer || v.transferSourceBatchId || v.transferFromFacilityId || v.transferFromId || Number(v.used || 0) > 0 || Number(v.wasted || 0) > 0 || Number(v.transferredOut || 0) > 0 || Number(v.reservedDoses || 0) > 0) {
+        return showToast('Партію вже використано, зарезервовано або переміщено. Видалення заблоковано; виправте реквізити через редагування.', 'error');
+      }
+      if (!confirm(`Видалити партію «${v.name}», серія ${v.lot}? Цю дію не можна скасувати.`)) return;
+      appState.vaccines = appState.vaccines.filter(item => Number(item.id) !== Number(v.id));
+      editingVaccineBatchId = null;
+      closeModal('modal-vaccine-batch');
+      document.getElementById('delete-vaccine-button')?.remove();
+      renderVaccinesTable();
+      saveToCloud();
+      showToast('Помилкову партію видалено', 'success');
+    }
+
     function handleSaveVaccineBatch(e) {
       e.preventDefault();
-      if (!canManageVaccine('receive')) return showToast('Оприбутковувати партії може адміністратор закладу або медична сестра', 'error');
-      const name = document.getElementById('vac-name').value;
-      const maker = document.getElementById('vac-maker').value;
-      const lot = document.getElementById('vac-lot').value;
+      if (!canManageVaccine('receive')) return showToast('Немає права змінювати партії вакцин', 'error');
+      const name = document.getElementById('vac-name').value.trim();
+      const maker = document.getElementById('vac-maker').value.trim();
+      const lot = document.getElementById('vac-lot').value.trim();
       const expiry = document.getElementById('vac-expiry').value;
-      const doses = parseInt(document.getElementById('vac-doses').value) || 0;
+      const doses = Number(document.getElementById('vac-doses').value);
       const isFree = document.getElementById('vac-free').checked;
-      const price = isFree ? null : parseFloat(document.getElementById('vac-price').value);
-      const retailPrice = isFree ? null : parseFloat(document.getElementById('vac-retail-price').value);
-      if (!isFree && (!Number.isFinite(price) || price < 0 || !Number.isFinite(retailPrice) || retailPrice < 0)) return showToast('Вкажіть закупівельну та роздрібну ціну або позначте «Вакцина безкоштовна»', 'error');
+      const price = isFree ? null : Number(document.getElementById('vac-price').value);
+      const retailPrice = isFree ? null : Number(document.getElementById('vac-retail-price').value);
+      if (!name || !maker || !lot || !expiry || !Number.isSafeInteger(doses) || doses < 1) return showToast('Заповніть дані партії та кількість доз', 'error');
+      if (!isFree && (!document.getElementById('vac-price').value || !document.getElementById('vac-retail-price').value || !Number.isFinite(price) || price < 0 || !Number.isFinite(retailPrice) || retailPrice < 0)) return showToast('Вкажіть закупівельну та роздрібну ціну або позначте «Вакцина безкоштовна»', 'error');
 
-      appState.vaccines.push({
-        id: Date.now(),
-        name,
-        maker,
-        lot,
-        expiry,
-        price,
-        costPrice: price,
-        retailPrice,
-        isFree,
-        startDoses: 0,
-        received: doses,
-        used: 0,
-        wasted: 0,
-        transferredOut: 0,
-        facilityId: activeVaccineFacilityId()
-      });
+      if (editingVaccineBatchId !== null) {
+        const v = appState.vaccines.find(item => Number(item.id) === Number(editingVaccineBatchId));
+        if (!v || vaccineFacilityId(v) !== activeVaccineFacilityId()) return showToast('Партія недоступна в цьому закладі', 'error');
+        const minimumReceived = Number(v.used || 0) + Number(v.wasted || 0) + Number(v.transferredOut || 0) + Number(v.reservedDoses || 0) - Number(v.startDoses || 0);
+        if (doses < minimumReceived) return showToast(`Кількість не може бути меншою за ${minimumReceived}: частину доз уже використано, зарезервовано або переміщено`, 'error');
+        if (v.transferSourceBatchId && doses !== Number(v.received || 0)) return showToast('Кількість переміщеної партії змінюють у вихідному закладі', 'error');
+        Object.assign(v, { name, maker, lot, expiry, price, costPrice: price, retailPrice, isFree, received: doses, updatedAt: new Date().toISOString(), updatedByUserId: effectiveUser().id });
 
+        const affectedIds = new Set([Number(v.id)]);
+        let changed;
+        do {
+          changed = false;
+          appState.vaccines.forEach(child => {
+            if (child.transferSourceBatchId && affectedIds.has(Number(child.transferSourceBatchId)) && !affectedIds.has(Number(child.id))) {
+              Object.assign(child, { name, maker, lot, expiry, updatedAt: v.updatedAt, updatedByUserId: v.updatedByUserId });
+              affectedIds.add(Number(child.id));
+              changed = true;
+            }
+          });
+        } while (changed);
+
+        appState.journal.forEach(record => {
+          let pendingChanged = false;
+          (record.vaccineReservations || []).forEach(res => {
+            if (res.status === 'Очікує введення' && affectedIds.has(Number(res.batchId))) { res.name = name; pendingChanged = true; }
+          });
+          if (pendingChanged && Array.isArray(record.services)) {
+            record.services.forEach(service => {
+              if (affectedIds.has(Number(service.vaccineBatchId))) {
+                service.vaccineName = name;
+                service.name = `Вакцинація вакциною ${name}`;
+              }
+            });
+            record.service = record.services.map(service => service.name).join('\n');
+          }
+        });
+        showToast('Дані партії оновлено', 'success');
+      } else {
+        appState.vaccines.push({
+          id: Date.now(), name, maker, lot, expiry, price, costPrice: price, retailPrice, isFree,
+          startDoses: 0, received: doses, used: 0, wasted: 0, transferredOut: 0,
+          facilityId: activeVaccineFacilityId()
+        });
+        showToast(`Партію ${name} оприбутковано на баланс!`, 'success');
+      }
+      editingVaccineBatchId = null;
       closeModal('modal-vaccine-batch');
       document.getElementById('form-vaccine-batch').reset();
-      showToast(`Партію ${name} оприбутковано на баланс!`, 'success');
       renderVaccinesTable();
+      renderJournalTable();
       saveToCloud();
     }
 
@@ -6346,6 +6424,11 @@
 
     function openAddVaccineBatchModal() {
       if (!canManageVaccine('receive')) return showToast('Оприбутковувати партії може адміністратор закладу або медична сестра', 'error');
+      editingVaccineBatchId = null;
+      document.getElementById('delete-vaccine-button')?.remove();
+      document.getElementById('form-vaccine-batch').reset();
+      document.querySelector('#modal-vaccine-batch h3').textContent = 'Оприбуткувати партію вакцин';
+      document.querySelector('#form-vaccine-batch button[type="submit"]').textContent = 'Оприбуткувати';
       openModal('modal-vaccine-batch');
     }
 
@@ -6707,6 +6790,8 @@
       deleteCashRecord,
       confirmVaccinationForCashRecord,
       openAddVaccineBatchModal,
+      editVaccineBatch,
+      deleteVaccineBatch,
       openTransferVaccineModal,
       useVaccineDose,
       wasteVaccineDose,
