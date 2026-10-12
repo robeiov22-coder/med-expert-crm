@@ -77,6 +77,11 @@
         <i data-lucide="sliders" class="w-4 h-4 text-slate-600"></i>
         <span>Налаштування та Прайс</span>
       </button>
+
+      <button onclick="navigate('patients')" id="nav-btn-patients" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100">
+        <i data-lucide="contact-round" class="w-4 h-4 text-sky-600"></i>
+        <span>Пацієнти</span>
+      </button>
     </nav>
 
     <!-- Current User Info & Role Switcher -->
@@ -467,8 +472,54 @@
         </div>
       </section>
 
+      <!-- Єдина картотека пацієнтів; історія береться з каси та аналізів -->
+      <section id="view-patients" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Пацієнти</h3>
+            <p class="text-xs text-slate-600">Картки, історія звернень та результати аналізів</p>
+          </div>
+          <button id="add-patient-button" onclick="openPatientModal()" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">+ Додати пацієнта</button>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <input id="patient-search" oninput="renderPatientsView()" placeholder="Пошук за ПІБ, телефоном або датою народження..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-sky-500">
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]"><tr><th class="p-3">Пацієнт</th><th class="p-3">Народження</th><th class="p-3">Телефон</th><th class="p-3">Заклад</th><th class="p-3 text-center">Дія</th></tr></thead>
+              <tbody id="patients-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
+
+  <!-- MODAL: PATIENT CARD -->
+  <div id="modal-patient" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 id="patient-modal-title" class="font-extrabold text-slate-900 text-base">Картка пацієнта</h3><button onclick="closeModal('modal-patient')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="form-patient" onsubmit="handleSavePatient(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="patient-id">
+        <div><label class="block font-bold text-slate-700 mb-1">ПІБ пацієнта</label><input id="patient-name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="block font-bold text-slate-700 mb-1">Дата / рік народження</label><input id="patient-birth" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div><div><label class="block font-bold text-slate-700 mb-1">Телефон</label><input id="patient-phone" type="tel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div></div>
+        <div><label class="block font-bold text-slate-700 mb-1">E-mail</label><input id="patient-email" type="email" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div>
+        <div><label class="block font-bold text-slate-700 mb-1">Декларація з закладом?</label><select id="patient-decl" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"><option value="Ні">Ні</option><option value="Так">Так</option></select></div>
+        <div class="pt-2 flex justify-end gap-2"><button type="button" onclick="closeModal('modal-patient')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Скасувати</button><button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-md shadow-sky-200">Зберегти</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PATIENT HISTORY -->
+  <div id="modal-patient-history" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 id="patient-history-title" class="font-extrabold text-slate-900 text-base">Історія пацієнта</h3><button onclick="closeModal('modal-patient-history')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div id="patient-history-content" class="space-y-3 text-xs"></div>
+      <div class="pt-2 flex justify-end"><button type="button" onclick="closeModal('modal-patient-history')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Закрити</button></div>
+    </div>
+  </div>
 
   <!-- MODAL: ADD CASH / VISIT RECORD -->
   <div id="modal-cash-record" class="fixed inset-0 overflow-x-hidden bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
@@ -503,7 +554,9 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1">ПІБ Пацієнта</label>
-          <input type="text" id="cr-name" placeholder="Шевченко Тарас Григорович" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          <input type="hidden" id="cr-patient-id">
+          <input type="text" id="cr-name" placeholder="Почніть вводити ПІБ пацієнта" autocomplete="off" oninput="handlePatientNameInput('cr')" onkeydown="handlePatientSuggestionKey(event, 'cr')" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          <div id="cr-patient-suggestions" class="border border-slate-200 rounded-xl bg-white shadow-md hidden"></div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -827,7 +880,9 @@
       <form id="form-test" onsubmit="handleSaveTest(event)" class="space-y-3 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Пацієнт (ПІБ)</label>
-          <input type="text" id="test-patient" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          <input type="hidden" id="test-patient-id">
+          <input type="text" id="test-patient" autocomplete="off" oninput="handlePatientNameInput('test')" onkeydown="handlePatientSuggestionKey(event, 'test')" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          <div id="test-patient-suggestions" class="border border-slate-200 rounded-xl bg-white shadow-md hidden"></div>
         </div>
         <div>
           <label class="block font-bold text-slate-700 mb-1">E-mail пацієнта</label>
@@ -1003,6 +1058,7 @@
           permissions: { journal: true, vaccines: false, tests: false, stats: true, facilities: false, users: false, editPrices: false }
         }
       ],
+      patients: [],
       roleAssignments: [],
       doctorSubstitutions: [],
       prices: [
@@ -4899,9 +4955,9 @@
       });
       return offlineDbPromise;
     }
-    function offlineSnapshot() { return { journal: appState.journal, vaccines: appState.vaccines, tests: appState.tests, facilities: appState.facilities, users: appState.users, prices: appState.prices, doctors: appState.doctors, currentBranch: appState.currentBranch, updatedAt: new Date().toISOString() }; }
+    function offlineSnapshot() { return { journal: appState.journal, patients: appState.patients, vaccines: appState.vaccines, tests: appState.tests, facilities: appState.facilities, users: appState.users, prices: appState.prices, doctors: appState.doctors, currentBranch: appState.currentBranch, updatedAt: new Date().toISOString() }; }
     async function queueOfflineChange() { try { const db = await openOfflineDb(); db.transaction('pending', 'readwrite').objectStore('pending').add({ payload: offlineSnapshot(), createdAt: Date.now() }); updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); } catch (error) { console.warn('Offline queue error:', error); } }
-    async function flushOfflineQueue() { if (!navigator.onLine) { updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); return; } try { const db = await openOfflineDb(); const store = db.transaction('pending', 'readonly').objectStore('pending'); const pending = await new Promise((resolve, reject) => { const r = store.getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); if (!pending.length) return; if (!isCloudReady) { updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); return; } updateCloudIndicator('Хмара: Синхронізація...', 'amber'); await saveToCloud(true); db.transaction('pending', 'readwrite').objectStore('pending').clear(); updateCloudIndicator('Хмара: Синхронізовано', 'emerald'); } catch (error) { console.warn('Offline sync error:', error); updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); } }
+    async function flushOfflineQueue() { if (!navigator.onLine) { updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); return; } try { const db = await openOfflineDb(); const store = db.transaction('pending', 'readonly').objectStore('pending'); const pending = await new Promise((resolve, reject) => { const r = store.getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); if (!pending.length) return; if (!isCloudReady) { updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); return; } updateCloudIndicator('Хмара: Синхронізація...', 'amber'); if (!await saveToCloud(true)) return; db.transaction('pending', 'readwrite').objectStore('pending').clear(); updateCloudIndicator('Хмара: Синхронізовано', 'emerald'); } catch (error) { console.warn('Offline sync error:', error); updateCloudIndicator('Хмара: Очікує синхронізації', 'amber'); } }
     function initOfflineMode() { window.addEventListener('offline', () => updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber')); window.addEventListener('online', () => { updateCloudIndicator('Хмара: Синхронізація...', 'amber'); flushOfflineQueue(); }); if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=4').catch(error => console.warn('Service Worker:', error)); if (!navigator.onLine) updateCloudIndicator('Хмара: Офлайн · збережено локально', 'amber'); }
 
     function ensureDirectoryStaff() {
@@ -4978,6 +5034,19 @@
       return changed;
     }
 
+    let offlineRecoveryInProgress = false;
+    let localBootstrapped = false;
+    function mergeOfflineRows(remoteRows, localRows) {
+      const merged = new Map((Array.isArray(remoteRows) ? remoteRows : []).map(row => [String(row.id), row]));
+      (Array.isArray(localRows) ? localRows : []).forEach(row => {
+        const prior = merged.get(String(row.id));
+        const localTime = Date.parse(row.updatedAt || row.createdAt || '') || 0;
+        const remoteTime = Date.parse(prior?.updatedAt || prior?.createdAt || '') || 0;
+        if (!prior || localTime > remoteTime) merged.set(String(row.id), row);
+      });
+      return [...merged.values()];
+    }
+
     async function initCloudStorage() {
       /* First check local persistence */
       try {
@@ -4985,6 +5054,7 @@
         if (localData) {
           const parsed = JSON.parse(localData);
           if (parsed.journal) appState.journal = parsed.journal;
+          if (Array.isArray(parsed.patients)) appState.patients = parsed.patients;
           if (parsed.vaccines) appState.vaccines = parsed.vaccines;
           if (parsed.tests) appState.tests = parsed.tests;
           if (removeLegacyEcgTests()) saveToCloud(true);
@@ -4998,13 +5068,15 @@
           if (parsed.roleAssignments) appState.roleAssignments = parsed.roleAssignments;
           if (parsed.doctorSubstitutions) appState.doctorSubstitutions = parsed.doctorSubstitutions;
           if (parsed.currentBranch) appState.currentBranch = parsed.currentBranch;
-          if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+          appState.currentBranch = localStorage.getItem('med_expert_crm_active_branch') || appState.currentBranch;
+          if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
         }
       } catch (e) {
         console.warn("Local storage read exception:", e);
       }
 
-      if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+      if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+      localBootstrapped = true;
 
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
@@ -5036,9 +5108,11 @@
         onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            if (data.journal) appState.journal = data.journal;
+            const recoverOffline = localStorage.getItem('med_expert_crm_pending_sync') === '1';
+            if (data.journal) appState.journal = recoverOffline ? mergeOfflineRows(data.journal, appState.journal) : data.journal;
+            appState.patients = recoverOffline ? mergeOfflineRows(data.patients || [], appState.patients) : (Array.isArray(data.patients) ? data.patients : []);
             if (data.vaccines) appState.vaccines = data.vaccines;
-            if (data.tests) appState.tests = data.tests;
+            if (data.tests) appState.tests = recoverOffline ? mergeOfflineRows(data.tests, appState.tests) : data.tests;
             if (removeLegacyEcgTests()) saveToCloud(true);
             if (purgeExpiredAiComments()) saveToCloud(true);
             if (data.facilities) appState.facilities = data.facilities;
@@ -5049,16 +5123,16 @@
             if (removeDemoDoctors()) saveToCloud(true);
             if (data.roleAssignments) appState.roleAssignments = data.roleAssignments;
             if (data.doctorSubstitutions) appState.doctorSubstitutions = data.doctorSubstitutions;
-            if (removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
-            if (data.currentBranch) {
-              appState.currentBranch = data.currentBranch;
-              const el = document.getElementById('sidebar-branch-name');
-              if (el) el.innerText = appState.currentBranch;
-            }
+            if (reconcilePatientLinks() || removeDemoDoctors() || ensureDirectoryStaff() || ensureDirectoryPrices()) saveToCloud(true);
+            const branchLabel = document.getElementById('sidebar-branch-name');
+            if (branchLabel) branchLabel.innerText = appState.currentBranch;
 
             populateDropdowns();
             renderActiveView();
-            updateCloudIndicator('Хмара: Синхронізовано', 'emerald');
+            if (recoverOffline && navigator.onLine && !offlineRecoveryInProgress) {
+              offlineRecoveryInProgress = true;
+              Promise.resolve(saveToCloud(true)).finally(() => { offlineRecoveryInProgress = false; });
+            } else if (!recoverOffline) updateCloudIndicator('Хмара: Синхронізовано', 'emerald');
           } else {
             saveToCloud(true);
           }
@@ -5093,6 +5167,7 @@
       try {
         localStorage.setItem('med_expert_crm_backup', JSON.stringify({
           journal: appState.journal,
+          patients: appState.patients,
           vaccines: appState.vaccines,
           tests: appState.tests,
           facilities: appState.facilities,
@@ -5103,12 +5178,18 @@
           doctorSubstitutions: appState.doctorSubstitutions,
           currentBranch: appState.currentBranch
         }));
-        if (!navigator.onLine) queueOfflineChange();
+        if (!navigator.onLine) {
+          localStorage.setItem('med_expert_crm_pending_sync', '1');
+          queueOfflineChange();
+        }
       } catch (e) {
         console.warn("LocalStorage save error:", e);
       }
 
-      if (!isCloudReady || !db || !auth || !auth.currentUser) return;
+      if (!isCloudReady || !db || !auth || !auth.currentUser) {
+        if (localBootstrapped) try { localStorage.setItem('med_expert_crm_pending_sync', '1'); } catch (_) {}
+        return false;
+      }
 
       updateCloudIndicator('Хмара: Збереження...', 'amber');
       if (saveTimeout) clearTimeout(saveTimeout);
@@ -5118,6 +5199,7 @@
           const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'clinic_storage', 'main_state');
           await setDoc(docRef, {
             journal: appState.journal,
+            patients: appState.patients,
             vaccines: appState.vaccines,
             tests: appState.tests,
             facilities: appState.facilities,
@@ -5126,22 +5208,266 @@
             doctors: appState.doctors,
             roleAssignments: appState.roleAssignments,
             doctorSubstitutions: appState.doctorSubstitutions,
-            currentBranch: appState.currentBranch,
             updatedAt: new Date().toISOString()
           }, { merge: true });
 
+          try { localStorage.removeItem('med_expert_crm_pending_sync'); } catch (_) {}
           updateCloudIndicator('Хмара: Збережено', 'emerald');
+          return true;
         } catch (error) {
           console.warn("Cloud save note:", error);
+          try { localStorage.setItem('med_expert_crm_pending_sync', '1'); } catch (_) {}
           updateCloudIndicator('Хмара: Збережено локально', 'amber');
+          return false;
         }
       };
 
       if (immediate) {
-        await commitSave();
+        return await commitSave();
       } else {
         saveTimeout = setTimeout(commitSave, 400);
       }
+    }
+
+    function legacyFacilityId(row) {
+      if (row.facilityId) return Number(row.facilityId);
+      const owner = appState.users.find(user => Number(user.id) === Number(row.createdByUserId));
+      return Number(appState.facilities.find(f => f.name === owner?.facility || f.name.includes(owner?.facility || '___'))?.id || appState.facilities[0]?.id);
+    }
+    function patientNameKey(value) { return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('uk'); }
+    function patientPhoneKey(value) { return String(value || '').replace(/\D/g, ''); }
+    function patientBirthKey(value) { return String(value || '').trim().replace(/[^0-9]/g, ''); }
+    function patientId() { return 'pat_' + (globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`); }
+    function patientFacilityIds(patient) { return Array.isArray(patient.facilityIds) ? patient.facilityIds.map(Number) : []; }
+    function patientMayView(patient) {
+      const user = effectiveUser();
+      return user.isMainAdministrator === true || (hasPermission('journal') || hasPermission('tests'))
+        && patientFacilityIds(patient).includes(activeVaccineFacilityId());
+    }
+    function patientMayEdit() { return hasPermission('journal') || effectiveUser().isMainAdministrator === true; }
+    function patientById(id) { return appState.patients.find(item => String(item.id) === String(id)); }
+    function reliablePatientMatch(name, birth, phone) {
+      const sameName = appState.patients.filter(item => patientNameKey(item.fullName) === patientNameKey(name));
+      const phoneKey = patientPhoneKey(phone);
+      const birthKey = patientBirthKey(birth);
+      const matches = sameName.filter(item => {
+        const otherPhone = patientPhoneKey(item.phone);
+        const otherBirth = patientBirthKey(item.birthDate);
+        if (phoneKey && otherPhone && phoneKey === otherPhone && (!birthKey || !otherBirth || birthKey === otherBirth)) return true;
+        return birthKey && otherBirth && birthKey === otherBirth && (!phoneKey || !otherPhone || phoneKey === otherPhone);
+      });
+      return matches.length === 1 ? matches[0] : null;
+    }
+    function addPatientFacility(patient, facilityId) {
+      if (!facilityId) return false;
+      patient.facilityIds = patientFacilityIds(patient);
+      if (patient.facilityIds.includes(Number(facilityId))) return false;
+      patient.facilityIds.push(Number(facilityId));
+      return true;
+    }
+    function createPatientCard(name, birth, phone, email, declaration, facilityId) {
+      const now = new Date().toISOString();
+      const patient = { id: patientId(), fullName: String(name || '').trim(), birthDate: String(birth || '').trim(),
+        phone: String(phone || '').trim(), email: String(email || '').trim(), declaration: declaration || 'Ні',
+        facilityIds: facilityId ? [Number(facilityId)] : [], createdAt: now, updatedAt: now };
+      appState.patients.push(patient);
+      return patient;
+    }
+    // Historical rows keep their original text as a snapshot; patientId is the stable link.
+    function reconcilePatientLinks() {
+      if (!Array.isArray(appState.patients)) appState.patients = [];
+      let changed = false;
+      appState.journal.forEach(row => {
+        if (!row.patient) return;
+        let patient = row.patientId && patientById(row.patientId);
+        if (!patient) {
+          patient = reliablePatientMatch(row.patient, row.birth, row.phone)
+            || createPatientCard(row.patient, row.birth, row.phone, row.email, row.hasDecl, legacyFacilityId(row));
+          row.patientId = patient.id;
+          changed = true;
+        }
+        if (addPatientFacility(patient, legacyFacilityId(row))) changed = true;
+      });
+      appState.tests.forEach(row => {
+        if (!row.patient || (row.patientId && patientById(row.patientId))) return;
+        const candidates = appState.patients.filter(item => patientNameKey(item.fullName) === patientNameKey(row.patient)
+          && (!row.facilityId || patientFacilityIds(item).includes(Number(row.facilityId))));
+        if (candidates.length === 1) {
+          row.patientId = candidates[0].id;
+          if (!row.facilityId && patientFacilityIds(candidates[0]).length === 1) row.facilityId = patientFacilityIds(candidates[0])[0];
+          changed = true;
+        } else if (!candidates.length) {
+          const tokens = patientNameKey(row.patient).split(' ');
+          const possible = appState.patients.some(item => tokens.length >= 2
+            && patientNameKey(item.fullName).startsWith(tokens.slice(0, 2).join(' ')));
+          if (!possible) {
+            const patient = createPatientCard(row.patient, '', '', row.patientEmail, 'Ні', legacyFacilityId(row));
+            row.patientId = patient.id;
+            row.facilityId = legacyFacilityId(row);
+            changed = true;
+          }
+        }
+      });
+      return changed;
+    }
+    function patientSuggestions(scope, query) {
+      const key = patientNameKey(query);
+      const digits = patientPhoneKey(query);
+      if (key.length < 2 && digits.length < 3) return [];
+      return appState.patients.filter(patient => patientMayView(patient)
+        && (patientNameKey(patient.fullName).includes(key) || digits.length >= 3 && patientPhoneKey(patient.phone).includes(digits)))
+        .slice(0, 8);
+    }
+    const patientSuggestionIndex = { cr: 0, test: 0 };
+    function renderPatientSuggestions(scope) {
+      const input = document.getElementById(scope === 'cr' ? 'cr-name' : 'test-patient');
+      const list = document.getElementById(scope + '-patient-suggestions');
+      if (!input || !list) return;
+      const matches = patientSuggestions(scope, input.value);
+      list.innerHTML = matches.map((patient, index) => `<button type="button" data-patient-scope="${scope}" data-patient-select="${escapeHtml(patient.id)}" class="w-full text-left px-3 py-2 hover:bg-slate-50" ${index === patientSuggestionIndex[scope] ? 'aria-current="true"' : ''}><span class="font-bold text-slate-900">${escapeHtml(patient.fullName)}</span><span class="block text-[10px] text-slate-500">${escapeHtml(patient.birthDate || 'Народження не вказано')} · ${escapeHtml(patient.phone || 'Телефон не вказано')}</span></button>`).join('');
+      if (matches.length) list.innerHTML += `<button type="button" data-patient-scope="${scope}" data-patient-select="new" class="w-full text-left px-3 py-2 hover:bg-slate-50">+ Створити нового пацієнта з введеним ПІБ</button>`;
+      list.classList.toggle('hidden', !matches.length);
+    }
+    function handlePatientNameInput(scope) {
+      const idInput = document.getElementById(scope === 'cr' ? 'cr-patient-id' : 'test-patient-id');
+      const nameInput = document.getElementById(scope === 'cr' ? 'cr-name' : 'test-patient');
+      if (idInput.value !== 'new' && patientNameKey(patientById(idInput.value)?.fullName) !== patientNameKey(nameInput.value)) idInput.value = '';
+      patientSuggestionIndex[scope] = 0;
+      renderPatientSuggestions(scope);
+    }
+    function selectPatientForForm(scope, id) {
+      const idInput = document.getElementById(scope === 'cr' ? 'cr-patient-id' : 'test-patient-id');
+      const nameInput = document.getElementById(scope === 'cr' ? 'cr-name' : 'test-patient');
+      const list = document.getElementById(scope + '-patient-suggestions');
+      if (id === 'new') {
+        idInput.value = 'new';
+      } else {
+        const patient = patientById(id);
+        if (!patient || !patientMayView(patient)) return;
+        idInput.value = patient.id;
+        nameInput.value = patient.fullName;
+        if (scope === 'cr') {
+          document.getElementById('cr-birth').value = patient.birthDate || '';
+          document.getElementById('cr-phone').value = patient.phone || '';
+          document.getElementById('cr-has-decl').value = patient.declaration || 'Ні';
+        } else document.getElementById('test-patient-email').value = patient.email || '';
+      }
+      list.classList.add('hidden');
+    }
+    function handlePatientSuggestionKey(event, scope) {
+      const matches = patientSuggestions(scope, event.target.value);
+      if (!matches.length) return;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        patientSuggestionIndex[scope] = (patientSuggestionIndex[scope] + (event.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length;
+        renderPatientSuggestions(scope);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        selectPatientForForm(scope, matches[patientSuggestionIndex[scope]].id);
+      } else if (event.key === 'Escape') document.getElementById(scope + '-patient-suggestions').classList.add('hidden');
+    }
+    function resolvePatientForEntry(scope, name, birth, phone, email, declaration) {
+      const idInput = document.getElementById(scope === 'cr' ? 'cr-patient-id' : 'test-patient-id');
+      const chosen = patientById(idInput?.value);
+      if (chosen && patientMayView(chosen) && patientNameKey(chosen.fullName) === patientNameKey(name)) {
+        addPatientFacility(chosen, activeVaccineFacilityId());
+        return chosen;
+      }
+      if (idInput?.value !== 'new') {
+        const matched = reliablePatientMatch(name, birth, phone);
+        if (matched) { addPatientFacility(matched, activeVaccineFacilityId()); return matched; }
+        if (appState.patients.some(item => patientMayView(item) && patientNameKey(item.fullName) === patientNameKey(name))) {
+          showToast('Оберіть пацієнта зі списку або натисніть «Створити нового»', 'error');
+          return null;
+        }
+      }
+      return createPatientCard(name, birth, phone, email, declaration, activeVaccineFacilityId());
+    }
+    function renderPatientsView() {
+      if (!(hasPermission('journal') || hasPermission('tests'))) return;
+      const tbody = document.getElementById('patients-table-body');
+      if (!tbody) return;
+      const query = (document.getElementById('patient-search')?.value || '').trim().toLocaleLowerCase('uk');
+      const list = appState.patients.filter(patient => patientMayView(patient) && (!query
+        || `${patient.fullName} ${patient.birthDate || ''} ${patient.phone || ''}`.toLocaleLowerCase('uk').includes(query)
+        || patientPhoneKey(query).length >= 3 && patientPhoneKey(patient.phone).includes(patientPhoneKey(query))))
+        .sort((a, b) => String(a.fullName).localeCompare(String(b.fullName), 'uk'));
+      const addButton = document.getElementById('add-patient-button');
+      if (addButton) addButton.classList.toggle('hidden', !patientMayEdit());
+      tbody.innerHTML = list.length ? list.map(patient => {
+        const facilityNames = patientFacilityIds(patient).map(id => appState.facilities.find(item => Number(item.id) === id)?.name).filter(Boolean).join(', ');
+        return `<tr class="hover:bg-slate-50 transition"><td class="p-3 font-bold text-slate-900">${escapeHtml(patient.fullName)}</td><td class="p-3 text-slate-600">${escapeHtml(patient.birthDate || '—')}</td><td class="p-3 text-slate-600">${escapeHtml(patient.phone || '—')}</td><td class="p-3 text-slate-600">${escapeHtml(facilityNames || '—')}</td><td class="p-3 text-center"><button onclick="openPatientHistory('${escapeHtml(patient.id)}')" class="text-xs font-bold text-sky-600 hover:text-sky-800">Історія</button> ${patientMayEdit() ? `<button onclick="openPatientModal('${escapeHtml(patient.id)}')" class="text-xs font-bold text-sky-600 hover:text-sky-800">Редагувати</button>` : ''}</td></tr>`;
+      }).join('') : '<tr><td colspan="5" class="p-4 text-center text-slate-400">Пацієнтів за запитом не знайдено</td></tr>';
+    }
+    function openPatientModal(id = '') {
+      if (!patientMayEdit()) return showToast('Немає права змінювати картки пацієнтів', 'error');
+      const patient = id ? patientById(id) : null;
+      if (id && (!patient || !patientMayView(patient))) return showToast('Картка недоступна', 'error');
+      document.getElementById('form-patient').reset();
+      document.getElementById('patient-id').value = patient?.id || '';
+      document.getElementById('patient-name').value = patient?.fullName || '';
+      document.getElementById('patient-birth').value = patient?.birthDate || '';
+      document.getElementById('patient-phone').value = patient?.phone || '';
+      document.getElementById('patient-email').value = patient?.email || '';
+      document.getElementById('patient-decl').value = patient?.declaration || 'Ні';
+      document.getElementById('patient-modal-title').textContent = patient ? 'Редагувати картку пацієнта' : 'Додати пацієнта';
+      openModal('modal-patient');
+    }
+    function handleSavePatient(event) {
+      event.preventDefault();
+      if (!patientMayEdit()) return showToast('Немає права змінювати картки пацієнтів', 'error');
+      const id = document.getElementById('patient-id').value;
+      const existing = id ? patientById(id) : null;
+      if (id && (!existing || !patientMayView(existing))) return showToast('Картка недоступна', 'error');
+      const name = document.getElementById('patient-name').value.trim();
+      const birth = document.getElementById('patient-birth').value.trim();
+      const phone = document.getElementById('patient-phone').value.trim();
+      const email = document.getElementById('patient-email').value.trim();
+      const declaration = document.getElementById('patient-decl').value;
+      if (!name) return showToast('Вкажіть ПІБ пацієнта', 'error');
+      const duplicate = reliablePatientMatch(name, birth, phone);
+      if (duplicate && duplicate.id !== existing?.id) return showToast('Пацієнт із такими даними вже існує', 'error');
+      if (existing) Object.assign(existing, { fullName: name, birthDate: birth, phone, email, declaration, updatedAt: new Date().toISOString() });
+      else createPatientCard(name, birth, phone, email, declaration, activeVaccineFacilityId());
+      closeModal('modal-patient');
+      renderPatientsView();
+      saveToCloud();
+      showToast('Картку пацієнта збережено', 'success');
+    }
+    function linkTestToPatient(testId, patientIdValue) {
+      const patient = patientById(patientIdValue);
+      const test = appState.tests.find(row => Number(row.id) === Number(testId));
+      if (!patient || !patientMayView(patient) || !patientMayEdit() || !hasPermission('tests') || !test || test.patientId) return;
+      if (!confirm(`Підтвердити, що аналіз «${test.testName || 'Аналіз'}» належить пацієнту «${patient.fullName}»?`)) return;
+      test.patientId = patient.id;
+      test.facilityId = test.facilityId || activeVaccineFacilityId();
+      saveToCloud();
+      openPatientHistory(patient.id);
+      showToast('Аналіз прив’язано до картки', 'success');
+    }
+    function openPatientHistory(id) {
+      const patient = patientById(id);
+      if (!patient || !patientMayView(patient)) return showToast('Картка недоступна', 'error');
+      const facilityId = activeVaccineFacilityId();
+      const all = effectiveUser().isMainAdministrator === true;
+      const visits = hasPermission('journal') ? appState.journal.filter(row => String(row.patientId) === String(id) && (all || !row.facilityId || Number(row.facilityId) === facilityId)) : [];
+      const tests = hasPermission('tests') ? appState.tests.filter(row => String(row.patientId) === String(id) && (all || !row.facilityId || Number(row.facilityId) === facilityId)) : [];
+      const vaccinations = visits.flatMap(row => (row.vaccineReservations || []).map(vaccine => ({ date: row.date, name: vaccine.name, status: vaccine.status })));
+      const nameParts = patientNameKey(patient.fullName).split(' ');
+      const unresolved = hasPermission('tests') && patientMayEdit() && nameParts.length >= 2
+        ? appState.tests.filter(row => !row.patientId && (!row.facilityId || all || Number(row.facilityId) === facilityId)
+          && patientNameKey(row.patient).startsWith(nameParts.slice(0, 2).join(' '))).slice(0, 12) : [];
+      const content = document.getElementById('patient-history-content');
+      document.getElementById('patient-history-title').textContent = patient.fullName;
+      content.innerHTML = `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">${escapeHtml(patient.birthDate || 'Народження не вказано')} · ${escapeHtml(patient.phone || 'Телефон не вказано')} · ${escapeHtml(patient.email || 'E-mail не вказано')}</div>
+        <h4 class="font-bold text-slate-900 text-sm">Візити та послуги</h4>
+        ${visits.length ? visits.sort((a,b) => String(b.date).localeCompare(String(a.date))).map(row => `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="font-bold">${escapeHtml(row.date)} · ${escapeHtml(resolveDoctorName(row.doctorId, row.doctor))}</div><div class="whitespace-pre-wrap">${escapeHtml(row.service || '—')}</div><div class="text-slate-500">${escapeHtml(appState.facilities.find(f => Number(f.id) === Number(row.facilityId))?.name || 'Заклад не вказано')} · ${Number(row.amount || 0)} ₴</div></div>`).join('') : '<p class="text-slate-500">Візитів поки немає</p>'}
+        <h4 class="font-bold text-slate-900 text-sm">Вакцинації</h4>
+        ${vaccinations.length ? vaccinations.map(item => `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">${escapeHtml(item.date)} · ${escapeHtml(item.name)} · ${escapeHtml(item.status)}</div>`).join('') : '<p class="text-slate-500">Вакцинацій поки немає</p>'}
+        <h4 class="font-bold text-slate-900 text-sm">Результати аналізів</h4>
+        ${tests.length ? tests.sort((a,b) => String(b.date).localeCompare(String(a.date))).map(row => `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="font-bold">${escapeHtml(row.date)} · ${escapeHtml(row.testName || 'Аналіз')}</div><div class="text-slate-600">${escapeHtml(row.status || '—')} · ${escapeHtml(resolveDoctorName(row.doctorId, row.doctor))}</div><button onclick="closeModal('modal-patient-history'); openTestDetailsModal(${Number(row.id)})" class="text-xs font-bold text-sky-600 hover:text-sky-800">Переглянути результат</button></div>`).join('') : '<p class="text-slate-500">Прив’язаних результатів поки немає</p>'}
+        ${unresolved.length ? `<h4 class="font-bold text-slate-900 text-sm">Можливі старі аналізи без прив’язки</h4>${unresolved.map(row => `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">${escapeHtml(row.patient)} · ${escapeHtml(row.date)} · ${escapeHtml(row.testName || 'Аналіз')}<button onclick="linkTestToPatient(${Number(row.id)}, '${escapeHtml(patient.id)}')" class="text-xs font-bold text-sky-600 hover:text-sky-800">Прив’язати після перевірки</button></div>`).join('')}` : ''}`;
+      openModal('modal-patient-history');
     }
 
     function renderActiveView() {
@@ -5152,6 +5478,7 @@
       if (appState.currentView === 'facilities') renderFacilitiesView();
       if (appState.currentView === 'access') renderUsersTable();
       if (appState.currentView === 'settings') renderSettingsView();
+      if (appState.currentView === 'patients') renderPatientsView();
     }
 
     function navigate(viewName) {
@@ -5162,9 +5489,10 @@
       if (viewName === 'stats' && !allowed.stats) return showToast("Немає доступу до Статистики", "error");
       if (viewName === 'facilities' && !allowed.facilities) return showToast("Немає доступу до Реквізитів", "error");
       if (viewName === 'access' && !allowed.users) return showToast("Немає доступу до Користувачів", "error");
+      if (viewName === 'patients' && !(allowed.journal || allowed.tests || effectiveUser().isMainAdministrator)) return showToast('Немає доступу до Пацієнтів', 'error');
 
       appState.currentView = viewName;
-      const views = ['journal', 'vaccines', 'tests', 'stats', 'facilities', 'access', 'settings'];
+      const views = ['journal', 'vaccines', 'tests', 'stats', 'facilities', 'access', 'settings', 'patients'];
 
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
@@ -5186,7 +5514,8 @@
         stats: 'Зведена статистика та звіти',
         facilities: 'Заклади та Філії поліклініки',
         access: 'Користувачі та Права доступу',
-        settings: 'Налаштування та Прейскурант'
+        settings: 'Налаштування та Прейскурант',
+        patients: 'Пацієнти'
       };
       const titleEl = document.getElementById('view-title');
       if (titleEl) {
@@ -5531,7 +5860,7 @@
     function openTestDetailsModal(testId) {
       const test = appState.tests.find(item => Number(item.id) === Number(testId));
       if (!test) return;
-      const cardEmail = appState.journal.find(item => item.patient === test.patient && item.email)?.email || '';
+      const cardEmail = patientById(test.patientId)?.email || appState.journal.find(item => item.patient === test.patient && item.email)?.email || '';
       document.getElementById('test-details-title').textContent = `${test.testName} — ${test.patient}`;
       document.getElementById('test-details-content').innerHTML = `<div class="grid grid-cols-2 gap-2"><div><span class="font-bold text-slate-500">Пацієнт:</span> ${escapeHtml(test.patient)}</div><div><span class="font-bold text-slate-500">Дата:</span> ${escapeHtml(test.date)}</div><div><span class="font-bold text-slate-500">Контрагент:</span> ${escapeHtml(test.provider || '—')}</div><div><span class="font-bold text-slate-500">Пакет:</span> ${escapeHtml(test.batchId || '—')}</div></div><div><label class="block font-bold text-slate-700 mb-1">E-mail пацієнта</label><input type="email" id="test-details-email-input" value="${escapeHtml(test.patientEmail || cardEmail)}" placeholder="Введіть e-mail пацієнта" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></div><div><h4 class="font-bold text-slate-700 mb-1">Результат</h4><div class="p-3 bg-slate-50 border border-slate-200 rounded-xl whitespace-pre-wrap font-mono">${escapeHtml(test.result)}</div></div><div><h4 class="font-bold text-slate-700 mb-1">Висновок ШІ</h4><div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl whitespace-pre-wrap">${escapeHtml(test.aiComment || 'Коментар ще не сформовано')}</div></div>`;
       document.getElementById('test-details-print-result').onclick = () => printTestResult(test.id, 'result');
@@ -5667,9 +5996,10 @@
       const el = document.getElementById('sidebar-branch-name');
       if (el) el.innerText = appState.currentBranch;
       showToast(`Переключено на: ${appState.currentBranch}`, 'success');
+      try { localStorage.setItem('med_expert_crm_active_branch', appState.currentBranch); } catch (e) { console.warn('Branch preference save:', e); }
       renderFacilitiesView();
       renderVaccinesTable();
-      saveToCloud();
+      renderActiveView();
     }
 
     function addFacilityPhoneInput(phoneValue = '') {
@@ -6081,6 +6411,8 @@
       })) document.getElementById(field).value = value ?? '';
       renderCashRecordServices();
       document.getElementById('cr-amount').value = Number(record.amount || 0);
+      document.getElementById('cr-patient-id').value = record.patientId || '';
+      document.getElementById('cr-patient-suggestions').classList.add('hidden');
       document.querySelector('#modal-cash-record h3').textContent = 'Редагувати запис у касі і візитах';
       document.querySelector('#form-cash-record button[type="submit"]').textContent = 'Зберегти зміни';
       openModal('modal-cash-record');
@@ -6158,8 +6490,10 @@
       const paymentType = document.getElementById('cr-payment-type').value;
       const amount = Number(document.getElementById('cr-amount').value);
       if (!Number.isFinite(amount) || amount < 0) return showToast('Вкажіть коректну суму', 'error');
+      const patientCard = resolvePatientForEntry('cr', name, birth, phone, '', hasDecl);
+      if (!patientCard) return;
       const fields = {
-        date, birth, patient: name, phone, hasDecl, doctorId,
+        date, birth, patient: name, patientId: patientCard.id, phone, hasDecl, doctorId,
         doctor: resolveDoctorName(doctorId), service,
         services: cashRecordServices.map(item => ({ ...item })),
         vaccineReservations: [...keep, ...added], paymentType, amount
@@ -6181,6 +6515,7 @@
       editingCashRecordId = null;
       cashRecordServices = [];
       document.getElementById('form-cash-record').reset();
+      document.getElementById('cr-patient-suggestions').classList.add('hidden');
       renderCashRecordServices();
       showToast(existing ? 'Зміни касового запису збережено' : `Запис для ${name} успішно додано у касу і візити!`, 'success');
       renderJournalTable();
@@ -6436,11 +6771,15 @@
       const doctorId = Number(document.getElementById('test-doctor').value) || null;
       const result = document.getElementById('test-result').value || 'В роботі';
 
+      const patientCard = resolvePatientForEntry('test', patient, '', '', patientEmail, 'Ні');
+      if (!patientCard) return;
       appState.tests.unshift({
         id: Date.now(),
         ...auditFields(),
         date: new Date().toISOString().split('T')[0],
         patient,
+        patientId: patientCard.id,
+        facilityId: activeVaccineFacilityId(),
         patientEmail,
         testName,
         provider,
@@ -6453,6 +6792,7 @@
 
       closeModal('modal-test');
       document.getElementById('form-test').reset();
+      document.getElementById('test-patient-suggestions').classList.add('hidden');
       showToast(`Аналіз для ${patient} зареєстровано!`, 'success');
       renderTestsTable();
       saveToCloud();
@@ -6462,6 +6802,7 @@
       editingCashRecordId = null;
       cashRecordServices = [];
       document.getElementById('form-cash-record').reset();
+      document.getElementById('cr-patient-suggestions').classList.add('hidden');
       populateDropdowns();
       renderCashRecordServices();
       document.querySelector('#modal-cash-record h3').textContent = 'Додати запис у касу і візити';
@@ -6481,6 +6822,8 @@
 
     function openAddTestModal() {
       populateDropdowns();
+      document.getElementById('form-test').reset();
+      document.getElementById('test-patient-suggestions').classList.add('hidden');
       openModal('modal-test');
     }
 
@@ -6836,6 +7179,13 @@
       renderJournalTable,
       deleteCashRecord,
       editCashRecord,
+      openPatientModal,
+      openPatientHistory,
+      linkTestToPatient,
+      renderPatientsView,
+      handleSavePatient,
+      handlePatientNameInput,
+      handlePatientSuggestionKey,
       confirmVaccinationForCashRecord,
       openAddVaccineBatchModal,
       editVaccineBatch,
@@ -6896,6 +7246,10 @@
         if (vaccineButton) chooseVaccineFromPicker(vaccineButton.dataset.vaccineId);
       });
       document.getElementById('cr-payment-type')?.addEventListener('change', renderCashRecordServices);
+      document.addEventListener('click', event => {
+        const button = event.target.closest?.('button[data-patient-select]');
+        if (button) selectPatientForForm(button.dataset.patientScope, button.dataset.patientSelect);
+      });
       document.getElementById('cash-services-list')?.addEventListener('click', event => {
         const button = event.target.closest('button[data-remove-service-index]');
         if (button) removeCashRecordService(Number(button.dataset.removeServiceIndex));
