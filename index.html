@@ -381,10 +381,13 @@
             <p class="text-xs text-slate-600">Налаштування ролей персоналу: адміністратори, лікарі, медсестри, касири</p>
             <p class="text-xs text-slate-600">До підключення серверного входу блокування діє лише в цьому браузері.</p>
           </div>
-          <button onclick="openUserModal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-rose-200 transition">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>+ Додати співробітника</span>
-          </button>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportMigrationBackup()" class="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Зберегти резервну копію</button>
+            <button onclick="openUserModal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-rose-200 transition">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>+ Додати співробітника</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
@@ -5228,6 +5231,34 @@
       el.className = `flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${styles[color] || styles.emerald}`;
     }
 
+    function exportMigrationBackup() {
+      if (!effectiveUser().isMainAdministrator) return showToast('Експорт доступний головному адміністратору', 'error');
+      const backup = {
+        format: 'med-expert-crm-browser-backup-v1',
+        exportedAt: new Date().toISOString(),
+        source: location.origin,
+        currentBranch: appState.currentBranch,
+        journal: appState.journal,
+        patients: appState.patients,
+        vaccines: appState.vaccines,
+        tests: appState.tests,
+        facilities: appState.facilities,
+        users: appState.users,
+        prices: appState.prices,
+        doctors: appState.doctors,
+        roleAssignments: appState.roleAssignments,
+        doctorSubstitutions: appState.doctorSubstitutions,
+        deletedPriceCodes: JSON.parse(localStorage.getItem('med-expert-crm-deleted-price-codes') || '[]')
+      };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup)], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `med-expert-crm-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      showToast('Резервну копію збережено на цьому комп’ютері', 'success');
+    }
+
     async function saveToCloud(immediate = false) {
       /* Always mirror into localStorage first for 100% offline safety */
       try {
@@ -7421,6 +7452,7 @@
       removeFacilityPhoneInput,
       openUserModal,
       editUser,
+      exportMigrationBackup,
       toggleUserAccess,
       deleteUser,
       openAddPriceModal,
