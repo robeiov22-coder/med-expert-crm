@@ -244,6 +244,7 @@
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
             <span>+ Оприбуткувати партію</span>
           </button>
+          <button id="delete-seeded-vaccines" onclick="deleteConfirmedSeededVaccines()" class="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Прибрати 4 тестові партії</button>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
@@ -6940,6 +6941,30 @@
       showToast('Помилкову партію видалено', 'success');
     }
 
+    function deleteConfirmedSeededVaccines() {
+      if (Number(appState.currentUser?.id) !== 1 && !effectiveUser().isMainAdministrator) return showToast('Доступно лише головному адміністратору', 'error');
+      const expected = new Map([
+        [1, ['КПК (Пріорикс)', 'LOT-99824']],
+        [2, ['АКДП (Інфанрікс)', 'LOT-44102']],
+        [3, ['Гепатит В (Енджерикс-B)', 'LOT-88123']],
+        [4, ['АДП-м (Дифтерія/Правець)', 'LOT-10291']]
+      ]);
+      const matches = appState.vaccines.filter(v => {
+        const exact = expected.get(Number(v.id));
+        return exact && v.name === exact[0] && v.lot === exact[1] && !v.facilityId;
+      });
+      if (matches.length !== 4) return showToast('Склад тестових партій змінився; нічого не видалено', 'error');
+      const ids = new Set(matches.map(v => Number(v.id)));
+      const linked = appState.journal.some(row => (row.vaccineReservations || []).some(res => ids.has(Number(res.batchId))))
+        || appState.vaccines.some(v => v.transferSourceBatchId && ids.has(Number(v.transferSourceBatchId)));
+      if (linked) return showToast('Є пов’язані записи; видалення заблоковано', 'error');
+      if (!confirm('Видалити 4 підтверджені тестові партії вакцин? Цю дію не можна скасувати.')) return;
+      appState.vaccines = appState.vaccines.filter(v => !ids.has(Number(v.id)));
+      renderVaccinesTable();
+      saveToCloud(true);
+      showToast('Чотири тестові партії видалено', 'success');
+    }
+
     function handleSaveVaccineBatch(e) {
       e.preventDefault();
       if (!canManageVaccine('receive')) return showToast('Немає права змінювати партії вакцин', 'error');
@@ -7442,6 +7467,7 @@
       openAddVaccineBatchModal,
       editVaccineBatch,
       deleteVaccineBatch,
+      deleteConfirmedSeededVaccines,
       openTransferVaccineModal,
       useVaccineDose,
       wasteVaccineDose,
