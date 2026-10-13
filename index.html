@@ -6958,7 +6958,6 @@
       const linked = appState.journal.some(row => (row.vaccineReservations || []).some(res => ids.has(Number(res.batchId))))
         || appState.vaccines.some(v => v.transferSourceBatchId && ids.has(Number(v.transferSourceBatchId)));
       if (linked) return showToast('Є пов’язані записи; видалення заблоковано', 'error');
-      if (!confirm('Видалити 4 підтверджені тестові партії вакцин? Цю дію не можна скасувати.')) return;
       appState.vaccines = appState.vaccines.filter(v => !ids.has(Number(v.id)));
       renderVaccinesTable();
       saveToCloud(true);
